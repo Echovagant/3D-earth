@@ -1,0 +1,23 @@
+卷 Windows-SSD 的文件夹 PATH 列表
+卷序列号为 7890-FEE0
+C:.
+│  App.vue
+│  directory_structure.txt
+│  main.js
+│  
+├─components
+│      EarthScene.vue
+│      ProvincePage.vue
+│      
+├─router
+│      index.js
+│      
+├─stores
+│      counter.js
+│      
+├─utils
+│      geoDataProcessor.js
+│      
+└─__tests__
+        App.spec.js
+        
