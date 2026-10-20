@@ -1,5 +1,8 @@
 <template>
-  <div ref="container" class="earth-container"></div>
+  <div ref="container" class="earth-container">
+    <div v-if="hoveredName" class="province-tip">{{ hoveredName }}</div>
+    <ProvinceLegend v-if="legendItems.length" :items="legendItems" />
+  </div>
 </template>
 
 <script setup>
@@ -8,9 +11,16 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { useRouter } from 'vue-router'
 import { createProvinceMeshFromFeature, lonLatToCartesian } from '../utils/geoDataProcessor'
+import { getProvinceColor, toHexString } from '../utils/provinceColors'
+import ProvinceLegend from './ProvinceLegend.vue'
 
 const container = ref(null)
 const router = useRouter()
+
+// 悬停中的省名（显示在底部提示条里）
+const hoveredName = ref('')
+// 图例数据
+const legendItems = ref([])
 
 // 组件级状态：原先星空相关状态被挂到了 window 上，既污染全局又无法随组件释放
 let scene, camera, renderer, earth, controls, animationId
@@ -20,12 +30,19 @@ let starGeometry = null
 let starSizes = null
 let twinkleStars = null
 let removePointerListeners = null
+// 地球是否自动自转。点击省份聚焦时暂停，避免目标在飞行途中飘走
+let autoRotate = true
+// 相机飞行插值状态
+let flight = null
+// adcode → GeoJSON feature，用于取中心点
+const provinceFeatures = new Map()
 
 onMounted(() => {
   initThree()
   initEarth()
   initControls()
   initProvinces() // 初始化中国省份地图
+  initCountryBorder() // 中国整体边界与国界
   initRaycaster()
   window.addEventListener('resize', onResize)
   animate()
@@ -227,45 +244,81 @@ const initProvinces = async () => {
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
     const geoJson = await response.json()
 
+    geoJson.features.forEach((feature) => {
+      provinceFeatures.set(String(feature.properties.adcode), feature)
+    })
+
     // 将GeoJSON数据转换为3D对象并添加到地球
     provinceGroup = createProvincesFromGeoJson(geoJson)
     earth.add(provinceGroup)
+
+    // 图例：九段线不是省级行政区，不进图例
+    legendItems.value = geoJson.features
+      .filter((feature) => String(feature.properties.adcode) !== '100000_JD')
+      .map((feature) => ({
+        adcode: String(feature.properties.adcode),
+        name: feature.properties.name,
+        color: toHexString(getProvinceColor(feature.properties.adcode)),
+      }))
   } catch (error) {
     console.error('加载省份数据失败:', error)
+  }
+}
+
+// 加载中国整体边界：一份淡色底板 + 白色国界，让国界与省界的层级更清楚。
+// china.json 本身是 MultiPolygon，能正确三角化的前提是顶点表按 polygon 重建。
+const initCountryBorder = async () => {
+  try {
+    const response = await fetch('/geojson/china.json')
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const geoJson = await response.json()
+    const feature = geoJson.features[0]
+    if (!feature) return
+
+    const mesh = createProvinceMeshFromFeature(feature, {
+      radius: 2,
+      elevation: 0.006,
+      materialOptions: {
+        color: 0x9fb6d9,
+        transparent: true,
+        opacity: 0.3,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      },
+      lineColor: 0xdce8ff,
+    })
+    if (mesh) {
+      mesh.userData = { ...mesh.userData, isCountry: true }
+      earth.add(mesh)
+    }
+  } catch (error) {
+    console.error('加载国界数据失败:', error)
   }
 }
 
 const createProvincesFromGeoJson = (geoJson) => {
   const group = new THREE.Group()
 
-  // 定义省份颜色数组，让每个省份有不同颜色
-  const provinceColors = [
-    0xff6b6b, 0x4ecdc4, 0x45b7d1, 0x96ceb4, 0xfeca57, 0xff9ff3, 0x54a0ff, 0x5f27cd, 0x00d2d3,
-    0xff9f43, 0x10ac84, 0xee5a24, 0xa3cb38, 0xc44569, 0xd980fa,
-  ]
-
-  geoJson.features.forEach((feature, index) => {
+  geoJson.features.forEach((feature) => {
     const { name, adcode } = feature.properties
-    const colorIndex = index % provinceColors.length
 
     // 使用工具函数将 GeoJSON 转为贴合球面的 BufferGeometry Mesh
     const mesh = createProvinceMeshFromFeature(feature, {
       radius: 2,
       elevation: 0.02,
       materialOptions: {
-        color: provinceColors[colorIndex],
+        color: getProvinceColor(adcode),
         transparent: true,
         opacity: 0.7, // 降低透明度让轮廓更明显
         shininess: 30,
       },
-      lineColor: 0xffffff, // 白色轮廓
-      lineWidth: 2,
+      lineColor: 0xffffff, // 白色省界
     })
     if (mesh) {
       // ensure province metadata is present
       mesh.userData = Object.assign(mesh.userData || {}, {
         provinceName: name,
-        adcode: adcode,
+        adcode: String(adcode),
         isProvince: true,
       })
       group.add(mesh)
@@ -316,6 +369,37 @@ const initRaycaster = () => {
     isDragging = false
   }
 
+  // 统一的悬停切换：还原旧材质、释放旧高亮材质、设置新高亮材质
+  const setHovered = (next) => {
+    if (next === hoveredProvince) return
+
+    // 恢复之前悬停的省份
+    if (hoveredProvince && originalMaterials.has(hoveredProvince)) {
+      hoveredProvince.material = originalMaterials.get(hoveredProvince)
+      originalMaterials.delete(hoveredProvince)
+    }
+
+    // 释放上一轮克隆出来的高亮材质，否则每次切换悬停都会漏一个材质
+    if (highlightMaterial) {
+      highlightMaterial.dispose()
+      highlightMaterial = null
+    }
+
+    // 高亮当前悬停的省份
+    if (next) {
+      originalMaterials.set(next, next.material)
+
+      highlightMaterial = next.material.clone()
+      highlightMaterial.emissive = new THREE.Color(0x444444) // 添加自发光效果
+      highlightMaterial.opacity = 0.9
+
+      next.material = highlightMaterial
+    }
+
+    hoveredProvince = next
+    hoveredName.value = next?.userData.provinceName ?? ''
+  }
+
   const onMouseMove = (event) => {
     if (mouseDownTime > 0) {
       isDragging = true
@@ -340,33 +424,7 @@ const initRaycaster = () => {
     }
 
     // 处理悬停状态变化
-    if (currentHovered !== hoveredProvince) {
-      // 恢复之前悬停的省份
-      if (hoveredProvince && originalMaterials.has(hoveredProvince)) {
-        hoveredProvince.material = originalMaterials.get(hoveredProvince)
-        originalMaterials.delete(hoveredProvince)
-      }
-
-      // 释放上一轮克隆出来的高亮材质，否则每次切换悬停都会漏一个材质
-      if (highlightMaterial) {
-        highlightMaterial.dispose()
-        highlightMaterial = null
-      }
-
-      // 高亮当前悬停的省份
-      if (currentHovered) {
-        originalMaterials.set(currentHovered, currentHovered.material)
-
-        // 创建高亮材质
-        highlightMaterial = currentHovered.material.clone()
-        highlightMaterial.emissive = new THREE.Color(0x444444) // 添加自发光效果
-        highlightMaterial.opacity = 0.9
-
-        currentHovered.material = highlightMaterial
-      }
-
-      hoveredProvince = currentHovered
-    }
+    setHovered(currentHovered)
   }
 
   const handleValidClick = (event) => {
@@ -383,28 +441,61 @@ const initRaycaster = () => {
 
     for (const intersect of intersects) {
       if (intersect.object.userData.isProvince) {
-        const provinceName = intersect.object.userData.provinceName
-        handleProvinceClick(provinceName)
+        handleProvinceClick(intersect.object.userData.provinceName, intersect.object.userData.adcode)
         break
       }
     }
   }
 
+  // 鼠标移出画布时清掉提示条与高亮
+  const onMouseLeave = () => setHovered(null)
+
   renderer.domElement.addEventListener('mousedown', onMouseDown)
   renderer.domElement.addEventListener('mousemove', onMouseMove)
   renderer.domElement.addEventListener('mouseup', onMouseUp)
+  renderer.domElement.addEventListener('mouseleave', onMouseLeave)
 
   // 卸载时解绑：原先只注册不解绑，组件反复挂载会叠加监听器
   removePointerListeners = () => {
     renderer.domElement.removeEventListener('mousedown', onMouseDown)
     renderer.domElement.removeEventListener('mousemove', onMouseMove)
     renderer.domElement.removeEventListener('mouseup', onMouseUp)
+    renderer.domElement.removeEventListener('mouseleave', onMouseLeave)
   }
 }
 
-const handleProvinceClick = (provinceName) => {
-  // 使用路由跳转到省份页面
-  router.push(`/province/${provinceName}`)
+const handleProvinceClick = (provinceName, adcode) => {
+  // 相机飞到该省上空。省份网格挂在地球下并随地球自转，
+  // 所以目标方向要用当前 rotation.y 换算，否则会对错位置。
+  const feature = provinceFeatures.get(String(adcode))
+  const center = feature?.properties?.center
+  if (Array.isArray(center) && center.length >= 2) {
+    flyTo(center[0], center[1])
+  }
+
+  // 九段线不是省级行政区，没有详情页
+  if (!provinceName) return
+
+  // 使用路由跳转到省份页面，参数用 adcode（比中文省名更稳）
+  router.push(`/province/${encodeURIComponent(adcode)}`)
+}
+
+// 相机飞行到指定经纬度，duration 毫秒内做 easeInOutCubic 插值
+const flyTo = (lon, lat, distance = 3.2, duration = 900) => {
+  if (!camera || !controls) return
+  const target = new THREE.Vector3(...lonLatToCartesian(lon, lat, 1))
+  // 地球网格随 earth.rotation.y 旋转，目标点要跟着一起转
+  if (earth) target.applyAxisAngle(new THREE.Vector3(0, 1, 0), earth.rotation.y)
+  target.multiplyScalar(distance)
+
+  flight = {
+    from: camera.position.clone(),
+    to: target,
+    start: performance.now(),
+    duration,
+  }
+  // 暂停自转，否则目标在飞行途中会飘走
+  autoRotate = false
 }
 
 // 首屏视角：相机站到中国中部（lon 105 / lat 33）正对球心。
@@ -424,7 +515,15 @@ const animate = () => {
   animationId = requestAnimationFrame(animate)
 
   // 地球自转（约 0.68°/s）。原先 0.001/帧 ≈ 3.4°/s，中国十几秒就转出视野。
-  if (earth) earth.rotation.y += 0.0002
+  if (earth && autoRotate) earth.rotation.y += 0.0002
+
+  // 相机飞行插值
+  if (flight) {
+    const t = Math.min(1, (performance.now() - flight.start) / flight.duration)
+    const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
+    camera.position.lerpVectors(flight.from, flight.to, eased)
+    if (t >= 1) flight = null
+  }
 
   // 星星闪烁效果（逐顶点 aSize，材质已接管 gl_PointSize）
   if (twinkleStars && starSizes && starGeometry) {
@@ -458,5 +557,20 @@ const animate = () => {
   width: 100%;
   height: 100%;
   overflow: hidden;
+}
+
+.province-tip {
+  position: absolute;
+  left: 50%;
+  bottom: 32px;
+  transform: translateX(-50%);
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(8, 18, 34, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #fff;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  pointer-events: none;
 }
 </style>
