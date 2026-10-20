@@ -1,0 +1,52 @@
+name: Update geo data
+
+# 定时同步 DataV.GeoAtlas 的行政区划边界。
+# 只有边界真的变了才会产生提交；行政区划的新增或撤销会被脚本拒绝并让流水线失败，
+# 因为那会牵动配色、图例与详情页数据，必须人工确认。
+
+on:
+  schedule:
+    # 每周一 UTC 03:17 跑一次。定时任务常常延迟几分钟，这是 GitHub 的已知行为。
+    - cron: '17 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# 同一时间只跑一个，避免两个任务同时推数据
+concurrency:
+  group: update-geo
+  cancel-in-progress: false
+
+jobs:
+  update:
+    name: 同步行政区划边界
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 拉取并校验上游边界数据
+        run: node scripts/update-geo.mjs --summary-file geo-summary.md
+
+      - name: 有变化则提交
+        run: |
+          if [ -z "$(git status --porcelain -- public/geojson)" ]; then
+            echo "地理数据与上游一致，无需提交"
+            exit 0
+          fi
+          {
+            echo "chore: 同步行政区划边界数据"
+            echo
+            echo "由 GitHub Actions 定时任务从 DataV.GeoAtlas 同步。"
+            echo
+            cat geo-summary.md
+          } > commit-msg.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/geojson
+          git commit -F commit-msg.txt
+          git push

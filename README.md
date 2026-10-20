@@ -71,7 +71,20 @@
 | `public/data/provinces/<adcode>.json` | 省份详情页数据 | 随仓库提供 |
 | 地级市边界 | 下钻时按省从 `geo.datav.aliyun.com` 实时拉取 | [DataV.GeoAtlas 行政区划边界](https://geo.datav.aliyun.com/areas_v3/bound/) |
 
-仓库内是随代码分发的副本。`adcode` 在本仓库中统一为字符串，与路由参数和文件名保持一致（上游为数字）。`public/geojson/` 下的两个文件是**只读数据源，请勿修改**。地级市边界不进仓库——需要联网，且只在用户下钻时才请求。
+仓库内是随代码分发的副本，与上游同步。`public/geojson/` 下的两个文件保持上游原样——其中 `adcode` 是数字（南海断续线要素例外，是字符串 `100000_JD`），`public/data/provinces/` 里的 `adcode` 是字符串，与文件名一致；代码里统一用 `String()` 比较，两种类型都能对上。
+
+`public/geojson/` 下的两个文件是**只读数据源，不要手工修改**——它们由 `scripts/update-geo.mjs` 从上游同步，手工改动会在下次同步时被覆盖。地级市边界不进仓库——需要联网，且只在用户下钻时才请求。
+
+## 地理数据同步
+
+行政区划边界来自 [DataV.GeoAtlas](https://geo.datav.aliyun.com/areas_v3/bound/)，由一条 GitHub Actions 定时任务每周同步一次：
+
+```sh
+npm run geo:check      # 校验本地数据与上游是否一致（只读）
+npm run geo:update     # 同步到 public/geojson/
+```
+
+同步脚本在写盘之前会校验上游数据：要素数、几何类型、坐标格式都要合法。**行政区划的新增或撤销会被直接拒绝**——那会牵动配色、图例与详情页数据，需要人工确认后再改。流水线只在边界真的变了时才产生提交，提交信息里会列出哪些要素的边界变了。
 
 ## 快速开始
 
@@ -84,6 +97,7 @@ npm run test:unit      # 跑一次测试
 npm run lint:check     # ESLint 检查（不改动文件）
 npm run build          # 生产构建
 npm run check          # 上面三项串起来，与 CI 跑的是同一套
+npm run geo:check      # 校验本地地理数据与上游是否一致
 ```
 
 ## 项目状态
@@ -96,16 +110,13 @@ npm run check          # 上面三项串起来，与 CI 跑的是同一套
 - 点击聚焦与相机飞行
 - 省份详情页
 - 地级市层级下钻（省 → 市两级球面视图 + 市详情页）
+- 地理数据自动更新流水线（定时同步上游边界，变更前校验）
 - 深空科技 HUD 界面
 - 122 个单元测试 + CI 流水线
 
 **进行中**
 
 - 详情页数据目前是示例值，正在接入权威省情数据
-
-**计划**
-
-- 地理数据的自动更新流水线
 
 ## 目录结构
 
@@ -128,8 +139,10 @@ src/
     provinceLabels.js        球面标注的贴面定位、屏幕空间去重叠
     areaData.js              行政区划数据获取、球面面积计算
   __tests__/                 Vitest 用例
+scripts/
+  update-geo.mjs             地理数据同步：拉取、校验、写入
 public/
-  geojson/                   地理数据源（只读）
+  geojson/                   地理数据源（只读，由脚本更新）
   data/provinces/            省份详情页静态数据
   textures/                  地球贴图
 docs/                        README 引用的界面截图

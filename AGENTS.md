@@ -25,7 +25,8 @@
 | `src/utils/provinceLabels.js` | 球面省名标注：位置、朝向、尺寸与屏幕空间去重叠 |
 | `src/utils/areaData.js` | 行政区划数据的获取（`areaDataUrl` / `provinceAdcodeOf`）与球面面积计算 |
 | `src/__tests__/` | Vitest 用例 |
-| `public/geojson/` | 地理数据源，**只读** |
+| `scripts/update-geo.mjs` | 地理数据同步：从 DataV 拉取边界、校验后写入 `public/geojson/` |
+| `public/geojson/` | 地理数据源，**只读**（由 `scripts/update-geo.mjs` 更新，不要手工改） |
 | `public/data/provinces/` | 省份详情页静态数据（示例值） |
 | `docs/` | README 引用的界面截图 |
 
@@ -40,6 +41,8 @@ npm run lint:check     # ESLint 检查（不改文件，CI 用这个）
 npm run check          # lint:check + test:unit + build，与 CI 同一条链路
 npm run format         # Prettier
 npm run build          # 生产构建
+npm run geo:check      # 校验本地地理数据与上游是否一致（只读，不写文件）
+npm run geo:update     # 从 DataV 同步地理数据到 public/geojson/
 ```
 
 CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `test:unit` + `build`。
@@ -53,13 +56,35 @@ CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `tes
 
 ## 硬约束
 
-1. **不要修改 `public/geojson/china-provinces.json` 与 `public/geojson/china.json`。** 它们是只读数据源。
+1. **不要手工修改 `public/geojson/china-provinces.json` 与 `public/geojson/china.json`。** 它们是只读数据源，由 `scripts/update-geo.mjs` 从 DataV 同步。手工改动会在下次同步时被覆盖。
 2. **不要引入后端 / 数据库 / 鉴权。** 数据走 `public/` 下的静态文件。
 3. **不要新增运行时依赖**，除非在提交信息里说明理由。
 4. 三角化时**顶点表必须按 polygon 重建**。earcut 的索引在每个 polygon 内从 0 开始，跨 polygon 累加会让多岛屿省份（海南、台湾、浙江、广东、辽宁…）只渲染出第一个 polygon。这是本项目最容易被重新引入的 bug，`geoDataProcessor.spec.js` 会抓住它。
 5. 提交信息**必须**用 `git commit -F <文件>`，不要用 `git commit -m "..."`：PowerShell 下双引号会吞掉反引号并可能破坏中文。
 6. **地级市边界不要放进仓库。** 34 个省全量约 6.5 MB，改为下钻时按省从 DataV 实时拉取（`src/utils/areaData.js` 的 `areaDataUrl`）。
 7. **行政区划代码的位数是 6 位**：前 2 位是省级代码，后 4 位是市级代码。市 → 省用 `provinceAdcodeOf()` 推导，不要自己切片——切成 7 位会请求到不存在的 URL。
+8. **不要新增运行时依赖。** `scripts/update-geo.mjs` 只用 Node 内置的 `fetch` 与 `node:crypto`，不引入第三方包。
+
+## 地理数据同步
+
+`scripts/update-geo.mjs` 从 DataV.GeoAtlas 拉取两个文件：
+
+| 上游 | 写入 |
+|---|---|
+| `100000_full.json` | `public/geojson/china-provinces.json` |
+| `100000.json` | `public/geojson/china.json` |
+
+写盘的是上游响应原文（末尾空白统一去掉），因此数据没变时不产生 diff。
+
+脚本会拦住这些情况并以非零码退出：
+
+- 上游返回的不是合法 JSON，或 HTTP 非 200
+- 要素数不对、几何类型非法、坐标不是数字对
+- **adcode 集合发生变化**（新增或撤销行政区划）——这类变更会牵动配色、图例与详情页数据，必须人工确认
+
+`.github/workflows/update-geo.yml` 每周一自动跑一次，也支持手动触发；有变化才提交，提交信息里带变更摘要。
+
+`AREA_BASE` 环境变量可以覆盖数据源地址，测试与离线演练时用。
 
 ## 代码约定
 

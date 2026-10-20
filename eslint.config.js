@@ -21,6 +21,17 @@ export default defineConfig([
     },
   },
 
+  {
+    // 构建与运维脚本跑在 Node 环境，不在浏览器
+    name: 'app/node-files',
+    files: ['scripts/**/*.{js,mjs}'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
+
   js.configs.recommended,
   ...pluginVue.configs['flat/essential'],
   

@@ -16,6 +16,8 @@
     "lint": "eslint . --fix --cache",
     "lint:check": "eslint .",
     "check": "npm run lint:check && npm run test:unit && npm run build",
+    "geo:update": "node scripts/update-geo.mjs",
+    "geo:check": "node scripts/update-geo.mjs --check",
     "format": "prettier --write src/"
   },
   "dependencies": {
