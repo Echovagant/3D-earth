@@ -22,7 +22,7 @@ const hoveredName = ref('')
 // 图例数据
 const legendItems = ref([])
 
-// 组件级状态：原先星空相关状态被挂到了 window 上，既污染全局又无法随组件释放
+// 组件级状态。不要挂到 window 上：组件卸载时无法回收。
 let scene, camera, renderer, earth, controls, animationId
 let provinceGroup = null
 let stars = null
@@ -190,9 +190,7 @@ const createStarfield = () => {
   })
 
   // PointsMaterial 的顶点着色器只读 uniform size（gl_PointSize = size;），
-  // 没有逐顶点大小属性。原先把逐顶点 'size' 写进去、每帧改写并标记 needsUpdate，
-  // 视觉上完全不起作用，只白白触发一次 GPU buffer 上传。
-  // 这里注入 aSize 属性并接管 gl_PointSize 的赋值，闪烁才真正生效。
+  // 没有逐顶点大小属性。要做逐星闪烁必须注入 aSize 并接管 gl_PointSize 的赋值。
   starMaterial.onBeforeCompile = (shader) => {
     shader.vertexShader = `attribute float aSize;\n${shader.vertexShader.replace(
       'gl_PointSize = size;',
@@ -339,8 +337,7 @@ const initRaycaster = () => {
   let highlightMaterial = null
   const originalMaterials = new Map()
 
-  // 只对省份组求交：原先对整个 scene 递归求交，会连 5000 个点的星空一起算，
-  // 而每次 mousemove 都会触发一次
+  // 只对省份组求交，避免每次 mousemove 遍历整个场景（含 5000 个点的星空）
   const pickProvinces = () => {
     if (!provinceGroup) return []
     return raycaster.intersectObjects(provinceGroup.children, false)
@@ -455,7 +452,7 @@ const initRaycaster = () => {
   renderer.domElement.addEventListener('mouseup', onMouseUp)
   renderer.domElement.addEventListener('mouseleave', onMouseLeave)
 
-  // 卸载时解绑：原先只注册不解绑，组件反复挂载会叠加监听器
+  // 卸载时解绑，否则组件反复挂载会叠加监听器
   removePointerListeners = () => {
     renderer.domElement.removeEventListener('mousedown', onMouseDown)
     renderer.domElement.removeEventListener('mousemove', onMouseMove)
@@ -503,8 +500,7 @@ const flyTo = (lon, lat, distance = 3.2, duration = 900) => {
 const FOCUS = { lon: 105, lat: 33, distance: 3.6 }
 
 const focusOnChina = () => {
-  // 之前这里硬编码 new THREE.Vector3(-1.2, 0.3, 1.8)，
-  // 换算成经纬度是 lon -123.7 / lat 7.9 —— 太平洋，不是中国。
+  // 用经纬度反解相机位置
   const [x, y, z] = lonLatToCartesian(FOCUS.lon, FOCUS.lat, FOCUS.distance)
   camera.position.set(x, y, z)
   controls.target.set(0, 0, 0)
@@ -514,7 +510,7 @@ const focusOnChina = () => {
 const animate = () => {
   animationId = requestAnimationFrame(animate)
 
-  // 地球自转（约 0.68°/s）。原先 0.001/帧 ≈ 3.4°/s，中国十几秒就转出视野。
+  // 地球自转（约 0.68°/s）
   if (earth && autoRotate) earth.rotation.y += 0.0002
 
   // 相机飞行插值
