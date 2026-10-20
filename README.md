@@ -19,23 +19,13 @@
 
 ## 这是什么
 
-把 GeoJSON 里的省级行政区边界三角化后贴合到球面，渲染成一个可以拖拽旋转、悬停拾取、点击聚焦的 3D 地球。界面是深空科技 HUD 风格：左上角是实时遥测读数，右上角是分区图例，鼠标悬停时出现准星锁定与引线标注。
+把省级行政区的真实边界三角化后贴合到球面，渲染成一个可以拖拽旋转、悬停拾取、点击聚焦的 3D 地球。界面是深空科技 HUD 风格：左上角实时遥测读数，右上角按地理分区排列的图例，鼠标悬停时出现准星锁定与引线标注。
 
 <p align="center">
   <img src="docs/screenshot-detail.jpg" alt="省份详情页" width="620" />
 </p>
 
-## 技术看点
-
-**多岛几何的正确三角化.** 多岛屿省份（海南、台湾、浙江、广东、辽宁…）在 GeoJSON 里是 `MultiPolygon`。earcut 的索引在每个 polygon 内部从 0 开始，如果顶点表跨 polygon 累加，第 2 个及以后的 polygon 会错位引用第 1 个 polygon 的顶点——结果是海南 133 个岛礁只渲染出 1 个，九段线 10 段只剩 2 段。顶点表按 polygon 重建后，35 个要素的几何全部归位。
-
-**几何正确性用像素比对验证，不靠肉眼.** 把「原始 GeoJSON 期望覆盖」与「实际渲染三角形」分别栅格化成像素图后逐像素比对，能得到可量化的缺失率与错位率。修复前南海区域缺失 1.2%、错位 1.9%；修复后缺失 0%。`src/__tests__/geoDataProcessor.spec.js` 里另有一份独立写的参考实现做逐顶点比对，专治「顶点数对得上但坐标错位」这类包围盒测不出的 bug。
-
-**Three.js 的资源生命周期.** 组件卸载时遍历场景释放几何体、材质与贴图并解绑事件监听；只调用 `renderer.dispose()` 只能回收 WebGL 上下文，几何体与材质仍会留在 GPU 上。
-
-**取样只针对需要的对象.** 拾取用射线只对省份组求交，避免每次 `mousemove` 都遍历整个场景（含 5000 个点的星空）。
-
-## 功能
+## 核心能力
 
 | | |
 |---|---|
@@ -45,17 +35,30 @@
 | 🧭 聚焦联动 | 点击省份 → 相机飞向该省并暂停自转 → 进入详情页 |
 | 📇 详情页 | 行政区划代码、中心坐标、面积人口、省情简介与标签 |
 | 🎨 分区图例 | 按华北 / 东北 / 华东 / 华中 / 华南 / 西南 / 西北 / 港澳台分组，与球面悬停双向联动 |
-| 🧪 有测试 | 35 个要素的渲染范围覆盖 + 与参考实现逐顶点一致 |
+| 🔍 图例过滤 | 按省名或行政区划代码即时过滤 |
+| ♿ 动效降级 | 遵循系统的「减少动态效果」设置 |
+| 🧪 有测试 | 79 个用例，CI 在每次 push 与 PR 上自动验证 |
 
-## 技术栈
+## 实现要点
 
-[![vue](https://img.shields.io/badge/Vue-3.5-42b883?style=flat-square&logo=vuedotjs&logoColor=white)](https://vuejs.org)
-[![vite](https://img.shields.io/badge/Vite-7-646cff?style=flat-square&logo=vite&logoColor=white)](https://vite.dev)
-[![three](https://img.shields.io/badge/Three.js-0.180-000000?style=flat-square&logo=threedotjs&logoColor=white)](https://threejs.org)
-[![vitest](https://img.shields.io/badge/Vitest-3-fcc72b?style=flat-square&logo=vitest&logoColor=white)](https://vitest.dev)
-[![earcut](https://img.shields.io/badge/earcut-2.2-4fd8ff?style=flat-square)](https://github.com/mapbox/earcut)
+**多岛几何的正确三角化.** 多岛屿省份（海南、台湾、浙江、广东、辽宁…）在 GeoJSON 里是 `MultiPolygon`。earcut 的索引在每个 polygon 内部从 0 开始，如果顶点表跨 polygon 累加，第 2 个及以后的 polygon 会错位引用第 1 个 polygon 的顶点——结果是海南 133 个岛礁只渲染出 1 个，南海断续线 10 段只剩 2 段。顶点表按 polygon 重建后，35 个要素的几何全部归位。
 
-原生 Three.js（未使用 TresJS）。状态层用 Pinia，几何处理为纯函数模块。
+**几何正确性用像素比对验证，不靠肉眼.** 把「原始 GeoJSON 期望覆盖」与「实际渲染三角形」分别栅格化成像素图后逐像素比对，能得到可量化的缺失率与错位率。修复前南海区域缺失 1.2%、错位 1.9%；修复后缺失 0%。测试里另有一份独立写的参考实现做逐顶点比对，专治「顶点数对得上但坐标错位」这类包围盒测不出的 bug。
+
+**Three.js 的资源生命周期.** 组件卸载时遍历场景释放几何体、材质与贴图并解绑事件监听；只调用 `renderer.dispose()` 只能回收 WebGL 上下文，几何体与材质仍会留在 GPU 上。
+
+**拾取只针对需要的对象.** 射线只对省份组求交，避免每次 `mousemove` 都遍历整个场景（含 5000 个点的星空）。指针位置走非响应式通道 + 命令式 DOM 写入，不触发组件重渲染。
+
+## 数据来源
+
+| 文件 | 内容 | 来源 |
+|---|---|---|
+| `public/geojson/china-provinces.json` | 34 个省级行政区 + 1 个南海断续线要素（`adcode = 100000_JD`） | [DataV.GeoAtlas 行政区划边界](https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json) |
+| `public/geojson/china.json` | 中华人民共和国整体边界 | [DataV.GeoAtlas 行政区划边界](https://geo.datav.aliyun.com/areas_v3/bound/100000.json) |
+| `public/textures/earth_atmos_2048.jpg` | 地球贴图 | 随仓库提供 |
+| `public/data/provinces/<adcode>.json` | 省份详情页数据 | 随仓库提供 |
+
+仓库内是随代码分发的副本。`adcode` 在本仓库中统一为字符串，与路由参数和文件名保持一致（上游为数字）。这两个 GeoJSON 文件是**只读数据源，请勿修改**。
 
 ## 快速开始
 
@@ -70,14 +73,34 @@ npm run build          # 生产构建
 npm run check          # 上面三项串起来，与 CI 跑的是同一套
 ```
 
-CI 在每次 push 与 PR 上自动跑 `lint:check` + `test:unit` + `build`。
+## 项目状态
+
+**已完成**
+
+- 球面渲染与完整多岛几何（35 个要素）
+- 悬停拾取、图例双向联动、图例过滤
+- 点击聚焦与相机飞行
+- 省份详情页
+- 深空科技 HUD 界面
+- 79 个单元测试 + CI 流水线
+
+**进行中**
+
+- 详情页数据目前是示例值，正在接入权威省情数据
+
+**计划**
+
+- 球面省名标注（当前只能靠图例辨认省份）
+- 键盘可达性：目前球面交互完全依赖鼠标
+- 地级市层级下钻（现有边界数据只到省级）
+- 地理数据的自动更新流水线
 
 ## 目录结构
 
 ```
 src/
   App.vue                    应用外壳
-  main.js                    入口：装配 router 与 pinia
+  main.js                    入口：装配 router，装全局错误兜底
   styles/tokens.css          设计令牌（颜色 / 字号 / 间距 / 动效）
   router/index.js            路由表
   components/
@@ -90,42 +113,31 @@ src/
     provinceColors.js        adcode → 颜色的稳定映射与地理分区
   __tests__/                 Vitest 用例
 public/
-  geojson/china-provinces.json   35 个省级要素
-  geojson/china.json              国家级边界
-  data/provinces/<adcode>.json   省份详情页静态数据
-  textures/earth_atmos_2048.jpg  地球贴图
+  geojson/                   地理数据源（只读）
+  data/provinces/            省份详情页静态数据
+  textures/                  地球贴图
+docs/                        README 引用的界面截图
 ```
 
-## 地理数据
-
-省级边界为随仓库提供的 GeoJSON（EPSG:4326 经纬度坐标）。
-
-`public/geojson/china-provinces.json` 共 35 个要素：
-
-| 要素 | 说明 |
-|---|---|
-| 34 个省级行政区 | `properties.level = "province"`，含 `adcode`（6 位行政区划代码）、`name`、`center`、`centroid` |
-| 1 个断续线要素 | `adcode = "100000_JD"`，即南海断续线 |
-
-`public/geojson/china.json` 为国家级边界（`level = "country"`），用于绘制中国区域底板与国界。
-
-> 这两个 GeoJSON 文件是**只读数据源，请勿修改**。三角化在经纬度平面上完成（earcut），再把顶点映射到半径 2 的球面；多岛屿省份的每个 polygon 必须独立三角化。
-
-详情页数据在 `public/data/provinces/<adcode>.json`，其中 `adcode` / `name` / `center` 与 GeoJSON 严格一致，其余字段为公开地理常识的近似值。
-
-## 已知限制
+## 当前限制
 
 - 地球贴图为 2048×1024 近地表图，放大到省级尺度会有明显模糊
 - 详情页数据为静态示例值，没有后端与实时数据源
 - 依赖漏洞审计（`npm audit`）需切到官方 npm registry 执行，国内镜像不实现该接口
 - 主包约 600 kB（几乎全部是 three.js），未做代码分割——three 是首屏刚需，拆包只改变缓存策略、不减少首屏字节数
+- 球面交互目前只支持鼠标
 
 ## 贡献
 
-欢迎提 issue 与 PR。改动涉及几何处理时，请务必跑 `npm run test:unit`：`src/__tests__/geoDataProcessor.spec.js` 会校验 35 个要素的渲染范围与参考实现逐顶点一致。更多约定见 [AGENTS.md](./AGENTS.md)。
+欢迎提 issue 与 PR。开始之前请读 [AGENTS.md](./AGENTS.md)，里面是完整的目录职责、命令、硬约束与代码约定。
+
+几条最容易踩的：
+
+- **不要修改 `public/geojson/` 下的两个文件**，它们是只读数据源
+- 改动涉及几何处理时，务必跑 `npm run test:unit`——`src/__tests__/geoDataProcessor.spec.js` 会校验 35 个要素的渲染范围与参考实现逐顶点一致
+- 提交信息用 `git commit -F <文件>`，不要用 `git commit -m "..."`：PowerShell 下双引号会吞掉反引号并可能破坏中文
+- 三角化时顶点表必须按 polygon 重建，这是本项目最容易被重新引入的 bug
 
 ## License
 
 [Apache License 2.0](./LICENSE)
-
-与 MIT 同为宽松协议，额外包含明确的专利授权与专利报复条款。

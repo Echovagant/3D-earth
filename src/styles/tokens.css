@@ -119,3 +119,28 @@ pre {
   background: var(--accent-soft);
   color: #fff;
 }
+
+/*
+ * 尊重系统的「减少动态效果」设置。
+ * 这些全是装饰性动画（面板入场、指示灯脉冲、准星呼吸、扫描线），
+ * 对前庭功能障碍用户会造成不适；地球自转是内容本身，不在此列。
+ */
+@media (prefers-reduced-motion: reduce) {
+  .hud-panel__dot,
+  .lock__reticle,
+  .hud__telemetry,
+  .hud__legend,
+  .hud__hint,
+  .province__main {
+    animation: none !important;
+  }
+
+  .province::after {
+    animation: none !important;
+    opacity: 0;
+  }
+
+  * {
+    transition-duration: 0.01ms !important;
+  }
+}

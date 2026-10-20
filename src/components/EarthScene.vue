@@ -19,6 +19,7 @@
       </HudPanel>
 
       <ProvinceLegend
+        v-if="legendItems.length"
         class="hud__legend"
         :items="legendItems"
         :active="hoveredAdcode"
@@ -33,9 +34,9 @@
 
       <div
         v-if="hoveredName && highlightSource === 'globe'"
+        ref="lockEl"
         class="lock"
-        :class="{ 'lock--flip': pointer.flip }"
-        :style="lockStyle"
+        :class="{ 'lock--flip': pointerFlip }"
       >
         <span class="lock__reticle"></span>
         <span class="lock__leader"></span>
@@ -45,11 +46,29 @@
         </span>
       </div>
     </div>
+
+    <!-- 数据加载状态：加载中 / 失败 -->
+    <div
+      v-if="provinceStatus !== 'ready'"
+      class="scene-status"
+      :class="`scene-status--${provinceStatus}`"
+    >
+      <div class="scene-status__box">
+        <template v-if="provinceStatus === 'loading'">
+          <span class="scene-status__spinner" aria-hidden="true"></span>
+          <p class="scene-status__text">正在加载行政区划数据…</p>
+        </template>
+        <template v-else>
+          <p class="scene-status__text scene-status__text--error">{{ provinceError }}</p>
+          <button type="button" class="scene-status__retry" @click="initProvinces">重试</button>
+        </template>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { useRouter } from 'vue-router'
@@ -67,12 +86,20 @@ const hoveredAdcode = ref('')
 // 高亮来源：'globe' 来自球面拾取，'legend' 来自图例悬停。
 // 准星标注跟着球面指针走，图例悬停时指针并不在球面上，画出来会指向错误的省份。
 const highlightSource = ref('globe')
-// 指针在容器内的位置，用于 HUD 锁定标注跟随
-const pointer = ref({ x: 0, y: 0, flip: false })
+// 指针位置不走响应式：mousemove 每秒可达上百次，
+// 每次改动都会触发组件重渲染，实测比 raycast 本身贵两个数量级。
+const pointer = { x: 0, y: 0 }
+// 只有贴近右缘时才需要翻转标签，变化极少，保留响应式
+const pointerFlip = ref(false)
+// 锁定标注的 DOM 节点，位置由命令式写入
+const lockEl = ref(null)
 // 遥测读数
 const telemetry = ref({ center: '—', distance: '—', rotating: 'OFF' })
 // 图例数据
 const legendItems = ref([])
+// 省份数据加载状态：loading / ready / error
+const provinceStatus = ref('loading')
+const provinceError = ref('')
 
 // 组件级状态。不要挂到 window 上：组件卸载时无法回收。
 let scene, camera, renderer, earth, controls, animationId
@@ -95,6 +122,21 @@ const originalMaterials = new Map()
 // 遥测读数的节流时间戳
 let lastTelemetryAt = 0
 
+// 拾取用的射线与归一化坐标
+const pickRaycaster = new THREE.Raycaster()
+const pickNdc = new THREE.Vector2()
+// 待拾取请求。指针事件频率可能远高于帧率（高刷鼠标可达 1000Hz），
+// 而一次全量射线求交要测 23k 个三角形（约 0.6ms）。
+// 事件只登记请求，实际求交合并到渲染循环里，每帧至多一次。
+let pendingPick = null
+// 画布位置缓存。mousemove 里读 getBoundingClientRect 会在上一帧刚写过
+// 标注样式后触发强制重排（实测 2.26ms），而画布只在 resize 时会移动。
+let canvasRect = { left: 0, top: 0, width: 0, height: 0 }
+
+// 系统开启「减少动态效果」时停掉星空闪烁（纯装饰；地球自转属于内容本身，不停）
+const reducedMotionQuery = window.matchMedia?.('(prefers-reduced-motion: reduce)')
+let prefersReducedMotion = reducedMotionQuery?.matches ?? false
+
 // 刷新左上角遥测面板
 const updateTelemetry = () => {
   if (!camera) return
@@ -107,11 +149,50 @@ const updateTelemetry = () => {
   }
 }
 
-// 锁定标注的定位
-const lockStyle = computed(() => ({
-  left: `${pointer.value.x}px`,
-  top: `${pointer.value.y}px`,
-}))
+// 标注位置直接写 DOM，绕开 Vue 的渲染流程
+const applyLockPosition = () => {
+  const el = lockEl.value
+  if (!el) return
+  el.style.left = `${pointer.x}px`
+  el.style.top = `${pointer.y}px`
+}
+
+// 刷新画布位置缓存
+const refreshCanvasRect = () => {
+  if (!renderer) return
+  const r = renderer.domElement.getBoundingClientRect()
+  canvasRect = { left: r.left, top: r.top, width: r.width, height: r.height }
+}
+
+// 执行一次拾取。由渲染循环调用，每帧至多一次。
+const doPick = () => {
+  if (!pendingPick || !camera || !provinceGroup) return
+  const { x, y } = pendingPick
+  pendingPick = null
+
+  // 只对省份组求交，避免遍历整个场景（含 5000 个点的星空）
+  pickRaycaster.setFromCamera(pickNdc.set(x, y), camera)
+  const intersects = pickRaycaster.intersectObjects(provinceGroup.children, false)
+
+  let picked = null
+  for (const intersect of intersects) {
+    if (intersect.object.userData.isProvince) {
+      picked = intersect.object
+      break
+    }
+  }
+  setHovered(picked, 'globe')
+}
+
+// 标注元素是 v-if 渲染的，出现后要把当前指针位置补上
+watch(
+  () => hoveredName.value && highlightSource.value === 'globe',
+  async (visible) => {
+    if (!visible) return
+    await nextTick()
+    applyLockPosition()
+  },
+)
 
 // 球面坐标反解经纬度
 const cartToLonLat = (x, y, z) => {
@@ -184,6 +265,8 @@ onMounted(() => {
   initCountryBorder() // 中国整体边界与国界
   initRaycaster()
   window.addEventListener('resize', onResize)
+  window.addEventListener('scroll', refreshCanvasRect, { passive: true, capture: true })
+  reducedMotionQuery?.addEventListener?.('change', onReducedMotionChange)
   animate()
   focusOnChina() // 初始视角聚焦中国
 })
@@ -191,11 +274,18 @@ onMounted(() => {
 onUnmounted(() => {
   cancelAnimationFrame(animationId)
   window.removeEventListener('resize', onResize)
+  window.removeEventListener('scroll', refreshCanvasRect, { capture: true })
+  reducedMotionQuery?.removeEventListener?.('change', onReducedMotionChange)
   removePointerListeners?.()
   controls?.dispose()
   disposeScene()
   renderer?.dispose()
 })
+
+// 系统的「减少动态效果」开关可以在运行中改变
+const onReducedMotionChange = (event) => {
+  prefersReducedMotion = event.matches
+}
 
 // 释放场景里的几何体、材质与贴图。只调用 renderer.dispose() 只能回收 WebGL 上下文，
 // 几何体/材质/贴图仍会留在 GPU 上；每次进出省份页都会累积一份。
@@ -235,6 +325,7 @@ const initThree = () => {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
   renderer.setSize(clientWidth, clientHeight)
   container.value.appendChild(renderer.domElement)
+  refreshCanvasRect()
 
   // 创建星空背景
   createStarfield()
@@ -361,6 +452,7 @@ const onResize = () => {
   camera.aspect = clientWidth / clientHeight
   camera.updateProjectionMatrix()
   renderer.setSize(clientWidth, clientHeight)
+  refreshCanvasRect()
 }
 
 const initControls = () => {
@@ -375,6 +467,8 @@ const initControls = () => {
 }
 
 const initProvinces = async () => {
+  provinceStatus.value = 'loading'
+  provinceError.value = ''
   try {
     // 加载中国省份GeoJSON数据
     const response = await fetch('/geojson/china-provinces.json')
@@ -397,7 +491,11 @@ const initProvinces = async () => {
         name: feature.properties.name,
         color: toHexString(getProvinceColor(feature.properties.adcode)),
       }))
+
+    provinceStatus.value = 'ready'
   } catch (error) {
+    provinceError.value = `行政区划数据加载失败：${error.message}`
+    provinceStatus.value = 'error'
     console.error('加载省份数据失败:', error)
   }
 }
@@ -429,7 +527,8 @@ const initCountryBorder = async () => {
       earth.add(mesh)
     }
   } catch (error) {
-    console.error('加载国界数据失败:', error)
+    // 国界是增强层，取不到不影响省份交互，不打断主流程
+    console.warn('加载国界数据失败:', error)
   }
 }
 
@@ -466,18 +565,9 @@ const createProvincesFromGeoJson = (geoJson) => {
 }
 
 const initRaycaster = () => {
-  const raycaster = new THREE.Raycaster()
-  const mouse = new THREE.Vector2()
-
   let isDragging = false
   let mouseDownTime = 0
   let mouseDownPosition = { x: 0, y: 0 }
-
-  // 只对省份组求交，避免每次 mousemove 遍历整个场景（含 5000 个点的星空）
-  const pickProvinces = () => {
-    if (!provinceGroup) return []
-    return raycaster.intersectObjects(provinceGroup.children, false)
-  }
 
   const onMouseDown = (event) => {
     isDragging = false
@@ -502,53 +592,40 @@ const initRaycaster = () => {
     isDragging = false
   }
 
-  // 统一的悬停切换定义在组件作用域（setHovered），供图例联动共用
-
   const onMouseMove = (event) => {
     if (mouseDownTime > 0) {
       isDragging = true
     }
-    // 更新鼠标位置
-    const rect = renderer.domElement.getBoundingClientRect()
-    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
-    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
+
+    // 用缓存的画布位置，不读布局
+    const localX = event.clientX - canvasRect.left
+    const localY = event.clientY - canvasRect.top
 
     // 记录指针在容器内的位置，供 HUD 锁定标注跟随
-    pointer.value = {
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top,
-      flip: event.clientX - rect.left > rect.width * 0.62,
+    pointer.x = localX
+    pointer.y = localY
+    pointerFlip.value = localX > canvasRect.width * 0.62
+    applyLockPosition()
+
+    // 只登记待拾取，实际求交在渲染循环里做（每帧至多一次）
+    pendingPick = {
+      x: (localX / canvasRect.width) * 2 - 1,
+      y: -(localY / canvasRect.height) * 2 + 1,
     }
-
-    // 更新射线
-    raycaster.setFromCamera(mouse, camera)
-
-    // 检测悬停对象
-    const intersects = pickProvinces()
-
-    let currentHovered = null
-    for (const intersect of intersects) {
-      if (intersect.object.userData.isProvince) {
-        currentHovered = intersect.object
-        break
-      }
-    }
-
-    // 处理悬停状态变化
-    setHovered(currentHovered)
   }
 
   const handleValidClick = (event) => {
     // 将鼠标位置归一化为-1到1的范围
-    const rect = renderer.domElement.getBoundingClientRect()
-    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
-    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
+    const ndcX = ((event.clientX - canvasRect.left) / canvasRect.width) * 2 - 1
+    const ndcY = -((event.clientY - canvasRect.top) / canvasRect.height) * 2 + 1
 
     // 通过相机和鼠标位置更新射线
-    raycaster.setFromCamera(mouse, camera)
+    pickRaycaster.setFromCamera(pickNdc.set(ndcX, ndcY), camera)
 
     // 计算与射线相交的物体
-    const intersects = pickProvinces()
+    const intersects = provinceGroup
+      ? pickRaycaster.intersectObjects(provinceGroup.children, false)
+      : []
 
     for (const intersect of intersects) {
       if (intersect.object.userData.isProvince) {
@@ -624,6 +701,9 @@ const focusOnChina = () => {
 const animate = () => {
   animationId = requestAnimationFrame(animate)
 
+  // 拾取：每帧至多一次，合并掉高频指针事件
+  doPick()
+
   // 地球自转（约 0.68°/s）
   if (earth && autoRotate.value) earth.rotation.y += 0.0002
 
@@ -643,7 +723,7 @@ const animate = () => {
   }
 
   // 星星闪烁效果（逐顶点 aSize，材质已接管 gl_PointSize）
-  if (twinkleStars && starSizes && starGeometry) {
+  if (twinkleStars && starSizes && starGeometry && !prefersReducedMotion) {
     const time = Date.now() * 0.001
     twinkleStars.forEach((starIndex, index) => {
       const starTime = time + index * 0.1
@@ -767,6 +847,71 @@ const animate = () => {
 
 .hud__hint span:first-child {
   margin-left: 0;
+}
+
+/* ---------- 数据加载状态 ---------- */
+.scene-status {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.scene-status__box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-4) var(--sp-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-panel);
+  backdrop-filter: blur(8px);
+  box-shadow: var(--glow-soft);
+  pointer-events: auto;
+}
+
+.scene-status__spinner {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--accent-soft);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: scene-spin 900ms linear infinite;
+}
+
+.scene-status__text {
+  margin: 0;
+  color: var(--text-mid);
+}
+
+.scene-status__text--error {
+  color: #ff9a9a;
+}
+
+.scene-status__retry {
+  padding: 6px 20px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--accent-dim);
+  color: var(--text-hi);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.12em;
+  cursor: pointer;
+}
+
+.scene-status__retry:hover {
+  background: rgba(79, 216, 255, 0.2);
+}
+
+@keyframes scene-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ---------- 锁定标注：准星 + 引线 + 标签 ---------- */
