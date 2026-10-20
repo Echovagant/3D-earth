@@ -2,6 +2,9 @@
 import * as THREE from 'three'
 import earcut from 'earcut'
 
+// 描边相对面抬高的高度，避免与面共面产生 z-fighting
+const OUTLINE_LIFT = 0.004
+
 /**
  * 将经纬度（lon, lat）转换为球面坐标 (x, y, z)
  * radius: 地球半径
@@ -24,16 +27,20 @@ export function lonLatToCartesian(lon, lat, radius = 2) {
  * options: { radius, elevation, materialOptions }
  */
 export function createProvinceMeshFromFeature(feature, options = {}) {
-  const { radius = 2, elevation = 0.02, materialOptions = {} } = options
+  const { radius = 2, elevation = 0.02, materialOptions = {}, lineColor } = options
 
   const geomPositions = [] // will hold flattened triangle vertex coords
-
-  const geom3DVertices = [] // temporary list of vertex 3D coords per feature (indexed by order added)
+  const outlinePositions = [] // 描边线段的端点坐标
 
   // helper to process a single polygon (array of rings)
   const processPolygon = (rings) => {
     const flat2D = [] // [x0,y0, x1,y1, ...] for earcut
     const holeIndices = []
+
+    // 顶点表必须每个 polygon 重建：earcut 的索引在每个 polygon 内从 0 开始，
+    // 若跨 polygon 累加，第 2 个及以后的 polygon 会错位引用第 1 个 polygon 的顶点，
+    // 导致多岛屿省份（海南、台湾、浙江、广东…）只渲染出第一个 polygon。
+    const geom3DVertices = [] // temporary list of vertex 3D coords for this polygon
 
     // For mapping 2D indices back to 3D coords, push 3D per coordinate in same order
     rings.forEach((ring, rIndex) => {
@@ -42,12 +49,22 @@ export function createProvinceMeshFromFeature(feature, options = {}) {
         holeIndices.push(flat2D.length / 2)
       }
 
+      const loop = []
       ring.forEach((coord) => {
         const [lon, lat] = coord
         flat2D.push(lon, lat)
         const [x, y, z] = lonLatToCartesian(lon, lat, radius + elevation)
         geom3DVertices.push([x, y, z])
+        // 描边抬高一点点，避免与面共面产生 z-fighting
+        loop.push(lonLatToCartesian(lon, lat, radius + elevation + OUTLINE_LIFT))
       })
+
+      // 把环首尾相接，生成线段端点
+      for (let i = 0; i < loop.length; i++) {
+        const a = loop[i]
+        const b = loop[(i + 1) % loop.length]
+        outlinePositions.push(a[0], a[1], a[2], b[0], b[1], b[2])
+      }
     })
 
     // earcut triangulation (on equirectangular lon/lat plane)
@@ -99,44 +116,27 @@ export function createProvinceMeshFromFeature(feature, options = {}) {
   const material = new THREE.MeshPhongMaterial(Object.assign(defaultMat, materialOptions))
   const mesh = new THREE.Mesh(geometry, material)
 
+  // 描边：WebGL 的 LineBasicMaterial 不支持 linewidth（除少数平台外恒为 1px），
+  // 所以只提供 lineColor，不提供 lineWidth 这种会被静默忽略的选项。
+  if (lineColor !== undefined && outlinePositions.length > 0) {
+    const outlineGeometry = new THREE.BufferGeometry()
+    outlineGeometry.setAttribute(
+      'position',
+      new THREE.Float32BufferAttribute(outlinePositions, 3),
+    )
+    const outlineMaterial = new THREE.LineBasicMaterial({
+      color: lineColor,
+      transparent: true,
+      opacity: 0.9,
+    })
+    const outline = new THREE.LineSegments(outlineGeometry, outlineMaterial)
+    outline.name = 'outline'
+    outline.renderOrder = 1
+    mesh.add(outline)
+  }
+
   // attach properties for picking
   mesh.userData = Object.assign({}, feature.properties || {}, { isProvince: true })
 
   return mesh
-}
-
-// 添加边缘高亮效果
-export function createProvinceWithEdgeHighlight(feature, options = {}) {
-  const group = new THREE.Group()
-
-  // 创建省份主体
-  const provinceMesh = createProvinceMeshFromFeature(feature, options)
-  if (provinceMesh) {
-    group.add(provinceMesh)
-
-    // 创建边缘高亮效果（使用背面材质）
-    const edgeGeometry = provinceMesh.geometry.clone()
-    const edgeMaterial = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
-      side: THREE.BackSide
-    })
-    const edgeMesh = new THREE.Mesh(edgeGeometry, edgeMaterial)
-    edgeMesh.scale.set(1.02, 1.02, 1.02) // 稍微放大创建轮廓效果
-    group.add(edgeMesh)
-  }
-
-  group.userData = Object.assign({}, feature.properties || {}, { isProvince: true })
-
-  return group
-}
-
-/**
- * 兼容旧的 processGeoJsonForThree：返回处理过的 features 简单映射
- */
-export function processGeoJsonForThree(geoJson) {
-  return geoJson.features.map((feature) => ({
-    type: feature.type,
-    properties: feature.properties,
-    geometryType: feature.geometry.type,
-  }))
 }
