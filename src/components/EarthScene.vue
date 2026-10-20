@@ -32,6 +32,10 @@
         <span>点击</span> 进入省份
       </p>
 
+      <button class="hud__labels-toggle" type="button" @click="labelsVisible = !labelsVisible">
+        省名标注<span class="mono">{{ labelsVisible ? 'ON' : 'OFF' }}</span>
+      </button>
+
       <div
         v-if="hoveredName && highlightSource === 'globe'"
         ref="lockEl"
@@ -74,6 +78,19 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { useRouter } from 'vue-router'
 import { createProvinceMeshFromFeature, lonLatToCartesian } from '../utils/geoDataProcessor'
 import { getProvinceColor, toHexString } from '../utils/provinceColors'
+import {
+  LABEL_BASE_HEIGHT,
+  cameraDirectionInEarthFrame,
+  createLabelTexture,
+  earthLocalToWorld,
+  featureSizeProxy,
+  labelHeight,
+  labelOpacity,
+  labelPixelHeight,
+  labelPosition,
+  rectsOverlap,
+  resolveLabelCenter,
+} from '../utils/provinceLabels'
 import HudPanel from './HudPanel.vue'
 import ProvinceLegend from './ProvinceLegend.vue'
 
@@ -100,10 +117,13 @@ const legendItems = ref([])
 // 省份数据加载状态：loading / ready / error
 const provinceStatus = ref('loading')
 const provinceError = ref('')
+// 球面省名标注是否显示
+const labelsVisible = ref(true)
 
 // 组件级状态。不要挂到 window 上：组件卸载时无法回收。
 let scene, camera, renderer, earth, controls, animationId
 let provinceGroup = null
+let labelGroup = null
 let stars = null
 let starGeometry = null
 let starSizes = null
@@ -483,6 +503,10 @@ const initProvinces = async () => {
     provinceGroup = createProvincesFromGeoJson(geoJson)
     earth.add(provinceGroup)
 
+    // 球面省名标注
+    labelGroup = createProvinceLabels(geoJson.features)
+    earth.add(labelGroup)
+
     // 图例：九段线不是省级行政区，不进图例
     legendItems.value = geoJson.features
       .filter((feature) => String(feature.properties.adcode) !== '100000_JD')
@@ -497,6 +521,110 @@ const initProvinces = async () => {
     provinceError.value = `行政区划数据加载失败：${error.message}`
     provinceStatus.value = 'error'
     console.error('加载省份数据失败:', error)
+  }
+}
+
+// 球面省名标注：每个省一个 Sprite，钉在该省中心点上，永远正对相机。
+const createProvinceLabels = (features) => {
+  const group = new THREE.Group()
+  group.name = 'province-labels'
+
+  for (const feature of features) {
+    const name = feature.properties?.name
+    if (!name) continue // 九段线要素没有名字
+    const center = resolveLabelCenter(feature)
+    if (!center) continue
+
+    const { texture, width, height } = createLabelTexture(name)
+    const material = new THREE.SpriteMaterial({
+      map: texture,
+      transparent: true,
+      // 标注不被省份面遮挡
+      depthTest: false,
+      depthWrite: false,
+      opacity: 0,
+    })
+    const sprite = new THREE.Sprite(material)
+    const [x, y, z] = labelPosition(center)
+    sprite.position.set(x, y, z)
+    sprite.renderOrder = 2
+    sprite.userData = {
+      adcode: String(feature.properties.adcode),
+      name,
+      aspect: width / height,
+      // 去重叠时的优先级：省域越大越优先
+      priority: featureSizeProxy(feature),
+    }
+    group.add(sprite)
+  }
+
+  return group
+}
+
+// 每帧更新标注：背面不显示、临近边缘淡出、尺寸随距离变化保持屏幕大小恒定，
+// 并在屏幕空间做去重叠——按省域大小贪心放置，与已放置标签重叠的隐藏。
+// 东海岸省份密集，不去重叠会糊成一团；放大后标签散开，更多省份会自动出现。
+const updateProvinceLabels = () => {
+  if (!labelGroup || !camera || !earth) return
+  const camDir = cameraDirectionInEarthFrame(camera.position, earth.rotation.y)
+
+  const viewportW = canvasRect.width
+  const viewportH = canvasRect.height
+  const pixelH = labelPixelHeight(LABEL_BASE_HEIGHT, camera.fov, viewportH)
+  const world = new THREE.Vector3()
+  const ndc = new THREE.Vector3()
+
+  const candidates = []
+  for (const sprite of labelGroup.children) {
+    // 正在悬停的省份由准星标注报名字，不重复标
+    if (!labelsVisible.value || sprite.userData.adcode === hoveredAdcode.value) {
+      sprite.visible = false
+      continue
+    }
+
+    const opacity = labelOpacity(sprite.position.dot(camDir))
+    if (opacity <= 0) {
+      sprite.visible = false
+      continue
+    }
+
+    world.copy(earthLocalToWorld(sprite.position, earth.rotation.y))
+    ndc.copy(world).project(camera)
+    if (ndc.z > 1) {
+      sprite.visible = false
+      continue
+    }
+
+    candidates.push({
+      sprite,
+      opacity,
+      priority: sprite.userData.priority,
+      aspect: sprite.userData.aspect,
+      distance: world.distanceTo(camera.position),
+      x: (ndc.x * 0.5 + 0.5) * viewportW,
+      y: (-ndc.y * 0.5 + 0.5) * viewportH,
+    })
+  }
+
+  // 面积大的省先占位，小省与已放置标签重叠就让位
+  candidates.sort((a, b) => b.priority - a.priority)
+
+  const placed = []
+  for (const item of candidates) {
+    const halfW = (pixelH * item.aspect) / 2 + 3
+    const halfH = pixelH / 2 + 3
+    const box = { l: item.x - halfW, r: item.x + halfW, t: item.y - halfH, b: item.y + halfH }
+
+    if (placed.some((p) => rectsOverlap(box, p))) {
+      item.sprite.visible = false
+      continue
+    }
+    placed.push(box)
+
+    item.sprite.visible = true
+    item.sprite.material.opacity = item.opacity
+    const height = labelHeight(item.distance)
+    item.sprite.scale.set(height * item.aspect, height, 1)
   }
 }
 
@@ -704,6 +832,9 @@ const animate = () => {
   // 拾取：每帧至多一次，合并掉高频指针事件
   doPick()
 
+  // 球面省名标注
+  updateProvinceLabels()
+
   // 地球自转（约 0.68°/s）
   if (earth && autoRotate.value) earth.rotation.y += 0.0002
 
@@ -847,6 +978,34 @@ const animate = () => {
 
 .hud__hint span:first-child {
   margin-left: 0;
+}
+
+/* 省名标注开关 */
+.hud__labels-toggle {
+  position: absolute;
+  right: var(--sp-4);
+  bottom: var(--sp-4);
+  padding: 5px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg-panel);
+  color: var(--text-mid);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+
+.hud__labels-toggle:hover {
+  color: var(--accent);
+  border-color: var(--line-strong);
+}
+
+.hud__labels-toggle span {
+  margin-left: 8px;
+  color: var(--accent);
 }
 
 /* ---------- 数据加载状态 ---------- */

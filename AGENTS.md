@@ -20,6 +20,7 @@
 | `src/components/ProvincePage.vue` | 省份详情页（读 `public/data/provinces/<adcode>.json`） |
 | `src/utils/geoDataProcessor.js` | GeoJSON → 球面 Mesh 的三角化、贴面与描边 |
 | `src/utils/provinceColors.js` | adcode → 颜色的稳定映射与地理分区 |
+| `src/utils/provinceLabels.js` | 球面省名标注：位置、朝向、尺寸与屏幕空间去重叠 |
 | `src/__tests__/` | Vitest 用例 |
 | `public/geojson/` | 地理数据源，**只读** |
 | `public/data/provinces/` | 省份详情页静态数据（示例值） |
@@ -40,10 +41,11 @@ npm run build          # 生产构建
 
 CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `test:unit` + `build`。
 
-`npm run test:unit` 必须是绿的才算完成改动。当前有 79 个用例：
+`npm run test:unit` 必须是绿的才算完成改动。当前有 104 个用例：
 `src/__tests__/App.spec.js`（应用挂载）、
 `src/__tests__/geoDataProcessor.spec.js`（35 个要素的渲染范围覆盖、与参考实现逐顶点一致、海南/台湾/九段线定点断言）、
-`src/__tests__/provinceData.spec.js`（省份详情数据与 GeoJSON 的一致性契约：adcode/name/center 严格相等、字段结构完整、分区覆盖无重叠、配色不落兜底）。
+`src/__tests__/provinceData.spec.js`（省份详情数据与 GeoJSON 的一致性契约：adcode/name/center 严格相等、字段结构完整、分区覆盖无重叠、配色不落兜底）、
+`src/__tests__/provinceLabels.spec.js`（标注的朝向淡出、尺寸缩放、中心点解析、球面位置、地球坐标系换算、尺寸代理、像素高度、矩形相交）。
 
 ## 硬约束
 
