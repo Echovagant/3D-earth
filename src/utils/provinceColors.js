@@ -61,3 +61,28 @@ export function getProvinceColor(adcode) {
 export function toHexString(color) {
   return `#${color.toString(16).padStart(6, '0')}`
 }
+
+/**
+ * 地理分区。图例按分区分组展示，比一长串省份名更容易扫读。
+ * adcode 与 china-provinces.json 严格对应，覆盖全部 34 个省级行政区。
+ */
+export const REGION_GROUPS = [
+  { key: 'north', label: '华北', adcodes: ['110000', '120000', '130000', '140000', '150000'] },
+  { key: 'northeast', label: '东北', adcodes: ['210000', '220000', '230000'] },
+  { key: 'east', label: '华东', adcodes: ['310000', '320000', '330000', '340000', '350000', '360000', '370000'] },
+  { key: 'central', label: '华中', adcodes: ['410000', '420000', '430000'] },
+  { key: 'south', label: '华南', adcodes: ['440000', '450000', '460000'] },
+  { key: 'southwest', label: '西南', adcodes: ['500000', '510000', '520000', '530000', '540000'] },
+  { key: 'northwest', label: '西北', adcodes: ['610000', '620000', '630000', '640000', '650000'] },
+  { key: 'special', label: '港澳台', adcodes: ['710000', '810000', '820000'] },
+]
+
+/** 把省份列表按地理分区重新排序，输出 [{ key, label, items }] */
+export function groupByRegion(items) {
+  const byAdcode = new Map(items.map((item) => [String(item.adcode), item]))
+  return REGION_GROUPS.map((group) => ({
+    key: group.key,
+    label: group.label,
+    items: group.adcodes.map((adcode) => byAdcode.get(adcode)).filter(Boolean),
+  })).filter((group) => group.items.length > 0)
+}

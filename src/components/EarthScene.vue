@@ -1,24 +1,73 @@
 <template>
   <div ref="container" class="earth-container">
-    <div v-if="hoveredName" class="province-tip">{{ hoveredName }}</div>
-    <ProvinceLegend v-if="legendItems.length" :items="legendItems" />
+    <div class="hud">
+      <HudPanel class="hud__telemetry" title="遥测" meta="TELEMETRY">
+        <dl class="telemetry">
+          <div class="telemetry__row">
+            <dt>中心</dt>
+            <dd class="mono">{{ telemetry.center }}</dd>
+          </div>
+          <div class="telemetry__row">
+            <dt>视距</dt>
+            <dd class="mono">{{ telemetry.distance }}</dd>
+          </div>
+          <div class="telemetry__row">
+            <dt>自转</dt>
+            <dd class="mono" :class="{ 'is-on': autoRotate }">{{ telemetry.rotating }}</dd>
+          </div>
+        </dl>
+      </HudPanel>
+
+      <ProvinceLegend
+        class="hud__legend"
+        :items="legendItems"
+        :active="hoveredAdcode"
+        @hover="onLegendHover"
+      />
+
+      <p class="hud__hint">
+        <span>拖拽</span> 旋转
+        <span>滚轮</span> 缩放
+        <span>点击</span> 进入省份
+      </p>
+
+      <div
+        v-if="hoveredName"
+        class="lock"
+        :class="{ 'lock--flip': pointer.flip }"
+        :style="lockStyle"
+      >
+        <span class="lock__reticle"></span>
+        <span class="lock__leader"></span>
+        <span class="lock__tag">
+          <span class="lock__name">{{ hoveredName }}</span>
+          <span class="lock__code mono">{{ hoveredAdcode }}</span>
+        </span>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { useRouter } from 'vue-router'
 import { createProvinceMeshFromFeature, lonLatToCartesian } from '../utils/geoDataProcessor'
 import { getProvinceColor, toHexString } from '../utils/provinceColors'
+import HudPanel from './HudPanel.vue'
 import ProvinceLegend from './ProvinceLegend.vue'
 
 const container = ref(null)
 const router = useRouter()
 
-// 悬停中的省名（显示在底部提示条里）
+// 悬停中的省份
 const hoveredName = ref('')
+const hoveredAdcode = ref('')
+// 指针在容器内的位置，用于 HUD 锁定标注跟随
+const pointer = ref({ x: 0, y: 0, flip: false })
+// 遥测读数
+const telemetry = ref({ center: '—', distance: '—', rotating: 'OFF' })
 // 图例数据
 const legendItems = ref([])
 
@@ -31,11 +80,93 @@ let starSizes = null
 let twinkleStars = null
 let removePointerListeners = null
 // 地球是否自动自转。点击省份聚焦时暂停，避免目标在飞行途中飘走
-let autoRotate = true
+const autoRotate = ref(true)
 // 相机飞行插值状态
 let flight = null
 // adcode → GeoJSON feature，用于取中心点
 const provinceFeatures = new Map()
+// 悬停高亮状态
+let hoveredProvince = null
+let highlightMaterial = null
+const originalMaterials = new Map()
+// 遥测读数的节流时间戳
+let lastTelemetryAt = 0
+
+// 刷新左上角遥测面板
+const updateTelemetry = () => {
+  if (!camera) return
+  const distance = camera.position.length()
+  const [lon, lat] = cartToLonLat(camera.position.x, camera.position.y, camera.position.z)
+  telemetry.value = {
+    center: formatLonLat(lon, lat),
+    distance: `${distance.toFixed(2)} R`,
+    rotating: autoRotate.value ? 'ON 0.68°/s' : 'HOLD',
+  }
+}
+
+// 锁定标注的定位
+const lockStyle = computed(() => ({
+  left: `${pointer.value.x}px`,
+  top: `${pointer.value.y}px`,
+}))
+
+// 球面坐标反解经纬度
+const cartToLonLat = (x, y, z) => {
+  const r = Math.hypot(x, y, z)
+  const lat = 90 - (Math.acos(y / r) * 180) / Math.PI
+  let lon = (Math.atan2(z, -x) * 180) / Math.PI - 180
+  while (lon < -180) lon += 360
+  while (lon > 180) lon -= 360
+  return [lon, lat]
+}
+
+const formatLonLat = (lon, lat) => {
+  const ew = lon >= 0 ? 'E' : 'W'
+  const ns = lat >= 0 ? 'N' : 'S'
+  return `${Math.abs(lon).toFixed(2)}°${ew} ${Math.abs(lat).toFixed(2)}°${ns}`
+}
+
+// 统一的悬停切换：还原旧材质、释放旧高亮材质、设置新高亮材质
+const setHovered = (next) => {
+  if (next === hoveredProvince) return
+
+  // 恢复之前悬停的省份
+  if (hoveredProvince && originalMaterials.has(hoveredProvince)) {
+    hoveredProvince.material = originalMaterials.get(hoveredProvince)
+    originalMaterials.delete(hoveredProvince)
+  }
+
+  // 释放上一轮克隆出来的高亮材质，否则每次切换悬停都会漏一个材质
+  if (highlightMaterial) {
+    highlightMaterial.dispose()
+    highlightMaterial = null
+  }
+
+  // 高亮当前悬停的省份
+  if (next) {
+    originalMaterials.set(next, next.material)
+
+    highlightMaterial = next.material.clone()
+    highlightMaterial.emissive = new THREE.Color(0x444444) // 添加自发光效果
+    highlightMaterial.opacity = 0.9
+
+    next.material = highlightMaterial
+  }
+
+  hoveredProvince = next
+  hoveredName.value = next?.userData.provinceName ?? ''
+  hoveredAdcode.value = next?.userData.adcode ?? ''
+}
+
+// 图例项悬停 → 在球面上高亮对应省份
+const onLegendHover = (adcode) => {
+  if (!adcode) {
+    setHovered(null)
+    return
+  }
+  const mesh = provinceGroup?.children.find((m) => m.userData.adcode === adcode)
+  setHovered(mesh ?? null)
+}
 
 onMounted(() => {
   initThree()
@@ -333,9 +464,6 @@ const initRaycaster = () => {
   let isDragging = false
   let mouseDownTime = 0
   let mouseDownPosition = { x: 0, y: 0 }
-  let hoveredProvince = null
-  let highlightMaterial = null
-  const originalMaterials = new Map()
 
   // 只对省份组求交，避免每次 mousemove 遍历整个场景（含 5000 个点的星空）
   const pickProvinces = () => {
@@ -366,36 +494,7 @@ const initRaycaster = () => {
     isDragging = false
   }
 
-  // 统一的悬停切换：还原旧材质、释放旧高亮材质、设置新高亮材质
-  const setHovered = (next) => {
-    if (next === hoveredProvince) return
-
-    // 恢复之前悬停的省份
-    if (hoveredProvince && originalMaterials.has(hoveredProvince)) {
-      hoveredProvince.material = originalMaterials.get(hoveredProvince)
-      originalMaterials.delete(hoveredProvince)
-    }
-
-    // 释放上一轮克隆出来的高亮材质，否则每次切换悬停都会漏一个材质
-    if (highlightMaterial) {
-      highlightMaterial.dispose()
-      highlightMaterial = null
-    }
-
-    // 高亮当前悬停的省份
-    if (next) {
-      originalMaterials.set(next, next.material)
-
-      highlightMaterial = next.material.clone()
-      highlightMaterial.emissive = new THREE.Color(0x444444) // 添加自发光效果
-      highlightMaterial.opacity = 0.9
-
-      next.material = highlightMaterial
-    }
-
-    hoveredProvince = next
-    hoveredName.value = next?.userData.provinceName ?? ''
-  }
+  // 统一的悬停切换定义在组件作用域（setHovered），供图例联动共用
 
   const onMouseMove = (event) => {
     if (mouseDownTime > 0) {
@@ -405,6 +504,13 @@ const initRaycaster = () => {
     const rect = renderer.domElement.getBoundingClientRect()
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
     mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
+
+    // 记录指针在容器内的位置，供 HUD 锁定标注跟随
+    pointer.value = {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+      flip: event.clientX - rect.left > rect.width * 0.62,
+    }
 
     // 更新射线
     raycaster.setFromCamera(mouse, camera)
@@ -492,7 +598,7 @@ const flyTo = (lon, lat, distance = 3.2, duration = 900) => {
     duration,
   }
   // 暂停自转，否则目标在飞行途中会飘走
-  autoRotate = false
+  autoRotate.value = false
 }
 
 // 首屏视角：相机站到中国中部（lon 105 / lat 33）正对球心。
@@ -511,7 +617,14 @@ const animate = () => {
   animationId = requestAnimationFrame(animate)
 
   // 地球自转（约 0.68°/s）
-  if (earth && autoRotate) earth.rotation.y += 0.0002
+  if (earth && autoRotate.value) earth.rotation.y += 0.0002
+
+  // 遥测读数：节流到 200ms 一次，避免每帧触发响应式更新
+  const now = performance.now()
+  if (now - lastTelemetryAt > 200) {
+    lastTelemetryAt = now
+    updateTelemetry()
+  }
 
   // 相机飞行插值
   if (flight) {
@@ -550,23 +663,217 @@ const animate = () => {
 
 <style scoped>
 .earth-container {
+  position: relative;
   width: 100%;
   height: 100%;
   overflow: hidden;
+  cursor: crosshair;
 }
 
-.province-tip {
+/* 深空底纹：中心微亮 + 边缘压暗，让球体更突出 */
+.earth-container::after {
+  content: '';
   position: absolute;
-  left: 50%;
-  bottom: 32px;
-  transform: translateX(-50%);
-  padding: 6px 14px;
-  border-radius: 999px;
-  background: rgba(8, 18, 34, 0.78);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  color: #fff;
-  font-size: 14px;
-  letter-spacing: 0.04em;
+  inset: 0;
   pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(79, 216, 255, 0.07) 0%, transparent 55%),
+    radial-gradient(circle at 50% 50%, transparent 55%, rgba(2, 5, 12, 0.55) 100%);
+  z-index: 1;
+}
+
+/* ---------- HUD 覆盖层 ---------- */
+.hud {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.hud > *:not(.lock) {
+  pointer-events: auto;
+}
+
+.hud__telemetry {
+  position: absolute;
+  top: var(--sp-4);
+  left: var(--sp-4);
+  width: 198px;
+  animation: hud-in var(--dur-slow) var(--ease) both;
+}
+
+.hud__legend {
+  position: absolute;
+  top: var(--sp-4);
+  right: var(--sp-4);
+  animation: hud-in var(--dur-slow) var(--ease) both 120ms;
+}
+
+.telemetry {
+  display: grid;
+  gap: var(--sp-1);
+  margin: 0;
+}
+
+.telemetry__row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+}
+
+.telemetry dt {
+  width: 28px;
+  flex: none;
+  font-size: var(--fs-label);
+  letter-spacing: 0.12em;
+  color: var(--text-lo);
+}
+
+.telemetry dd {
+  margin: 0;
+  font-size: var(--fs-label);
+  color: var(--text-hi);
+}
+
+.telemetry dd.is-on {
+  color: var(--accent);
+}
+
+.hud__hint {
+  position: absolute;
+  left: var(--sp-4);
+  bottom: var(--sp-4);
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.1em;
+  color: var(--text-lo);
+  animation: hud-in var(--dur-slow) var(--ease) both 200ms;
+}
+
+.hud__hint span {
+  margin-left: var(--sp-3);
+  color: var(--accent);
+  opacity: 0.75;
+}
+
+.hud__hint span:first-child {
+  margin-left: 0;
+}
+
+/* ---------- 锁定标注：准星 + 引线 + 标签 ---------- */
+.lock {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.lock__reticle {
+  position: absolute;
+  left: -13px;
+  top: -13px;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  box-shadow: var(--glow);
+  animation: lock-breathe 2s var(--ease) infinite;
+}
+
+.lock__reticle::before,
+.lock__reticle::after {
+  content: '';
+  position: absolute;
+  background: var(--accent);
+  opacity: 0.45;
+}
+
+.lock__reticle::before {
+  left: 50%;
+  top: -7px;
+  width: 1px;
+  height: 38px;
+  transform: translateX(-50%);
+}
+
+.lock__reticle::after {
+  top: 50%;
+  left: -7px;
+  height: 1px;
+  width: 38px;
+  transform: translateY(-50%);
+}
+
+.lock__leader {
+  position: absolute;
+  left: 13px;
+  top: -13px;
+  width: 36px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+  transform-origin: left center;
+  transform: rotate(-34deg);
+}
+
+.lock__tag {
+  position: absolute;
+  left: 44px;
+  top: -42px;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 3px var(--sp-2);
+  white-space: nowrap;
+  background: var(--bg-panel);
+  border: 1px solid var(--accent-soft);
+  border-radius: var(--radius-sm);
+  backdrop-filter: blur(6px);
+  box-shadow: var(--glow-soft);
+}
+
+.lock__name {
+  font-size: var(--fs-body);
+  color: var(--text-hi);
+}
+
+.lock__code {
+  font-size: var(--fs-label);
+  color: var(--accent);
+  opacity: 0.85;
+}
+
+/* 指针靠近右缘时标注翻到左侧，避免出屏 */
+.lock--flip .lock__leader {
+  left: -13px;
+  transform: rotate(34deg) scaleX(-1);
+}
+
+.lock--flip .lock__tag {
+  left: auto;
+  right: 44px;
+}
+
+@keyframes hud-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes lock-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.14);
+    opacity: 0.55;
+  }
 }
 </style>
