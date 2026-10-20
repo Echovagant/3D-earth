@@ -10,17 +10,20 @@
 
 | 路径 | 职责 |
 | --- | --- |
-| `src/App.vue` | 应用外壳与全局盒模型（`html/body` 归零 margin，避免滚动条） |
-| `src/main.js` | 入口：装配 router 与 pinia |
+| `src/App.vue` | 应用外壳与全局盒模型 |
+| `src/main.js` | 入口：装配 router 与 pinia，并引入 `styles/tokens.css` |
 | `src/router/index.js` | 路由表：`/` → 地球，`/province/:adcode` → 详情页，兜底重定向 |
-| `src/components/EarthScene.vue` | 地球场景：Three.js 初始化、渲染循环、拾取、hover、聚焦飞行 |
+| `src/styles/tokens.css` | 设计令牌：颜色、字号、间距、动效时长。组件内不写死具体数值 |
+| `src/components/EarthScene.vue` | 地球场景：Three.js 初始化、渲染循环、拾取、HUD 覆盖层 |
+| `src/components/HudPanel.vue` | 通用玻璃面板（四角角标 + 标题栏） |
+| `src/components/ProvinceLegend.vue` | 右上角分区图例，与球面悬停双向联动 |
 | `src/components/ProvincePage.vue` | 省份详情页（读 `public/data/provinces/<adcode>.json`） |
-| `src/components/ProvinceLegend.vue` | 右上角省色图例（纯展示组件） |
 | `src/utils/geoDataProcessor.js` | GeoJSON → 球面 Mesh 的三角化、贴面与描边 |
-| `src/utils/provinceColors.js` | adcode → 颜色的稳定映射（不要改成按数组顺序轮转） |
+| `src/utils/provinceColors.js` | adcode → 颜色的稳定映射与地理分区 |
 | `src/__tests__/` | Vitest 用例 |
 | `public/geojson/` | 地理数据源，**只读** |
 | `public/data/provinces/` | 省份详情页静态数据（示例值） |
+| `docs/` | README 引用的界面截图 |
 
 ## 常用命令
 
@@ -48,7 +51,7 @@ npm run build          # 生产构建
 ## 代码约定
 
 - 组件用 `<script setup>`，注释与文档用中文，标识符用英文。
-- 样式用 `<style scoped>`，颜色与字号用 CSS 变量或硬编码都可以，但保持与现有暗色主题一致。
+- 样式用 `<style scoped>`，颜色与字号一律取 `src/styles/tokens.css` 里的变量，不要写死具体色值。
 - Three.js 的状态放在 `<script setup>` 的模块作用域变量里，**不要挂到 `window` 上**——组件卸载时无法回收。
 - 组件卸载必须：取消 `requestAnimationFrame`、解绑事件监听、释放几何体/材质/贴图、清除引用。
 
