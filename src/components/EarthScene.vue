@@ -7,11 +7,19 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { useRouter } from 'vue-router'
-import { createProvinceMeshFromFeature } from '../utils/geoDataProcessor'
+import { createProvinceMeshFromFeature, lonLatToCartesian } from '../utils/geoDataProcessor'
 
 const container = ref(null)
 const router = useRouter()
+
+// 组件级状态：原先星空相关状态被挂到了 window 上，既污染全局又无法随组件释放
 let scene, camera, renderer, earth, controls, animationId
+let provinceGroup = null
+let stars = null
+let starGeometry = null
+let starSizes = null
+let twinkleStars = null
+let removePointerListeners = null
 
 onMounted(() => {
   initThree()
@@ -19,15 +27,42 @@ onMounted(() => {
   initControls()
   initProvinces() // 初始化中国省份地图
   initRaycaster()
+  window.addEventListener('resize', onResize)
   animate()
   focusOnChina() // 初始视角聚焦中国
 })
 
 onUnmounted(() => {
   cancelAnimationFrame(animationId)
-  controls.dispose()
-  renderer.dispose()
+  window.removeEventListener('resize', onResize)
+  removePointerListeners?.()
+  controls?.dispose()
+  disposeScene()
+  renderer?.dispose()
 })
+
+// 释放场景里的几何体、材质与贴图。只调用 renderer.dispose() 只能回收 WebGL 上下文，
+// 几何体/材质/贴图仍会留在 GPU 上；每次进出省份页都会累积一份。
+const disposeScene = () => {
+  if (!scene) return
+  const disposedTextures = new Set()
+  scene.traverse((obj) => {
+    if (obj.geometry) obj.geometry.dispose()
+    const materials = Array.isArray(obj.material) ? obj.material : [obj.material]
+    materials.forEach((material) => {
+      if (!material) return
+      Object.values(material).forEach((value) => {
+        if (value && value.isTexture && !disposedTextures.has(value)) {
+          disposedTextures.add(value)
+          value.dispose()
+        }
+      })
+      material.dispose()
+    })
+  })
+  scene.clear()
+  scene = null
+}
 
 const initThree = () => {
   // 初始化场景
@@ -40,6 +75,8 @@ const initThree = () => {
 
   // 初始化渲染器
   renderer = new THREE.WebGLRenderer({ antialias: true })
+  // 高分屏下按设备像素比渲染，否则画面会发糊
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
   renderer.setSize(clientWidth, clientHeight)
   container.value.appendChild(renderer.domElement)
 
@@ -87,13 +124,13 @@ const initEarth = () => {
 // 添加星空背景创建函数 - 优化版本，减少晕3D问题
 const createStarfield = () => {
   // 创建星空几何体
-  const starGeometry = new THREE.BufferGeometry()
+  starGeometry = new THREE.BufferGeometry()
   const starCount = 5000 // 减少星星数量，降低视觉复杂度
 
   // 创建星星位置数组
   const positions = new Float32Array(starCount * 3)
   const colors = new Float32Array(starCount * 3)
-  const sizes = new Float32Array(starCount)
+  starSizes = new Float32Array(starCount)
 
   // 填充星星数据
   for (let i = 0; i < starCount; i++) {
@@ -117,13 +154,13 @@ const createStarfield = () => {
     colors[i * 3 + 1] = colorIntensity - blueTint * 0.1 // G
     colors[i * 3 + 2] = colorIntensity + blueTint // B
 
-    // 使用更小的星星大小
-    sizes[i] = 0.4 + Math.random() * 1.2
+    // 每颗星的基准大小（逐顶点属性 aSize）
+    starSizes[i] = 0.8 + Math.random() * 1.4
   }
 
   starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
   starGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
-  starGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1))
+  starGeometry.setAttribute('aSize', new THREE.BufferAttribute(starSizes, 1))
 
   // 创建星星材质 - 使用更柔和的设置
   const starMaterial = new THREE.PointsMaterial({
@@ -135,26 +172,41 @@ const createStarfield = () => {
     blending: THREE.AdditiveBlending,
   })
 
+  // PointsMaterial 的顶点着色器只读 uniform size（gl_PointSize = size;），
+  // 没有逐顶点大小属性。原先把逐顶点 'size' 写进去、每帧改写并标记 needsUpdate，
+  // 视觉上完全不起作用，只白白触发一次 GPU buffer 上传。
+  // 这里注入 aSize 属性并接管 gl_PointSize 的赋值，闪烁才真正生效。
+  starMaterial.onBeforeCompile = (shader) => {
+    shader.vertexShader = `attribute float aSize;\n${shader.vertexShader.replace(
+      'gl_PointSize = size;',
+      'gl_PointSize = aSize;',
+    )}`
+  }
+
   // 创建星星系统
-  const stars = new THREE.Points(starGeometry, starMaterial)
+  stars = new THREE.Points(starGeometry, starMaterial)
 
   // 将星星添加到场景中，但设置为不随相机旋转
   stars.userData = { isStarfield: true, originalRotation: stars.rotation.clone() }
   scene.add(stars)
 
   // 添加一些闪烁的星星（使用动画）- 减少闪烁星星数量
-  const twinkleStars = []
+  twinkleStars = []
   for (let i = 0; i < 50; i++) {
     // 减少闪烁星星数量
     const starIndex = Math.floor(Math.random() * starCount)
     twinkleStars.push(starIndex)
   }
+}
 
-  // 在动画循环中添加闪烁效果
-  window.twinkleStars = twinkleStars
-  window.starSizes = sizes
-  window.starGeometry = starGeometry
-  window.stars = stars // 保存星星引用，用于控制移动
+// 容器尺寸跟随窗口变化：同步画布尺寸与相机长宽比
+const onResize = () => {
+  if (!container.value || !renderer || !camera) return
+  const { clientWidth, clientHeight } = container.value
+  if (!clientWidth || !clientHeight) return
+  camera.aspect = clientWidth / clientHeight
+  camera.updateProjectionMatrix()
+  renderer.setSize(clientWidth, clientHeight)
 }
 
 const initControls = () => {
@@ -164,19 +216,20 @@ const initControls = () => {
   controls.enableDamping = true // 启用阻尼惯性
   controls.dampingFactor = 0.05
   controls.rotateSpeed = 0.5
-  controls.minDistance = 2.5 // 限制最小缩放距离
-  controls.maxDistance = 10 // 限制最大缩放距离
+  controls.minDistance = 2.3 // 允许贴近球面观察省份
+  controls.maxDistance = 12 // 允许拉远看整球
 }
 
 const initProvinces = async () => {
   try {
     // 加载中国省份GeoJSON数据
     const response = await fetch('/geojson/china-provinces.json')
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
     const geoJson = await response.json()
 
     // 将GeoJSON数据转换为3D对象并添加到地球
-    const provinces = createProvincesFromGeoJson(geoJson)
-    earth.add(provinces)
+    provinceGroup = createProvincesFromGeoJson(geoJson)
+    earth.add(provinceGroup)
   } catch (error) {
     console.error('加载省份数据失败:', error)
   }
@@ -230,7 +283,15 @@ const initRaycaster = () => {
   let mouseDownTime = 0
   let mouseDownPosition = { x: 0, y: 0 }
   let hoveredProvince = null
-  let originalMaterials = new Map()
+  let highlightMaterial = null
+  const originalMaterials = new Map()
+
+  // 只对省份组求交：原先对整个 scene 递归求交，会连 5000 个点的星空一起算，
+  // 而每次 mousemove 都会触发一次
+  const pickProvinces = () => {
+    if (!provinceGroup) return []
+    return raycaster.intersectObjects(provinceGroup.children, false)
+  }
 
   const onMouseDown = (event) => {
     isDragging = false
@@ -268,7 +329,7 @@ const initRaycaster = () => {
     raycaster.setFromCamera(mouse, camera)
 
     // 检测悬停对象
-    const intersects = raycaster.intersectObjects(scene.children, true)
+    const intersects = pickProvinces()
 
     let currentHovered = null
     for (const intersect of intersects) {
@@ -286,12 +347,18 @@ const initRaycaster = () => {
         originalMaterials.delete(hoveredProvince)
       }
 
+      // 释放上一轮克隆出来的高亮材质，否则每次切换悬停都会漏一个材质
+      if (highlightMaterial) {
+        highlightMaterial.dispose()
+        highlightMaterial = null
+      }
+
       // 高亮当前悬停的省份
       if (currentHovered) {
         originalMaterials.set(currentHovered, currentHovered.material)
 
         // 创建高亮材质
-        const highlightMaterial = currentHovered.material.clone()
+        highlightMaterial = currentHovered.material.clone()
         highlightMaterial.emissive = new THREE.Color(0x444444) // 添加自发光效果
         highlightMaterial.opacity = 0.9
 
@@ -312,7 +379,7 @@ const initRaycaster = () => {
     raycaster.setFromCamera(mouse, camera)
 
     // 计算与射线相交的物体
-    const intersects = raycaster.intersectObjects(scene.children, true)
+    const intersects = pickProvinces()
 
     for (const intersect of intersects) {
       if (intersect.object.userData.isProvince) {
@@ -326,9 +393,13 @@ const initRaycaster = () => {
   renderer.domElement.addEventListener('mousedown', onMouseDown)
   renderer.domElement.addEventListener('mousemove', onMouseMove)
   renderer.domElement.addEventListener('mouseup', onMouseUp)
-  renderer.domElement.addEventListener('mousemove', onMouseMove)
 
-  //renderer.domElement.addEventListener('click', onMouseClick)
+  // 卸载时解绑：原先只注册不解绑，组件反复挂载会叠加监听器
+  removePointerListeners = () => {
+    renderer.domElement.removeEventListener('mousedown', onMouseDown)
+    renderer.domElement.removeEventListener('mousemove', onMouseMove)
+    renderer.domElement.removeEventListener('mouseup', onMouseUp)
+  }
 }
 
 const handleProvinceClick = (provinceName) => {
@@ -336,10 +407,15 @@ const handleProvinceClick = (provinceName) => {
   router.push(`/province/${provinceName}`)
 }
 
+// 首屏视角：相机站到中国中部（lon 105 / lat 33）正对球心。
+// 距离 3.6 时球面视角半径 asin(2/3.6)=33.8°，小于垂直半 FOV 37.5°，整球完整可见。
+const FOCUS = { lon: 105, lat: 33, distance: 3.6 }
+
 const focusOnChina = () => {
-  // 设置相机位置聚焦到中国区域（经纬度转换）
-  const chinaPosition = new THREE.Vector3(-1.2, 0.3, 1.8)
-  camera.position.copy(chinaPosition)
+  // 之前这里硬编码 new THREE.Vector3(-1.2, 0.3, 1.8)，
+  // 换算成经纬度是 lon -123.7 / lat 7.9 —— 太平洋，不是中国。
+  const [x, y, z] = lonLatToCartesian(FOCUS.lon, FOCUS.lat, FOCUS.distance)
+  camera.position.set(x, y, z)
   controls.target.set(0, 0, 0)
   controls.update()
 }
@@ -347,29 +423,29 @@ const focusOnChina = () => {
 const animate = () => {
   animationId = requestAnimationFrame(animate)
 
-  // 地球自转
-  earth.rotation.y += 0.001
+  // 地球自转（约 0.68°/s）。原先 0.001/帧 ≈ 3.4°/s，中国十几秒就转出视野。
+  if (earth) earth.rotation.y += 0.0002
 
-  // 星星闪烁效果
-  if (window.twinkleStars && window.starSizes && window.starGeometry) {
+  // 星星闪烁效果（逐顶点 aSize，材质已接管 gl_PointSize）
+  if (twinkleStars && starSizes && starGeometry) {
     const time = Date.now() * 0.001
-    window.twinkleStars.forEach((starIndex, index) => {
+    twinkleStars.forEach((starIndex, index) => {
       const starTime = time + index * 0.1
       const twinkle = Math.sin(starTime * 2) * 0.2 + 0.8 // 减缓闪烁频率和幅度
-      window.starSizes[starIndex] = (0.3 + Math.random() * 1.2) * twinkle
+      starSizes[starIndex] = (0.8 + Math.random() * 1.4) * twinkle
     })
-    window.starGeometry.attributes.size.needsUpdate = true
+    starGeometry.attributes.aSize.needsUpdate = true
   }
 
   // 控制星空移动 - 让星空移动更缓慢
-  if (window.stars) {
+  if (stars) {
     // 获取相机旋转角度，但只使用一小部分来移动星空
     const cameraRotation = camera.rotation
     const slowFactor = 0.1 // 星空移动速度因子，越小移动越慢
 
     // 让星空以相机旋转的10%速度反向移动，创造相对静止效果
-    window.stars.rotation.x = -cameraRotation.x * slowFactor
-    window.stars.rotation.y = -cameraRotation.y * slowFactor
+    stars.rotation.x = -cameraRotation.x * slowFactor
+    stars.rotation.y = -cameraRotation.y * slowFactor
   }
 
   controls.update()
@@ -379,8 +455,8 @@ const animate = () => {
 
 <style scoped>
 .earth-container {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
 }
 </style>
