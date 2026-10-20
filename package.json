@@ -16,14 +16,11 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@tresjs/cientos": "^5.1.0",
-    "@tresjs/core": "^5.1.0",
-    "axios": "^1.12.2",
+    "earcut": "^2.2.2",
     "pinia": "^3.0.3",
     "three": "^0.180.0",
     "vue": "^3.5.22",
-    "vue-router": "^4.6.3",
-    "earcut": "^2.2.2"
+    "vue-router": "^4.6.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.37.0",
