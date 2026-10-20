@@ -1,15 +1,15 @@
 <template>
-  <HudPanel class="legend" :title="collapsed ? '图例' : '省级行政区'" :meta="`${items.length}`">
-    <button
-      v-if="!collapsed"
-      class="legend__search"
-      type="button"
-      @click="searching = !searching"
-    >
-      <span class="legend__search-icon">⌕</span>
-      <span v-if="searching" class="legend__search-input">{{ keyword || '过滤…' }}</span>
-      <span v-else>过滤</span>
-    </button>
+  <HudPanel class="legend" :title="collapsed ? '图例' : '省级行政区'" :meta="`${visibleCount}`">
+    <div v-if="!collapsed" class="legend__search">
+      <span class="legend__search-icon" aria-hidden="true">⌕</span>
+      <input
+        v-model="keyword"
+        class="legend__search-field"
+        type="search"
+        placeholder="按名称 / 代码过滤"
+        aria-label="按名称或行政区划代码过滤省份"
+      />
+    </div>
 
     <div v-if="!collapsed" class="legend__body">
       <p v-if="!grouped.length" class="legend__empty">无匹配项</p>
@@ -53,15 +53,23 @@ const props = defineProps({
 defineEmits(['hover'])
 
 const collapsed = ref(false)
-const searching = ref(false)
 const keyword = ref('')
 
 const grouped = computed(() => {
-  const list = keyword.value
-    ? props.items.filter((item) => item.name.includes(keyword.value))
+  const kw = keyword.value.trim().toLowerCase()
+  const list = kw
+    ? props.items.filter(
+        (item) =>
+          item.name.toLowerCase().includes(kw) || String(item.adcode).includes(kw),
+      )
     : props.items
   return groupByRegion(list)
 })
+
+// 面板角标的计数要跟着过滤走，否则过滤后仍显示总数
+const visibleCount = computed(() =>
+  grouped.value.reduce((sum, group) => sum + group.items.length, 0),
+)
 </script>
 
 <style scoped>
@@ -166,30 +174,47 @@ const grouped = computed(() => {
   display: flex;
   align-items: center;
   gap: var(--sp-2);
-  width: 100%;
   margin-bottom: var(--sp-3);
-  padding: var(--sp-1) var(--sp-2);
+  padding: 0 var(--sp-2);
   border: 1px solid var(--line-faint);
   border-radius: var(--radius-sm);
-  background: rgba(0, 0, 0, 0.25);
-  color: var(--text-lo);
-  font-size: var(--fs-label);
-  font-family: var(--font-mono);
-  letter-spacing: 0.1em;
-  cursor: pointer;
+  background: rgba(0, 0, 0, 0.28);
+  transition: border-color var(--dur-fast) var(--ease);
 }
 
-.legend__search:hover {
-  border-color: var(--line);
-  color: var(--text-mid);
+.legend__search:focus-within {
+  border-color: var(--accent-soft);
+  box-shadow: var(--glow-soft);
 }
 
 .legend__search-icon {
+  flex: none;
   color: var(--accent);
+  font-size: 13px;
+  line-height: 1;
 }
 
-.legend__search-input {
+.legend__search-field {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 0;
+  border: none;
+  outline: none;
+  background: transparent;
   color: var(--text-hi);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.06em;
+}
+
+.legend__search-field::placeholder {
+  color: var(--text-lo);
+}
+
+/* 原生清除按钮在深色底上默认是深色，反相一下才看得见 */
+.legend__search-field::-webkit-search-cancel-button {
+  filter: invert(0.7);
+  cursor: pointer;
 }
 
 .legend__toggle {
