@@ -28,12 +28,15 @@ export function createProvinceMeshFromFeature(feature, options = {}) {
 
   const geomPositions = [] // will hold flattened triangle vertex coords
 
-  const geom3DVertices = [] // temporary list of vertex 3D coords per feature (indexed by order added)
-
   // helper to process a single polygon (array of rings)
   const processPolygon = (rings) => {
     const flat2D = [] // [x0,y0, x1,y1, ...] for earcut
     const holeIndices = []
+
+    // 顶点表必须每个 polygon 重建：earcut 的索引在每个 polygon 内从 0 开始，
+    // 若跨 polygon 累加，第 2 个及以后的 polygon 会错位引用第 1 个 polygon 的顶点，
+    // 导致多岛屿省份（海南、台湾、浙江、广东…）只渲染出第一个 polygon。
+    const geom3DVertices = [] // temporary list of vertex 3D coords for this polygon
 
     // For mapping 2D indices back to 3D coords, push 3D per coordinate in same order
     rings.forEach((ring, rIndex) => {
