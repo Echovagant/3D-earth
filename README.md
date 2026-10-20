@@ -8,6 +8,7 @@
 
 中国 35 个省级行政区实时渲染 · 球面拾取与相机聚焦 · 省份详情页
 
+[![CI](https://github.com/Echovagant/3D-earth/actions/workflows/ci.yml/badge.svg)](https://github.com/Echovagant/3D-earth/actions/workflows/ci.yml)
 [![stars](https://img.shields.io/github/stars/Echovagant/3D-earth?style=flat-square&label=stars&color=4fd8ff)](https://github.com/Echovagant/3D-earth/stargazers)
 [![forks](https://img.shields.io/github/forks/Echovagant/3D-earth?style=flat-square&label=forks&color=4fd8ff)](https://github.com/Echovagant/3D-earth/network/members)
 [![license](https://img.shields.io/github/license/Echovagant/3D-earth?style=flat-square&label=license&color=4fd8ff)](./LICENSE)
@@ -64,9 +65,12 @@
 npm install
 npm run dev            # 开发服务器
 npm run test:unit      # 跑一次测试
-npm run lint           # ESLint
+npm run lint:check     # ESLint 检查（不改动文件）
 npm run build          # 生产构建
+npm run check          # 上面三项串起来，与 CI 跑的是同一套
 ```
+
+CI 在每次 push 与 PR 上自动跑 `lint:check` + `test:unit` + `build`。
 
 ## 目录结构
 

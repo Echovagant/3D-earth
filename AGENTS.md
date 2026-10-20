@@ -32,13 +32,18 @@ npm install
 npm run dev            # 开发服务器
 npm run test:unit      # 跑一次测试；watch 用 npm run test:unit:watch
 npm run lint           # ESLint（带 --fix，会改文件）
+npm run lint:check     # ESLint 检查（不改文件，CI 用这个）
+npm run check          # lint:check + test:unit + build，与 CI 同一条链路
 npm run format         # Prettier
 npm run build          # 生产构建
 ```
 
-`npm run test:unit` 必须是绿的才算完成改动。当前有 6 个用例：
-`src/__tests__/App.spec.js`（应用挂载）与 `src/__tests__/geoDataProcessor.spec.js`
-（35 个要素的渲染范围覆盖、与参考实现逐顶点一致、海南/台湾/九段线定点断言）。
+CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `test:unit` + `build`。
+
+`npm run test:unit` 必须是绿的才算完成改动。当前有 79 个用例：
+`src/__tests__/App.spec.js`（应用挂载）、
+`src/__tests__/geoDataProcessor.spec.js`（35 个要素的渲染范围覆盖、与参考实现逐顶点一致、海南/台湾/九段线定点断言）、
+`src/__tests__/provinceData.spec.js`（省份详情数据与 GeoJSON 的一致性契约：adcode/name/center 严格相等、字段结构完整、分区覆盖无重叠、配色不落兜底）。
 
 ## 硬约束
 

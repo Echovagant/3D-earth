@@ -32,7 +32,7 @@
       </p>
 
       <div
-        v-if="hoveredName"
+        v-if="hoveredName && highlightSource === 'globe'"
         class="lock"
         :class="{ 'lock--flip': pointer.flip }"
         :style="lockStyle"
@@ -64,6 +64,9 @@ const router = useRouter()
 // 悬停中的省份
 const hoveredName = ref('')
 const hoveredAdcode = ref('')
+// 高亮来源：'globe' 来自球面拾取，'legend' 来自图例悬停。
+// 准星标注跟着球面指针走，图例悬停时指针并不在球面上，画出来会指向错误的省份。
+const highlightSource = ref('globe')
 // 指针在容器内的位置，用于 HUD 锁定标注跟随
 const pointer = ref({ x: 0, y: 0, flip: false })
 // 遥测读数
@@ -127,7 +130,11 @@ const formatLonLat = (lon, lat) => {
 }
 
 // 统一的悬停切换：还原旧材质、释放旧高亮材质、设置新高亮材质
-const setHovered = (next) => {
+// source 标明这次高亮来自哪里，决定是否画准星标注
+const setHovered = (next, source = 'globe') => {
+  // 来源必须在早退之前更新：同一个省份可能先从图例悬停、再从球面悬停命中，
+  // 目标没变会走早退，但准星该重新出现。
+  highlightSource.value = source
   if (next === hoveredProvince) return
 
   // 恢复之前悬停的省份
@@ -158,14 +165,15 @@ const setHovered = (next) => {
   hoveredAdcode.value = next?.userData.adcode ?? ''
 }
 
-// 图例项悬停 → 在球面上高亮对应省份
+// 图例项悬停 → 在球面上高亮对应省份。
+// 此时指针在图例面板上而不在球面上，准星标注没有正确的落点，不画。
 const onLegendHover = (adcode) => {
   if (!adcode) {
     setHovered(null)
     return
   }
   const mesh = provinceGroup?.children.find((m) => m.userData.adcode === adcode)
-  setHovered(mesh ?? null)
+  setHovered(mesh ?? null, 'legend')
 }
 
 onMounted(() => {
