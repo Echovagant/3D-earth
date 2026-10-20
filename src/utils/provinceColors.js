@@ -63,6 +63,25 @@ export function toHexString(color) {
 }
 
 /**
+ * 地级市配色。城市没有地理分区可依，用 adcode 哈希取色：
+ * 同一个市永远是同一个颜色，且分布均匀。
+ */
+const CITY_PALETTE = [
+  '#4fd8ff', '#5b8cff', '#7c6cff', '#b06cff', '#ff6bd6', '#ff6b8f',
+  '#ff9f43', '#ffc857', '#a3e635', '#3ddc97', '#3db8d4', '#6b7a99',
+]
+
+/** 取地级市的颜色 */
+export function getCityColor(adcode) {
+  const key = String(adcode ?? '')
+  let hash = 0
+  for (let i = 0; i < key.length; i++) {
+    hash = (hash * 31 + key.charCodeAt(i)) >>> 0
+  }
+  return CITY_PALETTE[hash % CITY_PALETTE.length]
+}
+
+/**
  * 地理分区。图例按分区分组展示，比一长串省份名更容易扫读。
  * adcode 与 china-provinces.json 严格对应，覆盖全部 34 个省级行政区。
  */

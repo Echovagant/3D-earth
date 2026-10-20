@@ -1,5 +1,5 @@
 <template>
-  <HudPanel class="legend" :title="collapsed ? '图例' : '省级行政区'" :meta="`${visibleCount}`">
+  <HudPanel class="legend" :title="collapsed ? '图例' : title" :meta="`${visibleCount}`">
     <div v-if="!collapsed" class="legend__search">
       <span class="legend__search-icon" aria-hidden="true">⌕</span>
       <input
@@ -12,9 +12,9 @@
     </div>
 
     <div v-if="!collapsed" class="legend__body">
-      <p v-if="!grouped.length" class="legend__empty">无匹配项</p>
-      <div v-for="group in grouped" :key="group.key" class="legend__group">
-        <div class="legend__group-label">{{ group.label }}</div>
+      <p v-if="!groups.length || !groups[0].items.length" class="legend__empty">无匹配项</p>
+      <div v-for="group in groups" :key="group.key" class="legend__group">
+        <div v-if="group.label" class="legend__group-label">{{ group.label }}</div>
         <ul class="legend__list">
           <li
             v-for="item in group.items"
@@ -48,6 +48,10 @@ const props = defineProps({
   items: { type: Array, required: true },
   /** 当前在球面上悬停的 adcode */
   active: { type: String, default: '' },
+  /** 是否按地理分区分组。城市层级没有分区可用，改为平铺 */
+  grouped: { type: Boolean, default: true },
+  /** 面板标题 */
+  title: { type: String, default: '省级行政区' },
 })
 
 defineEmits(['hover'])
@@ -55,7 +59,7 @@ defineEmits(['hover'])
 const collapsed = ref(false)
 const keyword = ref('')
 
-const grouped = computed(() => {
+const groupedItems = computed(() => {
   const kw = keyword.value.trim().toLowerCase()
   const list = kw
     ? props.items.filter(
@@ -63,12 +67,17 @@ const grouped = computed(() => {
           item.name.toLowerCase().includes(kw) || String(item.adcode).includes(kw),
       )
     : props.items
-  return groupByRegion(list)
+  return props.grouped ? groupByRegion(list) : list
 })
+
+// 平铺模式下包成一个无标题的分组，模板就不用分两套结构
+const groups = computed(() =>
+  props.grouped ? groupedItems.value : [{ key: 'all', label: '', items: groupedItems.value }],
+)
 
 // 面板角标的计数要跟着过滤走，否则过滤后仍显示总数
 const visibleCount = computed(() =>
-  grouped.value.reduce((sum, group) => sum + group.items.length, 0),
+  groups.value.reduce((sum, group) => sum + group.items.length, 0),
 )
 </script>
 

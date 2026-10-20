@@ -18,18 +18,30 @@
         </dl>
       </HudPanel>
 
+      <nav v-if="isCityLevel" class="hud__breadcrumb">
+        <button type="button" class="hud__crumb" @click="backToCountry">
+          <span class="hud__crumb-arrow">‹</span>全国
+        </button>
+        <span class="hud__crumb-sep">/</span>
+        <span class="hud__crumb-current">{{ scopeName }}</span>
+        <span class="hud__crumb-sep">/</span>
+        <span class="hud__crumb-current">地级市</span>
+      </nav>
+
       <ProvinceLegend
         v-if="legendItems.length"
         class="hud__legend"
         :items="legendItems"
         :active="hoveredAdcode"
+        :grouped="!isCityLevel"
+        :title="isCityLevel ? '地级市' : '省级行政区'"
         @hover="onLegendHover"
       />
 
       <p class="hud__hint">
         <span>拖拽</span> 旋转
         <span>滚轮</span> 缩放
-        <span>点击</span> 进入省份
+        <span>点击</span> {{ isCityLevel ? '进入地级市' : '进入省份' }}
       </p>
 
       <button class="hud__labels-toggle" type="button" @click="labelsVisible = !labelsVisible">
@@ -72,12 +84,13 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { useRouter } from 'vue-router'
 import { createProvinceMeshFromFeature, lonLatToCartesian } from '../utils/geoDataProcessor'
-import { getProvinceColor, toHexString } from '../utils/provinceColors'
+import { getProvinceColor, getCityColor, toHexString } from '../utils/provinceColors'
+import { areaDataUrl, featureAreaKm2 } from '../utils/areaData'
 import {
   LABEL_BASE_HEIGHT,
   cameraDirectionInEarthFrame,
@@ -96,6 +109,20 @@ import ProvinceLegend from './ProvinceLegend.vue'
 
 const container = ref(null)
 const router = useRouter()
+
+const props = defineProps({
+  /**
+   * 视角范围：
+   * - { type: 'country' }          省级视角
+   * - { type: 'province', adcode } 指定省的地级市视角
+   */
+  scope: { type: Object, default: () => ({ type: 'country' }) },
+})
+
+// 是否处于地级市视角
+const isCityLevel = computed(() => props.scope.type === 'province')
+// 面包屑里显示的省名
+const scopeName = ref('')
 
 // 悬停中的省份
 const hoveredName = ref('')
@@ -486,14 +513,38 @@ const initControls = () => {
   controls.maxDistance = 12 // 允许拉远看整球
 }
 
+// 按当前视角取边界数据。
+// 省级视角用随仓库分发的文件；地级市视角按需从 DataV 拉取那一个省的城市边界，
+// 不必把 30+ 个省的文件都塞进仓库。
+const loadBoundaryData = async () => {
+  if (!isCityLevel.value) {
+    const response = await fetch('/geojson/china-provinces.json')
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    return { geoJson: await response.json(), provinceFeature: null }
+  }
+
+  const [citiesResponse, nationalResponse] = await Promise.all([
+    fetch(areaDataUrl(props.scope.adcode)),
+    fetch('/geojson/china-provinces.json'),
+  ])
+  if (!citiesResponse.ok) throw new Error(`HTTP ${citiesResponse.status}`)
+  if (!nationalResponse.ok) throw new Error(`HTTP ${nationalResponse.status}`)
+
+  const geoJson = await citiesResponse.json()
+  const national = await nationalResponse.json()
+  const provinceFeature =
+    national.features.find(
+      (feature) => String(feature.properties.adcode) === String(props.scope.adcode),
+    ) ?? null
+  scopeName.value = provinceFeature?.properties?.name ?? ''
+  return { geoJson, provinceFeature }
+}
+
 const initProvinces = async () => {
   provinceStatus.value = 'loading'
   provinceError.value = ''
   try {
-    // 加载中国省份GeoJSON数据
-    const response = await fetch('/geojson/china-provinces.json')
-    if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    const geoJson = await response.json()
+    const { geoJson, provinceFeature } = await loadBoundaryData()
 
     geoJson.features.forEach((feature) => {
       provinceFeatures.set(String(feature.properties.adcode), feature)
@@ -502,6 +553,23 @@ const initProvinces = async () => {
     // 将GeoJSON数据转换为3D对象并添加到地球
     provinceGroup = createProvincesFromGeoJson(geoJson)
     earth.add(provinceGroup)
+
+    // 地级市视角：先描出省界作为空间参照
+    if (provinceFeature) {
+      const outline = createProvinceMeshFromFeature(provinceFeature, {
+        radius: 2,
+        elevation: 0.012,
+        materialOptions: {
+          color: 0x4fd8ff,
+          transparent: true,
+          opacity: 0.05,
+          side: THREE.DoubleSide,
+          depthWrite: false,
+        },
+        lineColor: 0x4fd8ff,
+      })
+      if (outline) earth.add(outline)
+    }
 
     // 球面省名标注
     labelGroup = createProvinceLabels(geoJson.features)
@@ -513,14 +581,27 @@ const initProvinces = async () => {
       .map((feature) => ({
         adcode: String(feature.properties.adcode),
         name: feature.properties.name,
-        color: toHexString(getProvinceColor(feature.properties.adcode)),
+        color: isCityLevel.value
+          ? getCityColor(feature.properties.adcode)
+          : toHexString(getProvinceColor(feature.properties.adcode)),
+        area: featureAreaKm2(feature),
       }))
+      // 城市层级没有地理分区可用，改为按面积从大到小平铺
+      .sort((a, b) => (isCityLevel.value ? b.area - a.area : 0))
+
+    // 地级市视角：飞向该省并停下自转
+    if (isCityLevel.value) {
+      const center = provinceFeature?.properties?.center
+      if (Array.isArray(center) && center.length >= 2) {
+        flyTo(center[0], center[1], 2.9)
+      }
+    }
 
     provinceStatus.value = 'ready'
   } catch (error) {
     provinceError.value = `行政区划数据加载失败：${error.message}`
     provinceStatus.value = 'error'
-    console.error('加载省份数据失败:', error)
+    console.error('加载行政区划数据失败:', error)
   }
 }
 
@@ -631,6 +712,8 @@ const updateProvinceLabels = () => {
 // 加载中国整体边界：一份淡色底板 + 白色国界，让国界与省界的层级更清楚。
 // china.json 本身是 MultiPolygon，能正确三角化的前提是顶点表按 polygon 重建。
 const initCountryBorder = async () => {
+  // 地级市视角用省界做参照，不再画全国底板
+  if (isCityLevel.value) return
   try {
     const response = await fetch('/geojson/china.json')
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
@@ -671,7 +754,9 @@ const createProvincesFromGeoJson = (geoJson) => {
       radius: 2,
       elevation: 0.02,
       materialOptions: {
-        color: getProvinceColor(adcode),
+        color: isCityLevel.value
+          ? getCityColor(adcode)
+          : getProvinceColor(adcode),
         transparent: true,
         opacity: 0.7, // 降低透明度让轮廓更明显
         shininess: 30,
@@ -781,20 +866,26 @@ const initRaycaster = () => {
 }
 
 const handleProvinceClick = (provinceName, adcode) => {
-  // 相机飞到该省上空。省份网格挂在地球下并随地球自转，
-  // 所以目标方向要用当前 rotation.y 换算，否则会对错位置。
   const feature = provinceFeatures.get(String(adcode))
   const center = feature?.properties?.center
-  if (Array.isArray(center) && center.length >= 2) {
-    flyTo(center[0], center[1])
+  const canFly = Array.isArray(center) && center.length >= 2
+
+  if (!isCityLevel.value) {
+    // 省级视角：相机飞到该省上空，然后进入省份详情
+    if (canFly) flyTo(center[0], center[1])
+    // 九段线不是省级行政区，没有详情页
+    if (!provinceName) return
+    router.push(`/province/${encodeURIComponent(adcode)}`)
+    return
   }
 
-  // 九段线不是省级行政区，没有详情页
-  if (!provinceName) return
-
-  // 使用路由跳转到省份页面，参数用 adcode（比中文省名更稳）
-  router.push(`/province/${encodeURIComponent(adcode)}`)
+  // 地级市视角：相机飞到该市上空，然后进入城市详情
+  if (canFly) flyTo(center[0], center[1], 2.5)
+  router.push(`/city/${encodeURIComponent(adcode)}`)
 }
+
+// 从地级市视角返回全国视角
+const backToCountry = () => router.push('/')
 
 // 相机飞行到指定经纬度，duration 毫秒内做 easeInOutCubic 插值
 const flyTo = (lon, lat, distance = 3.2, duration = 900) => {
@@ -978,6 +1069,56 @@ const animate = () => {
 
 .hud__hint span:first-child {
   margin-left: 0;
+}
+
+/* 面包屑：地级市视角下提示当前层级并提供返回 */
+.hud__breadcrumb {
+  position: absolute;
+  top: var(--sp-4);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 5px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg-panel);
+  backdrop-filter: blur(8px);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.1em;
+  animation: hud-in var(--dur-slow) var(--ease) both;
+}
+
+.hud__crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  cursor: pointer;
+}
+
+.hud__crumb:hover {
+  text-decoration: underline;
+}
+
+.hud__crumb-arrow {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.hud__crumb-sep {
+  color: var(--text-lo);
+  opacity: 0.6;
+}
+
+.hud__crumb-current {
+  color: var(--text-hi);
 }
 
 /* 省名标注开关 */

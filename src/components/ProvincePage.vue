@@ -66,6 +66,9 @@
       </ul>
 
       <div class="province__actions">
+        <button type="button" class="province__cta province__cta--ghost" @click="drillDown">
+          下钻到地级市<span v-if="cityCount" class="mono">（{{ cityCount }} 个）</span>
+        </button>
         <button type="button" class="province__cta" @click="goBack">返回地球</button>
       </div>
     </main>
@@ -83,6 +86,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import HudPanel from './HudPanel.vue'
+import { areaDataUrl } from '../utils/areaData'
 
 const route = useRoute()
 const router = useRouter()
@@ -90,6 +94,8 @@ const router = useRouter()
 const data = ref(null)
 const loading = ref(true)
 const error = ref('')
+// 该省的地级市数量，取不到就只显示按钮不显示数字
+const cityCount = ref(null)
 
 const load = async () => {
   loading.value = true
@@ -103,7 +109,23 @@ const load = async () => {
   } finally {
     loading.value = false
   }
+  loadCityCount()
 }
+
+// 顺带取下地级市数量，让下钻入口可预期
+const loadCityCount = async () => {
+  try {
+    const res = await fetch(areaDataUrl(route.params.adcode))
+    if (!res.ok) return
+    const geo = await res.json()
+    cityCount.value = geo.features.length
+  } catch {
+    cityCount.value = null
+  }
+}
+
+// 下钻到该省的地级市
+const drillDown = () => router.push(`/drill/${route.params.adcode}`)
 
 const goBack = () => {
   // 返回地球页面
@@ -377,6 +399,7 @@ onMounted(load)
 .province__actions {
   display: flex;
   justify-content: center;
+  gap: var(--sp-3);
 }
 
 .province__cta {
@@ -395,6 +418,19 @@ onMounted(load)
 .province__cta:hover {
   background: rgba(79, 216, 255, 0.18);
   box-shadow: var(--glow-soft);
+}
+
+/* 次要按钮：下钻入口 */
+.province__cta--ghost {
+  background: transparent;
+  color: var(--text-mid);
+  border-color: var(--line);
+}
+
+.province__cta--ghost:hover {
+  color: var(--accent);
+  border-color: var(--line-strong);
+  background: var(--accent-dim);
 }
 
 /* ---------- 底部说明栏 ---------- */
