@@ -122,4 +122,6 @@ public/
 
 ## License
 
-[MIT](./LICENSE)
+[Apache License 2.0](./LICENSE)
+
+与 MIT 同为宽松协议，额外包含明确的专利授权与专利报复条款。
