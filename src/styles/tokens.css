@@ -1,0 +1,121 @@
+/*
+ * 3D-earth 设计令牌
+ * 视觉语言：深空科技 HUD —— 深蓝底 + 青色发光 + 等宽数字 + 角标框
+ * 所有颜色、字号、间距、动效时长集中在这里，组件内不写死具体数值。
+ */
+
+:root {
+  /* ---- 底色层次 ---- */
+  --bg-void: #04070f;
+  --bg-deep: #070d1a;
+  --bg-panel: rgba(9, 18, 34, 0.72);
+  --bg-panel-solid: #0a1526;
+
+  /* ---- 描边与分隔 ---- */
+  --line-faint: rgba(120, 190, 255, 0.12);
+  --line: rgba(120, 190, 255, 0.22);
+  --line-strong: rgba(120, 190, 255, 0.42);
+
+  /* ---- 主强调色 ---- */
+  --accent: #4fd8ff;
+  --accent-dim: rgba(79, 216, 255, 0.14);
+  --accent-soft: rgba(79, 216, 255, 0.32);
+  --accent-alt: #5b8cff;
+  --accent-warm: #ffc857;
+
+  /* ---- 文字 ---- */
+  --text-hi: #e8f2ff;
+  --text-mid: #9fb4d0;
+  --text-lo: #64799c;
+
+  /* ---- 发光 ---- */
+  --glow: 0 0 14px rgba(79, 216, 255, 0.4);
+  --glow-soft: 0 0 26px rgba(79, 216, 255, 0.16);
+
+  /* ---- 字体 ---- */
+  --font-ui: 'Inter', 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'JetBrains Mono', Consolas, 'Liberation Mono', monospace;
+
+  /* ---- 字号 ---- */
+  --fs-label: 10px;
+  --fs-body: 13px;
+  --fs-value: 15px;
+  --fs-title: 20px;
+
+  /* ---- 间距 ---- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+
+  /* ---- 圆角 ---- */
+  --radius-sm: 3px;
+  --radius: 6px;
+  --radius-lg: 10px;
+
+  /* ---- 动效 ---- */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-fast: 140ms;
+  --dur: 260ms;
+  --dur-slow: 600ms;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--bg-void);
+  color: var(--text-hi);
+  font-family: var(--font-ui);
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 数字、坐标、行政区划代码统一用等宽字体 */
+.mono,
+code,
+kbd,
+pre {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 全局小标签：HUD 里的小标题 */
+.hud-label {
+  font-size: var(--fs-label);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-lo);
+  font-family: var(--font-mono);
+}
+
+/* 细滚动条 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent-soft);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: #fff;
+}
