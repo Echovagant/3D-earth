@@ -71,17 +71,17 @@ import {
   LABEL_BASE_HEIGHT,
   createLabelTexture,
   labelOpacity,
-  labelHeight,
   labelPosition,
   featureSizeProxy,
   labelPixelHeight,
-  rectsOverlap,
+  placeLabels,
   cameraDirectionInEarthFrame,
   cameraLonLat,
   formatLonLat,
   earthLocalToWorld,
 } from '../utils/provinceLabels'
 import { isClickGesture } from '../utils/gesture'
+import { easeInOutCubic, pointerToNdc } from '../utils/globeMath'
 import {
   loadWorldCountries,
   countryId,
@@ -115,6 +115,8 @@ let flightFrame = 0
 let disposed = false
 /** 地球自转：每秒的弧度（约 0.68°/s） */
 const SPIN_RATE = 0.012
+/** 相机飞行的时长（毫秒）。点击后要等它跑完再跳详情页，镜头移动才看得见。 */
+const FLY_DURATION = 520
 /** 自转轴：Y 轴 */
 const SPIN_AXIS = new THREE.Vector3(0, 1, 0)
 /** 上一次推进自转的时间戳 */
@@ -160,14 +162,24 @@ const updateTelemetry = () => {
 const goHome = () => router.push('/')
 
 const selectCountry = (country) => {
-  flyTo(country.center[0], country.center[1], 2.4)
-  focused.value = country.name
-  router.push(`/country/${country.id}`)
+  // 飞行结束后再跳详情页，镜头移动才看得见
+  flyTo(country.center[0], country.center[1], 2.4, FLY_DURATION, () => {
+    focused.value = country.name
+    router.push(`/country/${country.id}`)
+  })
 }
 
-/** 相机飞行到指定经纬度 */
-const flyTo = (lon, lat, distance = 2.6, duration = 900) => {
-  if (!camera || !controls) return
+/**
+ * 相机飞行到指定经纬度。
+ *
+ * onDone 在飞行结束时回调——点击后要等它跑完再跳详情页，
+ * 否则组件一卸载，插值跟着消失，镜头移动用户根本看不见。
+ */
+const flyTo = (lon, lat, distance = 2.6, duration = FLY_DURATION, onDone = null) => {
+  if (!camera || !controls) {
+    onDone?.()
+    return
+  }
   const target = new THREE.Vector3(...lonLatToCartesian(lon, lat, 1))
   // 地球绕 Y 轴自转，目标点要跟着一起转
   const angle = earth.rotation.y
@@ -189,10 +201,15 @@ const flyTo = (lon, lat, distance = 2.6, duration = 900) => {
   const tick = () => {
     if (!camera || !controls) return
     const t = Math.min(1, (performance.now() - start) / duration)
-    const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
+    const eased = easeInOutCubic(t)
     camera.position.lerpVectors(from, to, eased)
     controls.target.set(0, 0, 0)
-    if (t < 1) flightFrame = requestAnimationFrame(tick)
+    if (t < 1) {
+      flightFrame = requestAnimationFrame(tick)
+    } else {
+      flightFrame = 0
+      onDone?.()
+    }
   }
   flightFrame = requestAnimationFrame(tick)
 }
@@ -280,9 +297,8 @@ const onResize = () => {
 /** 射线拾取：找出点到的国家 */
 const pickCountry = (event) => {
   if (!countryGroup) return null
-  const ndcX = ((event.clientX - canvasRect.left) / canvasRect.width) * 2 - 1
-  const ndcY = -((event.clientY - canvasRect.top) / canvasRect.height) * 2 + 1
-  pickRaycaster.setFromCamera(pickNdc.set(ndcX, ndcY), camera)
+  const ndc = pointerToNdc(event.clientX, event.clientY, canvasRect)
+  pickRaycaster.setFromCamera(pickNdc.set(ndc.x, ndc.y), camera)
   const hits = pickRaycaster.intersectObjects(countryGroup.children, false)
   for (const hit of hits) {
     if (hit.object.userData.isCountry) return hit.object.userData
@@ -311,9 +327,10 @@ const onMouseUp = (event) => {
   if (isClickGesture(duration, distance)) {
     const data = pickCountry(event)
     if (data) {
-      flyTo(data.center[0], data.center[1], 2.4)
-      focused.value = data.name
-      router.push(`/country/${data.id}`)
+      flyTo(data.center[0], data.center[1], 2.4, FLY_DURATION, () => {
+        focused.value = data.name
+        router.push(`/country/${data.id}`)
+      })
     }
   }
   mouseDownTime = 0
@@ -424,24 +441,7 @@ const updateLabels = () => {
   }
 
   // 大国先占位，小国与已放置标签重叠就让位
-  candidates.sort((a, b) => b.priority - a.priority)
-  const placed = []
-  for (const item of candidates) {
-    const halfW = (pixelH * item.aspect) / 2 + 3
-    const halfH = pixelH / 2 + 3
-    const box = { l: item.x - halfW, r: item.x + halfW, t: item.y - halfH, b: item.y + halfH }
-
-    if (placed.some((other) => rectsOverlap(box, other))) {
-      item.sprite.visible = false
-      continue
-    }
-    placed.push(box)
-
-    item.sprite.visible = true
-    item.sprite.material.opacity = item.opacity
-    const height = labelHeight(item.distance)
-    item.sprite.scale.set(height * item.aspect, height, 1)
-  }
+  placeLabels(candidates, pixelH)
 }
 
 const animate = () => {

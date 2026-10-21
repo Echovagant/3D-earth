@@ -116,6 +116,40 @@ export function rectsOverlap(a, b, padding = 0) {
 }
 
 /**
+ * 屏幕空间贪心放置标注。
+ *
+ * 按 priority（区域越大越优先）依次放置，与已放置标签重叠的就隐藏。
+ * 东海岸省份密集，不去重叠会糊成一团；放大后标签散开，更多省份会自动出现。
+ *
+ * 每个候选要带：sprite、opacity、priority、aspect、distance、x、y（屏幕坐标）。
+ * 就地修改 sprite 的 visible / opacity / scale。
+ *
+ * @param {Array} candidates
+ * @param {number} pixelH 标签在屏幕上的高度（像素）
+ */
+export function placeLabels(candidates, pixelH) {
+  const ordered = [...candidates].sort((a, b) => b.priority - a.priority)
+  const placed = []
+  for (const item of ordered) {
+    const halfW = (pixelH * item.aspect) / 2 + 3
+    const halfH = pixelH / 2 + 3
+    const box = { l: item.x - halfW, r: item.x + halfW, t: item.y - halfH, b: item.y + halfH }
+
+    if (placed.some((other) => rectsOverlap(box, other))) {
+      item.sprite.visible = false
+      continue
+    }
+    placed.push(box)
+
+    item.sprite.visible = true
+    item.sprite.material.opacity = item.opacity
+    const height = labelHeight(item.distance)
+    item.sprite.scale.set(height * item.aspect, height, 1)
+  }
+  return placed.length
+}
+
+/**
  * 经纬度格式化：东经/西经、北纬/南纬。
  *
  * 两个场景共用一份，避免一个写死 `°E`/`°N`（南半球西半球会读错）。

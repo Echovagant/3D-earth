@@ -93,6 +93,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { useRouter } from 'vue-router'
 import { createProvinceMeshFromFeature, lonLatToCartesian } from '../utils/geoDataProcessor'
+import { easeInOutCubic, pointerToNdc } from '../utils/globeMath'
 import { isClickGesture } from '../utils/gesture'
 import { getProvinceColor, getCityColor, toHexString } from '../utils/provinceColors'
 import { featureAreaKm2, loadAreaData } from '../utils/areaData'
@@ -103,11 +104,10 @@ import {
   createLabelTexture,
   earthLocalToWorld,
   featureSizeProxy,
-  labelHeight,
   labelOpacity,
   labelPixelHeight,
   labelPosition,
-  rectsOverlap,
+  placeLabels,
   resolveLabelCenter,
 } from '../utils/provinceLabels'
 import HudPanel from './HudPanel.vue'
@@ -181,6 +181,8 @@ let lastTelemetryAt = 0
 
 /** 地球自转：每秒的弧度（约 0.68°/s） */
 const SPIN_RATE = 0.012
+/** 相机飞行的时长（毫秒）。点击后要等它跑完再跳详情页，镜头移动才看得见。 */
+const FLY_DURATION = 520
 /** 自转轴：Y 轴 */
 const SPIN_AXIS = new THREE.Vector3(0, 1, 0)
 /** 上一次推进自转的时间戳 */
@@ -755,25 +757,7 @@ const updateProvinceLabels = () => {
   }
 
   // 面积大的省先占位，小省与已放置标签重叠就让位
-  candidates.sort((a, b) => b.priority - a.priority)
-
-  const placed = []
-  for (const item of candidates) {
-    const halfW = (pixelH * item.aspect) / 2 + 3
-    const halfH = pixelH / 2 + 3
-    const box = { l: item.x - halfW, r: item.x + halfW, t: item.y - halfH, b: item.y + halfH }
-
-    if (placed.some((p) => rectsOverlap(box, p))) {
-      item.sprite.visible = false
-      continue
-    }
-    placed.push(box)
-
-    item.sprite.visible = true
-    item.sprite.material.opacity = item.opacity
-    const height = labelHeight(item.distance)
-    item.sprite.scale.set(height * item.aspect, height, 1)
-  }
+  placeLabels(candidates, pixelH)
 }
 
 // 加载中国整体边界：一份淡色底板 + 白色国界，让国界与省界的层级更清楚。
@@ -883,19 +867,16 @@ const initRaycaster = () => {
     applyLockPosition()
 
     // 只登记待拾取，实际求交在渲染循环里做（每帧至多一次）
-    pendingPick = {
-      x: (localX / canvasRect.width) * 2 - 1,
-      y: -(localY / canvasRect.height) * 2 + 1,
-    }
+    const ndc = pointerToNdc(event.clientX, event.clientY, canvasRect)
+    pendingPick = { x: ndc.x, y: ndc.y }
   }
 
   const handleValidClick = (event) => {
     // 将鼠标位置归一化为-1到1的范围
-    const ndcX = ((event.clientX - canvasRect.left) / canvasRect.width) * 2 - 1
-    const ndcY = -((event.clientY - canvasRect.top) / canvasRect.height) * 2 + 1
+    const ndc = pointerToNdc(event.clientX, event.clientY, canvasRect)
 
     // 通过相机和鼠标位置更新射线
-    pickRaycaster.setFromCamera(pickNdc.set(ndcX, ndcY), camera)
+    pickRaycaster.setFromCamera(pickNdc.set(ndc.x, ndc.y), camera)
 
     // 计算与射线相交的物体
     const intersects = provinceGroup
@@ -933,17 +914,19 @@ const handleProvinceClick = (provinceName, adcode) => {
   const canFly = Array.isArray(center) && center.length >= 2
 
   if (!isCityLevel.value) {
-    // 省级视角：相机飞到该省上空，然后进入省份详情
-    if (canFly) flyTo(center[0], center[1])
+    // 省级视角：相机飞到该省上空，飞行结束后再进入省份详情
     // 九段线不是省级行政区，没有详情页
     if (!provinceName) return
-    router.push(`/province/${encodeURIComponent(adcode)}`)
+    const go = () => router.push(`/province/${encodeURIComponent(adcode)}`)
+    if (canFly) flyTo(center[0], center[1], 3.2, FLY_DURATION, go)
+    else go()
     return
   }
 
-  // 地级市视角：相机飞到该市上空，然后进入城市详情
-  if (canFly) flyTo(center[0], center[1], 2.5)
-  router.push(`/city/${encodeURIComponent(adcode)}`)
+  // 地级市视角：相机飞到该市上空，飞行结束后再进入城市详情
+  const goCity = () => router.push(`/city/${encodeURIComponent(adcode)}`)
+  if (canFly) flyTo(center[0], center[1], 2.5, FLY_DURATION, goCity)
+  else goCity()
 }
 
 // 从地级市视角返回全国视角
@@ -952,9 +935,14 @@ const backToCountry = () => router.push('/')
 // 切到全球视角
 const goWorld = () => router.push('/world')
 
-// 相机飞行到指定经纬度，duration 毫秒内做 easeInOutCubic 插值
-const flyTo = (lon, lat, distance = 3.2, duration = 900) => {
-  if (!camera || !controls) return
+// 相机飞行到指定经纬度，duration 毫秒内做 easeInOutCubic 插值。
+// onDone 在飞行结束时回调——点击后要等它跑完再跳详情页，
+// 否则组件一卸载，插值跟着消失，镜头移动用户根本看不见。
+const flyTo = (lon, lat, distance = 3.2, duration = FLY_DURATION, onDone = null) => {
+  if (!camera || !controls) {
+    onDone?.()
+    return
+  }
   const target = new THREE.Vector3(...lonLatToCartesian(lon, lat, 1))
   // 地球网格随 earth.rotation.y 旋转，目标点要跟着一起转
   if (earth) target.applyAxisAngle(new THREE.Vector3(0, 1, 0), earth.rotation.y)
@@ -965,6 +953,7 @@ const flyTo = (lon, lat, distance = 3.2, duration = 900) => {
     to: target,
     start: performance.now(),
     duration,
+    onDone,
   }
   // 暂停自转，否则目标在飞行途中会飘走
   autoRotate.value = false
@@ -1022,9 +1011,14 @@ const animate = () => {
   // 相机飞行插值
   if (flight) {
     const t = Math.min(1, (performance.now() - flight.start) / flight.duration)
-    const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
+    const eased = easeInOutCubic(t)
     camera.position.lerpVectors(flight.from, flight.to, eased)
-    if (t >= 1) flight = null
+    if (t >= 1) {
+      // 飞行结束才跳详情页，否则组件一卸载，插值跟着消失，镜头移动用户看不见
+      const done = flight.onDone
+      flight = null
+      done?.()
+    }
   }
 
   // 星星闪烁效果（逐顶点 aSize，材质已接管 gl_PointSize）
