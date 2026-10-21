@@ -116,11 +116,50 @@ export function rectsOverlap(a, b, padding = 0) {
 }
 
 /**
+ * 经纬度格式化：东经/西经、北纬/南纬。
+ *
+ * 两个场景共用一份，避免一个写死 `°E`/`°N`（南半球西半球会读错）。
+ */
+export function formatLonLat(lon, lat) {
+  const ew = lon >= 0 ? 'E' : 'W'
+  const ns = lat >= 0 ? 'N' : 'S'
+  return `${Math.abs(lon).toFixed(2)}°${ew} ${Math.abs(lat).toFixed(2)}°${ns}`
+}
+
+/**
  * 相机位置换算到地球自身的坐标系。
  * 地球只绕 Y 轴自转，所以逆着转回去即可，不依赖 matrixWorld 是否已刷新。
  */
 export function cameraDirectionInEarthFrame(cameraPosition, earthRotationY) {
   return cameraPosition.clone().applyAxisAngle(UP, -earthRotationY).normalize()
+}
+
+/**
+ * 球面坐标反解经纬度。
+ *
+ * 与 `lonLatToCartesian` 严格互逆：本项目的球面约定是 **Y 轴为极轴**
+ * （y = cos(90°-lat)），所以纬度要从 y 解，经度要从 (z, -x) 解。
+ * 写成 atan2(y, x) / asin(z) 会把轴搞反——南半球会读成 ±90°。
+ */
+export function cartToLonLat(x, y, z) {
+  const r = Math.hypot(x, y, z)
+  if (!r) return [0, 0]
+  const lat = 90 - (Math.acos(y / r) * 180) / Math.PI
+  let lon = (Math.atan2(z, -x) * 180) / Math.PI - 180
+  while (lon < -180) lon += 360
+  while (lon > 180) lon -= 360
+  return [lon, lat]
+}
+
+/**
+ * 相机当前正对的经纬度（地球局部坐标系）。
+ *
+ * 相机位置是世界坐标，地球自转后要先逆旋转回局部坐标再解算，
+ * 否则读数会随自转持续偏离真实正对点。
+ */
+export function cameraLonLat(cameraPosition, earthRotationY) {
+  const dir = cameraDirectionInEarthFrame(cameraPosition, earthRotationY)
+  return cartToLonLat(dir.x, dir.y, dir.z)
 }
 
 /** 地球局部坐标 → 世界坐标（同样只绕 Y 轴，直接算，不依赖 matrixWorld） */

@@ -55,7 +55,7 @@ npm run tw:update      # 同步台湾省 22 个县市边界
 
 CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `test:unit` + `build`。
 
-`npm run test:unit` 必须是绿的才算完成改动。当前有 383 个用例：
+`npm run test:unit` 必须是绿的才算完成改动。当前有 402 个用例：
 `src/__tests__/App.spec.js`（应用挂载）、
 `src/__tests__/geoDataProcessor.spec.js`（35 个要素的渲染范围覆盖、与参考实现逐顶点一致、海南/台湾/九段线定点断言）、
 `src/__tests__/provinceData.spec.js`（省份详情数据与 GeoJSON 的一致性契约：adcode/name/center 严格相等、字段结构完整、分区覆盖无重叠、配色不落兜底、面积与几何重算一致、两个面积口径不差数量级、人口合计与全国人口相差 3% 以内）、
@@ -85,7 +85,7 @@ CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `tes
 |---|---|
 | `100000_full.json` | `public/geojson/china-provinces.json` |
 | `100000.json` | `public/geojson/china.json` |
-| `<省adcode>_full.json`（33 个省） | `public/geojson/cities/<省adcode>.json` |
+| `<省adcode>_full.json`（33 个省；台湾省由 `update-tw.mjs` 负责） | `public/geojson/cities/<省adcode>.json` |
 | —— | `public/data/provinces/<adcode>.json` 里的 `areaKm2`（由边界几何算出） |
 
 `scripts/update-world.mjs` 从 Natural Earth 拉取 `ne_110m_admin_0_countries.geojson`，

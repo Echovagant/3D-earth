@@ -46,7 +46,7 @@
 | 🏷 球面省名标注 | 省名钉在球面上，屏幕空间自动去重叠；放大后小省逐个浮现，可一键开关 |
 | 🔍 图例过滤 | 按省名或行政区划代码即时过滤 |
 | ♿ 动效降级 | 遵循系统的「减少动态效果」设置 |
-| 🧪 有测试 | 122 个用例，CI 在每次 push 与 PR 上自动验证 |
+| 🧪 有测试 | 402 个用例，CI 在每次 push 与 PR 上自动验证 |
 
 ## 实现要点
 
@@ -58,7 +58,7 @@
 
 **拾取只针对需要的对象.** 射线只对省份组求交，避免每次 `mousemove` 都遍历整个场景（含 5000 个点的星空）。指针位置走非响应式通道 + 命令式 DOM 写入，不触发组件重渲染。
 
-**地级市边界随仓库分发，下钻不依赖在线接口.** 34 个省的地级市边界全量约 6.5 MB，改成预先同步进仓库（压缩到 3.7 MB），下钻时只下载用户点进去的那一个省。既不拖慢首屏，也不受第三方接口可用性影响。
+**地级市边界随仓库分发，下钻不依赖在线接口.** 34 个省的地级市边界全量约 6.5 MB，改成预先同步进仓库（实际 3.89 MB、497 个要素），下钻时只下载用户点进去的那一个省。既不拖慢首屏，也不受第三方接口可用性影响。
 
 **全球视角用一套数据解决三个问题.** Natural Earth 的 admin_0 数据里同时带边界、中文名（NAME_ZH）与人口估计（POP_EST），省掉另找属性数据源这一步。精简属性后 177 个国家只有 0.27 MB。
 
@@ -72,7 +72,7 @@
 |---|---|---|
 | `public/geojson/china-provinces.json` | 34 个省级行政区 + 1 个南海断续线要素（`adcode = 100000_JD`） | [DataV.GeoAtlas 行政区划边界](https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json) |
 | `public/geojson/china.json` | 中华人民共和国整体边界 | [DataV.GeoAtlas 行政区划边界](https://geo.datav.aliyun.com/areas_v3/bound/100000.json) |
-| `public/geojson/cities/<adcode>.json`（33 个省） | 各地级市边界 | [DataV.GeoAtlas 行政区划边界](https://geo.datav.aliyun.com/areas_v3/bound/) |
+| `public/geojson/cities/<adcode>.json`（34 个省） | 各地级市边界 | [DataV.GeoAtlas 行政区划边界](https://geo.datav.aliyun.com/areas_v3/bound/) |
 | `public/geojson/cities/710000.json` | 台湾省 22 个县市边界 | 几何：[geoBoundaries TWN ADM1](https://www.geoboundaries.org/)（OpenStreetMap / Wambacher，ODbL 1.0）；属性：[内政部「縣市行政區劃」](https://www.moi.gov.tw/)（`COUNTY_MOI_1081121`） |
 | `public/geojson/world-countries.json` | 177 个国家/地区边界，含中文名、ISO 代码与人口估计 | [Natural Earth admin_0 110m](https://github.com/nvkelso/natural-earth-vector) |
 | `public/textures/earth_atmos_2048.jpg` | 地球贴图（两个视角共用） | 随仓库提供 |
@@ -137,7 +137,7 @@ npm run geo:check      # 校验本地地理数据与上游是否一致
 - 全球视角（177 国边界 + 中文国名标注 + 国家详情页）
 - 地理数据自动更新流水线（定时同步上游边界，变更前校验）
 - 深空科技 HUD 界面
-- 383 个单元测试 + CI 流水线
+- 402 个单元测试 + CI 流水线
 
 **进行中**
 

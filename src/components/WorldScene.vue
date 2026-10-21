@@ -77,8 +77,11 @@ import {
   labelPixelHeight,
   rectsOverlap,
   cameraDirectionInEarthFrame,
+  cameraLonLat,
+  formatLonLat,
   earthLocalToWorld,
 } from '../utils/provinceLabels'
+import { isClickGesture } from '../utils/gesture'
 import {
   loadWorldCountries,
   countryId,
@@ -106,6 +109,16 @@ let earth = null
 let countryGroup = null
 let labelGroup = null
 let animationFrame = 0
+/** 相机飞行的 rAF 句柄，卸载时要取消 */
+let flightFrame = 0
+/** 组件是否已卸载。异步加载完成后要检查，避免往已销毁的场景里加对象 */
+let disposed = false
+/** 地球自转：每秒的弧度（约 0.68°/s） */
+const SPIN_RATE = 0.012
+/** 自转轴：Y 轴 */
+const SPIN_AXIS = new THREE.Vector3(0, 1, 0)
+/** 上一次推进自转的时间戳 */
+let lastSpinAt = 0
 let canvasRect = { left: 0, top: 0, width: 1, height: 1 }
 // 地球自转：每帧 0.0002 弧度，约 0.68°/s，与地球页一致
 let autoRotate = true
@@ -132,11 +145,9 @@ const telemetryRotation = ref(null)
 
 const updateTelemetry = () => {
   if (!camera || !earth) return
-  const dir = cameraDirectionInEarthFrame(camera.position, earth.rotation.y)
-  const lon = ((Math.atan2(dir.y, dir.x) * 180) / Math.PI + 540) % 360 - 180
-  const lat = (Math.asin(Math.max(-1, Math.min(1, dir.z))) * 180) / Math.PI
   if (telemetryCenter.value) {
-    telemetryCenter.value.textContent = `${lon.toFixed(2)}°E ${lat.toFixed(2)}°N`
+    const [lon, lat] = cameraLonLat(camera.position, earth.rotation.y)
+    telemetryCenter.value.textContent = formatLonLat(lon, lat)
   }
   if (telemetryDistance.value) {
     telemetryDistance.value.textContent = `${camera.position.length().toFixed(2)} R`
@@ -173,14 +184,17 @@ const flyTo = (lon, lat, distance = 2.6, duration = 900) => {
   // 暂停自转，否则目标在飞行途中会飘走
   autoRotate = false
 
+  // 句柄要留着：组件卸载时必须取消，否则回调会继续往已置 null 的 camera 上写
+  cancelAnimationFrame(flightFrame)
   const tick = () => {
+    if (!camera || !controls) return
     const t = Math.min(1, (performance.now() - start) / duration)
     const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
     camera.position.lerpVectors(from, to, eased)
     controls.target.set(0, 0, 0)
-    if (t < 1) requestAnimationFrame(tick)
+    if (t < 1) flightFrame = requestAnimationFrame(tick)
   }
-  tick()
+  flightFrame = requestAnimationFrame(tick)
 }
 
 /** 星空：随机撒点，给全球视角一个空间感 */
@@ -278,16 +292,13 @@ const pickCountry = (event) => {
 
 let mouseDownTime = 0
 let mouseDownPosition = { x: 0, y: 0 }
-let isDragging = false
 
 const onMouseDown = (event) => {
-  isDragging = false
   mouseDownTime = Date.now()
   mouseDownPosition = { x: event.clientX, y: event.clientY }
 }
 
 const onMouseMove = (event) => {
-  if (mouseDownTime > 0) isDragging = true
   const data = pickCountry(event)
   if (renderer) renderer.domElement.style.cursor = data ? 'pointer' : 'grab'
 }
@@ -297,7 +308,7 @@ const onMouseUp = (event) => {
   const distance = Math.sqrt(
     (event.clientX - mouseDownPosition.x) ** 2 + (event.clientY - mouseDownPosition.y) ** 2,
   )
-  if (duration < 200 && distance < 5 && !isDragging) {
+  if (isClickGesture(duration, distance)) {
     const data = pickCountry(event)
     if (data) {
       flyTo(data.center[0], data.center[1], 2.4)
@@ -306,7 +317,6 @@ const onMouseUp = (event) => {
     }
   }
   mouseDownTime = 0
-  isDragging = false
 }
 
 const onMouseLeave = () => {
@@ -438,7 +448,21 @@ const animate = () => {
   animationFrame = requestAnimationFrame(animate)
   if (controls) controls.update()
   // 地球自转（约 0.68°/s）
-  if (earth && autoRotate) earth.rotation.y += 0.0002
+  //
+  // 相机必须跟着转同样的角度：只转地球网格的话，地表会从相机下面溜走——
+  // 实测自转 60 秒后目标中心就偏离视轴 34°。
+  //
+  // 用时间而不是帧数推进：按帧加固定增量会让自转速度随屏幕刷新率变。
+  if (earth && autoRotate && camera) {
+    const now = performance.now()
+    const delta = lastSpinAt ? Math.min(0.1, (now - lastSpinAt) / 1000) : 0
+    lastSpinAt = now
+    const step = SPIN_RATE * delta
+    earth.rotation.y += step
+    camera.position.applyAxisAngle(SPIN_AXIS, step)
+  } else {
+    lastSpinAt = 0
+  }
   updateLabels()
   updateTelemetry()
   if (renderer && scene && camera) renderer.render(scene, camera)
@@ -449,6 +473,8 @@ const load = async () => {
   error.value = ''
   try {
     const geoJson = await loadWorldCountries()
+    // 加载期间可能已经离开这个页面：这时不能再往场景里加对象
+    if (disposed || !earth) return
     if (countryGroup) {
       earth.remove(countryGroup)
       disposeGroup(countryGroup)
@@ -500,7 +526,9 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
+  disposed = true
   cancelAnimationFrame(animationFrame)
+  cancelAnimationFrame(flightFrame)
   window.removeEventListener('resize', onResize)
   reducedMotionQuery?.removeEventListener?.('change', onReducedMotionChange)
   if (renderer) {
@@ -511,6 +539,9 @@ onUnmounted(() => {
   }
   if (countryGroup) disposeGroup(countryGroup)
   if (labelGroup) disposeGroup(labelGroup)
+  // 球体、星空与卫星贴图也要释放——每次进出这个页面都会漏一份
+  if (scene) disposeGroup(scene)
+  if (controls) controls.dispose()
   if (renderer) renderer.dispose()
   scene = null
   camera = null

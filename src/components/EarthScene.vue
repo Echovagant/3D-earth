@@ -93,11 +93,13 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { useRouter } from 'vue-router'
 import { createProvinceMeshFromFeature, lonLatToCartesian } from '../utils/geoDataProcessor'
+import { isClickGesture } from '../utils/gesture'
 import { getProvinceColor, getCityColor, toHexString } from '../utils/provinceColors'
 import { featureAreaKm2, loadAreaData } from '../utils/areaData'
 import {
   LABEL_BASE_HEIGHT,
   cameraDirectionInEarthFrame,
+  cameraLonLat,
   createLabelTexture,
   earthLocalToWorld,
   featureSizeProxy,
@@ -173,6 +175,13 @@ const originalMaterials = new Map()
 // 遥测读数的节流时间戳
 let lastTelemetryAt = 0
 
+/** 地球自转：每秒的弧度（约 0.68°/s） */
+const SPIN_RATE = 0.012
+/** 自转轴：Y 轴 */
+const SPIN_AXIS = new THREE.Vector3(0, 1, 0)
+/** 上一次推进自转的时间戳 */
+let lastSpinAt = 0
+
 // 拾取用的射线与归一化坐标
 const pickRaycaster = new THREE.Raycaster()
 const pickNdc = new THREE.Vector2()
@@ -192,7 +201,7 @@ let prefersReducedMotion = reducedMotionQuery?.matches ?? false
 const updateTelemetry = () => {
   if (!camera) return
   const distance = camera.position.length()
-  const [lon, lat] = cartToLonLat(camera.position.x, camera.position.y, camera.position.z)
+  const [lon, lat] = cameraLonLat(camera.position, earth.rotation.y)
   telemetry.value = {
     center: formatLonLat(lon, lat),
     distance: `${distance.toFixed(2)} R`,
@@ -244,16 +253,6 @@ watch(
     applyLockPosition()
   },
 )
-
-// 球面坐标反解经纬度
-const cartToLonLat = (x, y, z) => {
-  const r = Math.hypot(x, y, z)
-  const lat = 90 - (Math.acos(y / r) * 180) / Math.PI
-  let lon = (Math.atan2(z, -x) * 180) / Math.PI - 180
-  while (lon < -180) lon += 360
-  while (lon > 180) lon -= 360
-  return [lon, lat]
-}
 
 const formatLonLat = (lon, lat) => {
   const ew = lon >= 0 ? 'E' : 'W'
@@ -780,12 +779,10 @@ const createProvincesFromGeoJson = (geoJson) => {
 }
 
 const initRaycaster = () => {
-  let isDragging = false
   let mouseDownTime = 0
   let mouseDownPosition = { x: 0, y: 0 }
 
   const onMouseDown = (event) => {
-    isDragging = false
     mouseDownTime = Date.now()
     mouseDownPosition.x = event.clientX
     mouseDownPosition.y = event.clientY
@@ -799,19 +796,14 @@ const initRaycaster = () => {
     )
 
     // 只有当点击时间短且移动距离小才认为是有效点击
-    if (clickDuration < 200 && moveDistance < 5 && !isDragging) {
+    if (isClickGesture(clickDuration, moveDistance)) {
       handleValidClick(event)
     }
 
     mouseDownTime = 0
-    isDragging = false
   }
 
   const onMouseMove = (event) => {
-    if (mouseDownTime > 0) {
-      isDragging = true
-    }
-
     // 用缓存的画布位置，不读布局
     const localX = event.clientX - canvasRect.left
     const localY = event.clientY - canvasRect.top
@@ -932,7 +924,25 @@ const animate = () => {
   updateProvinceLabels()
 
   // 地球自转（约 0.68°/s）
-  if (earth && autoRotate.value) earth.rotation.y += 0.0002
+  //
+  // 相机必须跟着转同样的角度：只转地球网格的话，地表会从相机下面溜走——
+  // 实测自转 60 秒后中国中心就偏离视轴 34°，两分钟后跑到 66°。
+  // 相机同步旋转后，相机在地球局部坐标系里的经纬度保持不变，
+  // 屏幕中心始终对着原来那块地，遥测读数也跟着稳定下来。
+  //
+  // 用时间而不是帧数推进：按帧加固定增量会让自转速度随屏幕刷新率变
+  // （144Hz 下是 1.65°/s，30Hz 下是 0.34°/s），而 HUD 上写的是 0.68°/s。
+  if (earth && autoRotate.value && camera) {
+    const now = performance.now()
+    // 首帧没有时间差；切标签页回来时 delta 会很大，钳一下避免跳一大步
+    const delta = lastSpinAt ? Math.min(0.1, (now - lastSpinAt) / 1000) : 0
+    lastSpinAt = now
+    const step = SPIN_RATE * delta
+    earth.rotation.y += step
+    camera.position.applyAxisAngle(SPIN_AXIS, step)
+  } else {
+    lastSpinAt = 0
+  }
 
   // 遥测读数：节流到 200ms 一次，避免每帧触发响应式更新
   const now = performance.now()

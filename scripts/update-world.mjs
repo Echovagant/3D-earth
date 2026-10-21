@@ -46,7 +46,11 @@ async function fetchText() {
   let lastError
   for (const url of SOURCES) {
     try {
-      const response = await fetch(url, { headers: { 'User-Agent': '3D-earth geo updater' } })
+      const response = await fetch(url, {
+        headers: { 'User-Agent': '3D-earth geo updater' },
+        // 超时是必须的：一次 TCP 挂起会让整个同步任务无限期停着
+        signal: AbortSignal.timeout(30_000),
+      })
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
       return await response.text()
     } catch (error) {

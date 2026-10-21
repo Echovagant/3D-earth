@@ -61,6 +61,25 @@ const CITY_DIR = 'public/geojson/cities'
 /** 同时请求上游的最大并发数，避免把对方接口打爆 */
 const CITY_CONCURRENCY = 4
 
+/**
+ * 由 scripts/update-tw.mjs 单独同步的省。
+ *
+ * 台湾省的上游（DataV）没有下辖区县数据，404 是预期结果而不是故障；
+ * 它的县市边界来自内政部与 geoBoundaries 的合成，由另一个脚本负责。
+ * 这里要跳过，否则整个同步会因为一个 404 而中止。
+ */
+const EXTERNAL_PROVINCES = new Set(['710000'])
+
+/**
+ * 需要从上游同步地级市边界的省。
+ *
+ * 单独抽成纯函数是为了能单测：加新省时若忘了把它排除在 EXTERNAL_PROVINCES 之外，
+ * 同步就会因为一个 404 整体中止。
+ */
+export function citySyncTargets(adcodes) {
+  return adcodes.filter((adcode) => !EXTERNAL_PROVINCES.has(String(adcode)))
+}
+
 const CHECK_ONLY = process.argv.slice(2).includes('--check')
 
 /**
@@ -256,7 +275,11 @@ async function fetchText(url, { retries = 5 } = {}) {
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      const response = await fetch(url, { headers: { 'User-Agent': '3D-earth geo updater' } })
+      const response = await fetch(url, {
+        headers: { 'User-Agent': '3D-earth geo updater' },
+        // 超时是必须的：一次 TCP 挂起会让整个同步任务无限期停着
+        signal: AbortSignal.timeout(30_000),
+      })
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
       return await response.text()
     } catch (error) {
@@ -467,12 +490,13 @@ export async function syncCityBoundaries(adcodes, { dryRun = false } = {}) {
   const dir = path.join(ROOT, CITY_DIR)
   await mkdir(dir, { recursive: true })
 
+  const targets = citySyncTargets(adcodes)
   const results = []
   let index = 0
 
   const worker = async () => {
-    while (index < adcodes.length) {
-      const adcode = adcodes[index++]
+    while (index < targets.length) {
+      const adcode = targets[index++]
       const url = `${AREA_BASE}/${adcode}_full.json`
       const file = path.join(dir, `${adcode}.json`)
       try {
