@@ -4,7 +4,9 @@
   "abbreviation": "鄂",
   "capital": "武汉市",
   "area": "185900 km²",
+  "areaKm2": 186189.36,
   "population": "5844 万人",
+  "populationSource": "国家统计局",
   "center": [114.298572, 30.584355],
   "highlights": ["黄鹤楼", "武当山", "三峡大坝"],
   "intro": "湖北省位于长江中游，三峡大坝与武当山古建筑群是代表，武汉素有九省通衢之称。"

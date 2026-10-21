@@ -4,7 +4,9 @@
   "abbreviation": "鲁",
   "capital": "济南市",
   "area": "155800 km²",
+  "areaKm2": 157788.43,
   "population": "10123 万人",
+  "populationSource": "国家统计局",
   "center": [117.000923, 36.675807],
   "highlights": ["泰山", "曲阜三孔", "崂山"],
   "intro": "山东省位于黄海之滨，泰山与曲阜三孔交相辉映，青岛与济南并称齐鲁双城。"

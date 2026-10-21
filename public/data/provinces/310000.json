@@ -4,7 +4,9 @@
   "abbreviation": "沪",
   "capital": "上海市",
   "area": "6340 km²",
+  "areaKm2": 7956.56,
   "population": "2487 万人",
+  "populationSource": "国家统计局",
   "center": [121.472644, 31.231706],
   "highlights": ["外滩", "陆家嘴", "上海迪士尼乐园"],
   "intro": "上海市地处长江入海口，是国际化大都市，外滩万国建筑与陆家嘴天际线隔江相望。"

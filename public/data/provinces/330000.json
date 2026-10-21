@@ -4,7 +4,9 @@
   "abbreviation": "浙",
   "capital": "杭州市",
   "area": "105500 km²",
+  "areaKm2": 107059.17,
   "population": "6577 万人",
+  "populationSource": "国家统计局",
   "center": [120.153576, 30.287459],
   "highlights": ["西湖", "乌镇", "舟山群岛"],
   "intro": "浙江省位于中国东南沿海，七山一水二分田，舟山群岛与西湖十景勾勒出江南水乡风貌。"

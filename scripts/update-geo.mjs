@@ -20,8 +20,10 @@
 
 import { createHash } from 'node:crypto'
 import { readFile, writeFile } from 'node:fs/promises'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import path from 'node:path'
+
+import { featureAreaKm2 } from '../src/utils/areaData.js'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 /** 数据源地址，可用 AREA_BASE 覆盖（测试与离线演练用） */
@@ -56,6 +58,47 @@ const SUMMARY_FILE = summaryFileIndex >= 0 ? process.argv[summaryFileIndex + 1] 
 
 /** 去掉末尾空白，与仓库里已有文件的格式保持一致 */
 const normalize = (text) => text.replace(/\s+$/, '')
+
+/**
+ * 复刻仓库里省份详情数据的 JSON 风格：2 空格缩进，只含基本值的数组压在一行。
+ *
+ * 用 JSON.stringify 的默认输出会把数组展开成多行，与仓库现有文件不一致，
+ * 每次同步都会产生整文件 diff。
+ */
+export function formatJson(value) {
+  return `${JSON.stringify(value, null, 2).replace(
+    /\[\s*\n((?:[^\[\]{}]|\[[^\[\]]*\])*?)\s*\n\s*\]/g,
+    (_match, inner) => `[${inner.replace(/\s*\n\s*/g, ' ').trim()}]`,
+  )}\n`
+}
+
+/** 省份详情数据的字段顺序，保证同步后字段位置稳定 */
+const PROVINCE_FIELD_ORDER = [
+  'adcode',
+  'name',
+  'abbreviation',
+  'capital',
+  'area',
+  'areaKm2',
+  'population',
+  'populationYear',
+  'populationSource',
+  'center',
+  'highlights',
+  'intro',
+]
+
+/** 按固定顺序重建对象，未知字段追加在后面 */
+function orderFields(record, order) {
+  const ordered = {}
+  for (const key of order) {
+    if (key in record) ordered[key] = record[key]
+  }
+  for (const key of Object.keys(record)) {
+    if (!(key in ordered)) ordered[key] = record[key]
+  }
+  return ordered
+}
 
 const sha256 = (text) => createHash('sha256').update(text).digest('hex')
 
@@ -199,6 +242,7 @@ async function readLocal(file) {
 async function main() {
   const changedFiles = []
   const summaryLines = []
+  let provincesGeo = null
 
   for (const source of SOURCES) {
     const raw = await fetchText(source.url)
@@ -212,6 +256,8 @@ async function main() {
     }
 
     const localText = await readLocal(source.file)
+
+    if (source.kind === 'provinces') provincesGeo = geo
 
     // 行政区划的新增或撤销会牵动配色、图例与详情页数据，必须人工确认。
     // 这一步排在结构校验之前：上游新增一个省时，要先告诉用户新增了哪个，
@@ -262,9 +308,29 @@ async function main() {
     if (!CHECK_ONLY) await writeFile(path.join(ROOT, source.file), text, 'utf8')
   }
 
+  // 边界同步之后，顺带把各省的「边界围合面积」算出来写进详情页数据。
+  // 这个值由行政区划边界在球面上直接围合得到，跟地级市详情页用的是同一个公式，
+  // 因此两处口径一致；它随边界自动更新，不依赖人工维护。
+  let areaUpdates = []
+  if (provincesGeo) {
+    areaUpdates = await syncProvinceAreas(provincesGeo, { dryRun: CHECK_ONLY })
+    if (areaUpdates.length > 0) {
+      console.log(
+        CHECK_ONLY
+          ? `· 省份详情数据：${areaUpdates.length} 个省的面积与上游边界不一致`
+          : `✓ 省份详情数据：${areaUpdates.length} 个省的面积已更新`,
+      )
+    }
+  }
+
   if (CHECK_ONLY) {
-    if (changedFiles.length > 0) {
-      console.error(`\n✗ 有 ${changedFiles.length} 个文件与上游不一致：${changedFiles.join(', ')}`)
+    if (changedFiles.length > 0 || areaUpdates.length > 0) {
+      if (changedFiles.length > 0) {
+        console.error(`\n✗ 有 ${changedFiles.length} 个文件与上游不一致：${changedFiles.join(', ')}`)
+      }
+      if (areaUpdates.length > 0) {
+        console.error(`✗ 省份详情数据的面积与上游边界不一致：${areaUpdates.join(', ')}`)
+      }
       process.exitCode = 1
     } else {
       console.log('\n✓ 本地地理数据与上游一致')
@@ -273,18 +339,58 @@ async function main() {
     return
   }
 
-  if (changedFiles.length === 0) {
+  if (changedFiles.length === 0 && areaUpdates.length === 0) {
     console.log('\n全部文件均与上游一致，未做修改')
     await writeSummaryFile(['地理数据与上游一致，无变更'])
     return
   }
 
   console.log(`\n已更新 ${changedFiles.length} 个文件：${changedFiles.join(', ')}`)
+  if (areaUpdates.length > 0) {
+    summaryLines.push(
+      `- 省份详情数据：${areaUpdates.length} 个省的边界围合面积已更新（${areaUpdates.join(', ')}）`,
+    )
+  }
   if (summaryLines.length > 0) {
     console.log('\n变更摘要：')
     for (const line of summaryLines) console.log(line)
   }
   await writeSummaryFile(summaryLines)
+}
+
+/**
+ * 把各省的「边界围合面积」写进详情页静态数据。
+ *
+ * 返回面积发生变化的省 adcode 列表。dryRun 时只报告不写盘。
+ */
+export async function syncProvinceAreas(geo, { dryRun = false } = {}) {
+  const dir = path.join(ROOT, 'public/data/provinces')
+  const changed = []
+
+  for (const feature of geo?.features ?? []) {
+    const adcode = String(feature.properties?.adcode ?? '')
+    // 九段线要素不对应省份，跳过
+    if (!/^\d{6}$/.test(adcode)) continue
+
+    const file = path.join(dir, `${adcode}.json`)
+    let raw
+    try {
+      raw = await readFile(file, 'utf8')
+    } catch {
+      continue // 没有对应详情数据的省跳过
+    }
+
+    const record = JSON.parse(raw)
+    const areaKm2 = Math.round(featureAreaKm2(feature) * 100) / 100
+    if (record.areaKm2 === areaKm2) continue
+
+    changed.push(adcode)
+    if (dryRun) continue
+    record.areaKm2 = areaKm2
+    await writeFile(file, formatJson(orderFields(record, PROVINCE_FIELD_ORDER)), 'utf8')
+  }
+
+  return changed
 }
 
 /** 把变更摘要写到指定文件，供 CI 拼提交信息 */
@@ -296,7 +402,10 @@ async function writeSummaryFile(lines) {
   await writeFile(target, `${lines.join('\n')}\n`, 'utf8')
 }
 
-main().catch((error) => {
-  console.error(`\n更新失败：${error.message}`)
-  process.exitCode = 1
-})
+// 直接运行时才执行同步；被 import 时只导出函数，方便测试。
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((error) => {
+    console.error(`\n更新失败：${error.message}`)
+    process.exitCode = 1
+  })
+}

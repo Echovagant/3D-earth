@@ -4,7 +4,9 @@
   "abbreviation": "粤",
   "capital": "广州市",
   "area": "179800 km²",
+  "areaKm2": 181871.15,
   "population": "12700 万人",
+  "populationSource": "国家统计局",
   "center": [113.280637, 23.125178],
   "highlights": ["珠江三角洲", "粤港澳大湾区", "丹霞山"],
   "intro": "广东省位于中国南部，濒临南海，是中国经济最发达的沿海省份之一。"

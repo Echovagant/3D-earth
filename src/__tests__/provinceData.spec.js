@@ -4,6 +4,7 @@ import { readFileSync, readdirSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
 import { REGION_GROUPS, getProvinceColor } from '../utils/provinceColors'
+import { featureAreaKm2 } from '../utils/areaData'
 
 const repoRoot = new URL('../../', import.meta.url)
 const geo = JSON.parse(
@@ -57,7 +58,9 @@ describe('省份详情数据', () => {
       'abbreviation',
       'capital',
       'area',
+      'areaKm2',
       'population',
+      'populationSource',
       'center',
       'highlights',
       'intro',
@@ -72,6 +75,66 @@ describe('省份详情数据', () => {
     expect(data.area).toMatch(/[\d.]/)
     expect(data.population).toMatch(/[\d.]/)
     expect(data.intro.length).toBeGreaterThan(10)
+  })
+})
+
+describe('面积口径', () => {
+  it.each(cases)('$name 的 areaKm2 与边界几何算出的面积一致', (c) => {
+    const data = c.readData()
+    // 数据文件里的 areaKm2 由 scripts/update-geo.mjs 算出，
+    // 用的是与地级市详情页同一个公式；这里独立重算一遍，防止公式被改过而数据没跟上。
+    expect(data.areaKm2).toBeCloseTo(featureAreaKm2(c.feature), 1)
+  })
+
+  it('边界围合面积与公布面积的比值，多数省份落在同一口径上', () => {
+    const ratios = cases.map((c) => {
+      const data = c.readData()
+      const published = Number(String(data.area).replace(/[^\d.]/g, ''))
+      return data.areaKm2 / published
+    })
+    const sorted = [...ratios].sort((a, b) => a - b)
+    const median = sorted[Math.floor(sorted.length / 2)]
+    // 24 个省落在 0.955–1.017，说明两个口径基本一致。
+    // 个别省会偏离：沿海省份的行政边界含管辖海域（上海 1.26、澳门 1.40），
+    // 宁夏的公布面积含待划定区域（0.78）。中位数刻画的是主流口径。
+    expect(median).toBeGreaterThan(0.97)
+    expect(median).toBeLessThan(1.03)
+  })
+
+  it.each(cases)('$name 的两个面积口径不差数量级', (c) => {
+    const data = c.readData()
+    const published = Number(String(data.area).replace(/[^\d.]/g, ''))
+    const ratio = data.areaKm2 / published
+    // 区间放宽到能容纳上面提到的真实差异，
+    // 但仍能抓住「面积差了几倍」这类真正的数据错误。
+    expect(ratio).toBeGreaterThan(0.7)
+    expect(ratio).toBeLessThan(1.5)
+  })
+
+  it('34 个省级行政区的面积合计落在合理范围', () => {
+    const total = cases.reduce((sum, c) => sum + c.readData().areaKm2, 0)
+    // 全国陆地面积约 960 万 km²；边界围合面积含海域，会略高
+    expect(total).toBeGreaterThan(9_000_000)
+    expect(total).toBeLessThan(10_500_000)
+  })
+})
+
+describe('人口口径', () => {
+  it('34 个省级行政区的人口合计与全国人口相差在 3% 以内', () => {
+    const totalWan = cases.reduce((sum, c) => {
+      const wan = Number(String(c.readData().population).replace(/[^\d.]/g, ''))
+      return sum + wan
+    }, 0)
+    // 世界银行 2023 年中国人口 1,410,710,000，即 141,071 万人
+    const nationalWan = 141_071
+    const deviation = Math.abs(totalWan - nationalWan) / nationalWan
+    // 各省统计年份不完全一致（2020 年人口普查或 2023 年末常住人口），
+    // 因此允许百分之几的差；超过 3% 说明某几个省的数据有问题。
+    expect(deviation).toBeLessThan(0.03)
+  })
+
+  it.each(cases)('$name 标注了人口来源', (c) => {
+    expect(c.readData().populationSource.length).toBeGreaterThan(0)
   })
 })
 

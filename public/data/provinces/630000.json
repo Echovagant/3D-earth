@@ -4,7 +4,9 @@
   "abbreviation": "青",
   "capital": "西宁市",
   "area": "722300 km²",
+  "areaKm2": 696901.78,
   "population": "594 万人",
+  "populationSource": "国家统计局",
   "center": [101.778916, 36.623178],
   "highlights": ["青海湖", "三江源", "茶卡盐湖"],
   "intro": "青海省位于青藏高原东北部，三江源生态区涵养大江源头，青海湖与可可西里闻名全国。"

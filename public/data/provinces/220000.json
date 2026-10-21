@@ -4,7 +4,9 @@
   "abbreviation": "吉",
   "capital": "长春市",
   "area": "187400 km²",
+  "areaKm2": 190644.74,
   "population": "2340 万人",
+  "populationSource": "国家统计局",
   "center": [125.3245, 43.886841],
   "highlights": ["长白山天池", "雾凇岛", "松花湖"],
   "intro": "吉林省位于中国东北腹地，长白山天池与林海雪原闻名，是关东文化与冰雪产业的重要发源地。"

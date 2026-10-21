@@ -4,7 +4,9 @@
   "abbreviation": "宁",
   "capital": "银川市",
   "area": "66300 km²",
+  "areaKm2": 51951.86,
   "population": "728 万人",
+  "populationSource": "国家统计局",
   "center": [106.278179, 38.46637],
   "highlights": ["贺兰山岩画", "西夏王陵", "沙湖"],
   "intro": "宁夏回族自治区位于西北内陆，黄河穿境而过，贺兰山岩画与西夏王陵见证古老文明。"

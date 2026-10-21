@@ -38,7 +38,11 @@
             <dd>{{ data.capital }}</dd>
           </div>
           <div class="facts__cell">
-            <dt>面积</dt>
+            <dt>边界围合面积</dt>
+            <dd class="mono">{{ formatArea(data.areaKm2) }}</dd>
+          </div>
+          <div class="facts__cell">
+            <dt>公布面积</dt>
             <dd class="mono">{{ data.area }}</dd>
           </div>
           <div class="facts__cell">
@@ -56,6 +60,18 @@
       <section class="province__intro">
         <span class="province__intro-label">简介 / BRIEF</span>
         <p>{{ data.intro }}</p>
+      </section>
+
+      <!-- 数据口径说明 -->
+      <section class="province__intro">
+        <span class="province__intro-label">数据口径 / NOTES</span>
+        <p>
+          <b>边界围合面积</b>由本省的行政区划边界在球面上直接计算得到（球面鞋带公式，
+          地球平均半径 6371.0088 km），与地级市详情页用的是同一个公式，因此两处口径一致；
+          它随边界数据自动更新。<b>公布面积</b>是统计口径的公开数值，沿海省份的行政边界包含管辖海域，
+          前者因此会略大于后者。人口取自{{ data.populationSource }}口径的公开统计值，
+          各省统计年份不完全一致，34 个省级行政区合计与全国人口相差约 2%。
+        </p>
       </section>
 
       <!-- 标签 -->
@@ -77,7 +93,7 @@
     <footer class="province__foot">
       <span class="mono">坐标系 WGS-84</span>
       <span class="mono">数据来源 public/data/provinces/{{ route.params.adcode }}.json</span>
-      <span class="mono province__foot-warn">面积与人口为公开数据近似值，非权威统计口径</span>
+      <span class="mono province__foot-warn">边界围合面积由行政区划边界在球面上直接计算得到</span>
     </footer>
   </div>
 </template>
@@ -86,7 +102,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import HudPanel from './HudPanel.vue'
-import { areaDataUrl } from '../utils/areaData'
+import { areaDataUrl, formatArea } from '../utils/areaData'
 
 const route = useRoute()
 const router = useRouter()

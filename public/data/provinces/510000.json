@@ -4,7 +4,9 @@
   "abbreviation": "川",
   "capital": "成都市",
   "area": "486000 km²",
+  "areaKm2": 486862.19,
   "population": "8368 万人",
+  "populationSource": "国家统计局",
   "center": [104.065735, 30.659462],
   "highlights": ["九寨沟", "都江堰", "大熊猫"],
   "intro": "四川省位于中国西南盆地西部，川藏高原与四川盆地相接，都江堰与熊猫文化享誉世界。"

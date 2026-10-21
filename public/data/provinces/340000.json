@@ -4,7 +4,9 @@
   "abbreviation": "皖",
   "capital": "合肥市",
   "area": "140100 km²",
+  "areaKm2": 140386.09,
   "population": "6127 万人",
+  "populationSource": "国家统计局",
   "center": [117.283042, 31.86119],
   "highlights": ["黄山", "宏村", "九华山"],
   "intro": "安徽省位于长江下游北侧，黄山奇松与皖南古村落遍布，徽商文化底蕴深厚。"

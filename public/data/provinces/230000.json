@@ -4,7 +4,9 @@
   "abbreviation": "黑",
   "capital": "哈尔滨市",
   "area": "473000 km²",
+  "areaKm2": 451635.33,
   "population": "3099 万人",
+  "populationSource": "国家统计局",
   "center": [126.642464, 45.756967],
   "highlights": ["冰雪大世界", "镜泊湖", "五大连池"],
   "intro": "黑龙江省位于中国最北与最东端，冬季冰雪覆盖辽阔，漠河极光与北大仓农场别具特色。"

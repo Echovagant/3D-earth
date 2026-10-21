@@ -4,7 +4,9 @@
   "abbreviation": "陕",
   "capital": "西安市",
   "area": "205600 km²",
+  "areaKm2": 205619.02,
   "population": "3952 万人",
+  "populationSource": "国家统计局",
   "center": [108.948024, 34.263161],
   "highlights": ["秦始皇兵马俑", "华山", "壶口瀑布"],
   "intro": "陕西省位于中国内陆腹地，秦兵马俑与华山闻名遐迩，古丝绸之路的东方起点就在这里。"

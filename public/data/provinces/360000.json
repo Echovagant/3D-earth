@@ -4,7 +4,9 @@
   "abbreviation": "赣",
   "capital": "南昌市",
   "area": "166900 km²",
+  "areaKm2": 167161.6,
   "population": "4515 万人",
+  "populationSource": "国家统计局",
   "center": [115.892151, 28.676493],
   "highlights": ["庐山", "婺源", "井冈山"],
   "intro": "江西省位于长江中下游以南，鄱阳湖是中国最大淡水湖，庐山与婺源山水最为著称。"

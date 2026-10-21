@@ -4,7 +4,9 @@
   "abbreviation": "渝",
   "capital": "重庆市",
   "area": "82400 km²",
+  "areaKm2": 82507.38,
   "population": "3213 万人",
+  "populationSource": "国家统计局",
   "center": [106.504962, 29.533155],
   "highlights": ["洪崖洞", "武隆天坑", "长江三峡"],
   "intro": "重庆市位于中国西南内陆，山城两江环抱，火锅文化与喀斯特地貌构成独特城市景观。"
