@@ -90,7 +90,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { useRouter } from 'vue-router'
 import { createProvinceMeshFromFeature, lonLatToCartesian } from '../utils/geoDataProcessor'
 import { getProvinceColor, getCityColor, toHexString } from '../utils/provinceColors'
-import { areaDataUrl, featureAreaKm2 } from '../utils/areaData'
+import { featureAreaKm2, loadAreaData } from '../utils/areaData'
 import {
   LABEL_BASE_HEIGHT,
   cameraDirectionInEarthFrame,
@@ -523,14 +523,12 @@ const loadBoundaryData = async () => {
     return { geoJson: await response.json(), provinceFeature: null }
   }
 
-  const [citiesResponse, nationalResponse] = await Promise.all([
-    fetch(areaDataUrl(props.scope.adcode)),
+  const [geoJson, nationalResponse] = await Promise.all([
+    loadAreaData(props.scope.adcode),
     fetch('/geojson/china-provinces.json'),
   ])
-  if (!citiesResponse.ok) throw new Error(`HTTP ${citiesResponse.status}`)
   if (!nationalResponse.ok) throw new Error(`HTTP ${nationalResponse.status}`)
 
-  const geoJson = await citiesResponse.json()
   const national = await nationalResponse.json()
   const provinceFeature =
     national.features.find(

@@ -102,7 +102,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import HudPanel from './HudPanel.vue'
-import { areaDataUrl, formatArea } from '../utils/areaData'
+import { formatArea, loadAreaData } from '../utils/areaData'
 
 const route = useRoute()
 const router = useRouter()
@@ -131,9 +131,7 @@ const load = async () => {
 // 顺带取下地级市数量，让下钻入口可预期
 const loadCityCount = async () => {
   try {
-    const res = await fetch(areaDataUrl(route.params.adcode))
-    if (!res.ok) return
-    const geo = await res.json()
+    const geo = await loadAreaData(route.params.adcode)
     cityCount.value = geo.features.length
   } catch {
     cityCount.value = null

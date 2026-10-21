@@ -1,16 +1,41 @@
 /**
  * 行政区划数据的获取与派生计算。
  *
- * 省级边界随仓库分发（public/geojson/），地级市边界按需从
- * DataV.GeoAtlas 行政区划边界服务拉取——只在用户点进某个省时才请求那一个文件。
+ * 省级边界随仓库分发（public/geojson/），地级市边界由 scripts/update-geo.mjs
+ * 按省预先同步到 public/geojson/cities/<adcode>.json——下钻时按需取用，
+ * 只会下载用户点进去的那一个省，因此不必依赖第三方接口在线。
  */
 
-/** DataV.GeoAtlas 行政区划边界服务 */
+/** DataV.GeoAtlas 行政区划边界服务：本地缺文件时的兜底来源 */
 export const AREA_DATA_BASE = 'https://geo.datav.aliyun.com/areas_v3/bound'
 
-/** 某个省的地级市边界文件地址 */
+/** 某个省的地级市边界文件地址（远端） */
 export function areaDataUrl(adcode) {
   return `${AREA_DATA_BASE}/${adcode}_full.json`
+}
+
+/** 某个省的地级市边界文件地址（本地，随仓库分发） */
+export function localAreaDataUrl(adcode) {
+  return `/geojson/cities/${adcode}.json`
+}
+
+/**
+ * 加载某个省的地级市边界。
+ *
+ * 先取随仓库分发的本地文件；本地没有（旧版本缓存、或该省刚新增）再回退到
+ * DataV 的在线接口。两条路径都失败才抛错。
+ */
+export async function loadAreaData(adcode) {
+  try {
+    const localResponse = await fetch(localAreaDataUrl(adcode))
+    if (localResponse.ok) return await localResponse.json()
+  } catch {
+    // 本地文件取不到就往下走
+  }
+
+  const remoteResponse = await fetch(areaDataUrl(adcode))
+  if (!remoteResponse.ok) throw new Error(`HTTP ${remoteResponse.status}`)
+  return await remoteResponse.json()
 }
 
 /**

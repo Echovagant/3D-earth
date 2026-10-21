@@ -73,7 +73,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import HudPanel from './HudPanel.vue'
-import { areaDataUrl, featureAreaKm2, formatArea, provinceAdcodeOf } from '../utils/areaData'
+import { featureAreaKm2, formatArea, loadAreaData, provinceAdcodeOf } from '../utils/areaData'
 
 const props = defineProps({
   /** 地级市 adcode，前 2 位指向所属省 */
@@ -119,14 +119,12 @@ const load = async () => {
   try {
     // 城市没有独立的边界文件，从所属省的地级市集合里取
     const candidateProvinceAdcode = provinceAdcodeOf(props.adcode)
-    const [citiesResponse, nationalResponse] = await Promise.all([
-      fetch(areaDataUrl(candidateProvinceAdcode)),
+    const [cities, nationalResponse] = await Promise.all([
+      loadAreaData(candidateProvinceAdcode),
       fetch('/geojson/china-provinces.json'),
     ])
-    if (!citiesResponse.ok) throw new Error(`HTTP ${citiesResponse.status}`)
     if (!nationalResponse.ok) throw new Error(`HTTP ${nationalResponse.status}`)
 
-    const cities = await citiesResponse.json()
     const national = await nationalResponse.json()
 
     const feature = cities.features.find(
