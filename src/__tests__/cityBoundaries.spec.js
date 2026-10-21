@@ -19,8 +19,8 @@ const cases = adcodes.map((adcode) => ({
 }))
 
 describe('随仓库分发的地级市边界', () => {
-  it('有 33 个省的文件（台湾省上游无数据，不在列）', () => {
-    expect(adcodes).toHaveLength(33)
+  it('有 34 个省的文件（33 个从 DataV 同步，台湾省从内政部与 geoBoundaries 合成）', () => {
+    expect(adcodes).toHaveLength(34)
   })
 
   it.each(cases)('$adcode 的文件是合法 FeatureCollection', (c) => {
@@ -66,6 +66,25 @@ describe('随仓库分发的地级市边界', () => {
     const names = geo.features.map((f) => f.properties.name)
     for (const city of ['广州市', '深圳市', '珠海市', '汕头市', '潮州市']) {
       expect(names).toContain(city)
+    }
+  })
+
+  it('台湾省有 22 个县市，名称与代码都是内政部法定值', () => {
+    const geo = JSON.parse(
+      readFileSync(fileURLToPath(new URL('710000.json', citiesDirUrl)), 'utf-8'),
+    )
+    expect(geo.features).toHaveLength(22)
+    const names = geo.features.map((f) => f.properties.name)
+    for (const county of ['臺北市', '高雄市', '臺中市', '臺南市', '新北市', '桃園市', '花蓮縣']) {
+      expect(names).toContain(county)
+    }
+    // 内政部原始代码保留在 moiCode 里，可逐条核对
+    const byName = new Map(geo.features.map((f) => [f.properties.name, f.properties]))
+    expect(byName.get('臺北市').moiCode).toBe('63000')
+    expect(byName.get('連江縣').moiCode).toBe('09007')
+    // 生成的 6 位代码前 2 位与省代码一致，provinceAdcodeOf 因此指向台湾省
+    for (const feature of geo.features) {
+      expect(feature.properties.adcode.startsWith('71')).toBe(true)
     }
   })
 })

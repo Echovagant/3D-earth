@@ -30,6 +30,7 @@
 | `src/__tests__/` | Vitest 用例 |
 | `scripts/update-geo.mjs` | 中国地理数据同步：省界、地级市边界、各省面积 |
 | `scripts/update-world.mjs` | 世界国界同步：拉取、校验、写入 |
+| `scripts/update-tw.mjs` | 台湾省 22 个县市边界同步（几何取 geoBoundaries，属性取内政部） |
 | `public/geojson/` | 地理数据源，**只读**（由上述脚本更新，不要手工改） |
 | `public/data/provinces/` | 省份详情页静态数据（示例值） |
 | `docs/` | README 引用的界面截图 |
@@ -49,11 +50,12 @@ npm run geo:check      # 校验本地地理数据与上游是否一致（只读�
 npm run geo:update     # 从 DataV 同步中国地理数据到 public/geojson/
 npm run world:check    # 校验世界国界与上游是否一致
 npm run world:update   # 从 Natural Earth 同步世界国界
+npm run tw:update      # 同步台湾省 22 个县市边界
 ```
 
 CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `test:unit` + `build`。
 
-`npm run test:unit` 必须是绿的才算完成改动。当前有 378 个用例：
+`npm run test:unit` 必须是绿的才算完成改动。当前有 383 个用例：
 `src/__tests__/App.spec.js`（应用挂载）、
 `src/__tests__/geoDataProcessor.spec.js`（35 个要素的渲染范围覆盖、与参考实现逐顶点一致、海南/台湾/九段线定点断言）、
 `src/__tests__/provinceData.spec.js`（省份详情数据与 GeoJSON 的一致性契约：adcode/name/center 严格相等、字段结构完整、分区覆盖无重叠、配色不落兜底、面积与几何重算一致、两个面积口径不差数量级、人口合计与全国人口相差 3% 以内）、
@@ -73,6 +75,7 @@ CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `tes
 7. **不要新增运行时依赖。** `scripts/` 下的脚本只用 Node 内置的 `fetch` 与 `node:crypto`，不引入第三方包。
 8. **球面标注的 sprite 位置是地球局部坐标**，相机在世界坐标。比较或投影前必须用 `earthLocalToWorld()` 转换——漏了会让标注全部不可见（opacity 恒为 0）。
 9. **three.js 的 `Color` 不认 `'0xRRGGBB'` 字符串**，只认数值或 `'#RRGGBB'`。传错类型不会报错，只是颜色静默变成默认灰。
+10. **台湾县市的 6 位代码是本项目生成的**（`710001`–`710022`，按内政部 `COUNTYCODE` 升序）。内政部没有 6 位县市代码。前 2 位 `71` 与台湾省 `710000` 一致，`provinceAdcodeOf()` 因此自动成立。原始代码在 `moiCode` 字段里。
 
 ## 地理数据同步
 
@@ -87,6 +90,10 @@ CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `tes
 
 `scripts/update-world.mjs` 从 Natural Earth 拉取 `ne_110m_admin_0_countries.geojson`，
 精简属性后写入 `public/geojson/world-countries.json`（177 国，含中文名、ISO 代码与人口估计）。
+
+`scripts/update-tw.mjs` 合成台湾省 22 个县市：几何取 geoBoundaries 的 TWN ADM1，
+属性取内政部 `COUNTY_MOI_1081121`。两个源没有共同标识字段，靠脚本里的对照表关联
+（逐条人工核对过）。DataV 只有台湾省整体边界，不提供下辖区县。
 
 写盘的是上游响应原文（末尾空白统一去掉），因此数据没变时不产生 diff。
 
@@ -109,8 +116,8 @@ CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `tes
 
 ## 已知限制
 
-- 地球贴图 2048×1024，放大到省级尺度会模糊；全球视角用的是纯色球体，没有贴图。
+- 地球贴图 2048×1024，放大到省级尺度会模糊；中国视角与全球视角共用这一张贴图。
 - 省级详情页的人口是公开统计口径，各省统计年份不完全一致；分省人口的权威自动源在受限网络下不可达。
-- 全球视角的人口为 Natural Earth 的估计值，不同国家的数据年份不完全一致。
-- 台湾省没有地级市边界（上游无数据），下钻时会提示加载失败。
+- 台湾县市的 6 位代码是项目生成的（`710001`–`710022`），内政部原始 `COUNTYCODE` 保留在 `moiCode` 里；县市名保留法定繁体。
+- 全球视角的人口为 Natural Earth 的估计值，不同国家数据年份不一致。
 - `npm audit` 需切到官方 npm registry 执行（国内镜像不实现 `/-/npm/v1/security/*` 接口），依赖漏洞需换官方源再审。

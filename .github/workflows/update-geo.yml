@@ -35,6 +35,9 @@ jobs:
       - name: 拉取并校验世界国界数据
         run: node scripts/update-world.mjs
 
+      - name: 拉取并校验台湾县市边界
+        run: node scripts/update-tw.mjs
+
       - name: 有变化则提交
         run: |
           if [ -z "$(git status --porcelain -- public/geojson)" ]; then

@@ -83,8 +83,8 @@ import {
   loadWorldCountries,
   countryId,
   countryName,
-  countryColor,
-  countryColorCss,
+  regionColor,
+  regionColorCss,
   featureCenter,
 } from '../utils/worldData'
 
@@ -221,7 +221,13 @@ const initThree = () => {
 
   const globe = new THREE.Mesh(
     new THREE.SphereGeometry(2, 64, 64),
-    new THREE.MeshPhongMaterial({ color: 0x0a1a2f, shininess: 10 }),
+    new THREE.MeshPhongMaterial({
+      // 与地球页同一张卫星贴图：两个视角是同一个产品，视觉语言必须一致
+      map: new THREE.TextureLoader().load('/textures/earth_atmos_2048.jpg'),
+      color: 0xffffff,
+      specular: new THREE.Color(0x333333),
+      shininess: 10,
+    }),
   )
   scene.add(globe)
   earth = globe
@@ -321,12 +327,14 @@ const createCountryMeshes = (geoJson) => {
       radius: 2,
       elevation: 0.015,
       materialOptions: {
-        color: countryColor(id),
+        // 按联合国次区域分区上色，与中国视角「按地理分区」同一套设计语言
+        color: regionColor(feature),
         transparent: true,
-        opacity: 0.78,
-        shininess: 24,
+        // 压低不透明度，让卫星底图透出来
+        opacity: 0.45,
+        shininess: 20,
       },
-      lineColor: 0x9fd8ff,
+      lineColor: 0xffffff,
     })
     if (!mesh) continue
     mesh.userData = { ...(mesh.userData || {}), isCountry: true, id, name, center }
@@ -459,7 +467,7 @@ const load = async () => {
         const id = countryId(feature)
         const name = countryName(feature)
         const center = featureCenter(feature)
-        return center ? { id, name, center, color: countryColorCss(id) } : null
+        return center ? { id, name, center, color: regionColorCss(feature) } : null
       })
       .filter(Boolean)
       .sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'))

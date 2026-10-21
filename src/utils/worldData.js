@@ -123,6 +123,65 @@ export function countryColorCss(id) {
   return `#${countryColor(id).toString(16).padStart(6, '0')}`
 }
 
+/**
+ * 按联合国次区域分区的配色。
+ *
+ * 与中国视角「按华北 / 华东 / 华南…分区」是同一套设计语言：大区定色相，
+ * 大区内的次区域做小幅色相偏移，于是相邻地区连成一片、远看是连续的大色块，
+ * 细看又能靠白色国界分出每个国家。
+ */
+const SUBREGION_HUES = {
+  // 非洲：橙红
+  'Eastern Africa': 22,
+  'Middle Africa': 32,
+  'Northern Africa': 38,
+  'Southern Africa': 12,
+  'Western Africa': 26,
+  // 美洲：青
+  Caribbean: 163,
+  'Central America': 172,
+  'South America': 186,
+  'Northern America': 156,
+  // 亚洲：红
+  'Central Asia': 338,
+  'Eastern Asia': 354,
+  'South-Eastern Asia': 2,
+  'Southern Asia': 344,
+  'Western Asia': 332,
+  // 欧洲：紫
+  'Eastern Europe': 276,
+  'Northern Europe': 254,
+  'Southern Europe': 268,
+  'Western Europe': 262,
+  // 大洋洲：绿
+  'Australia and New Zealand': 132,
+  Melanesia: 114,
+  Micronesia: 104,
+  Polynesia: 92,
+  // 极地
+  Antarctica: 204,
+  'Seven seas (open ocean)': 198,
+}
+
+/** 次区域取不到时的兜底色相 */
+const FALLBACK_HUE = 210
+
+/**
+ * 要素的分区色（0xRRGGBB 数值）。
+ *
+ * 卫星底图上要留得住底图，所以饱和度与明度都比随机色克制。
+ */
+export function regionColor(feature) {
+  const subregion = feature?.properties?.SUBREGION
+  const hue = SUBREGION_HUES[subregion] ?? FALLBACK_HUE
+  return hslToHex(hue / 360, 0.42, 0.52)
+}
+
+/** 分区色转 CSS 用的十六进制字符串 */
+export function regionColorCss(feature) {
+  return `#${regionColor(feature).toString(16).padStart(6, '0')}`
+}
+
 /** HSL 转十六进制颜色（返回 0xRRGGBB 数值） */
 function hslToHex(h, s, l) {
   const a = s * Math.min(l, 1 - l)
