@@ -33,6 +33,8 @@ const TARGET = 'public/geojson/world-countries.json'
 
 /** 预期要素数：Natural Earth 的 admin_0 110m 是 177 个 */
 const EXPECTED_FEATURES = 177
+/** 顶点总数下限：实测 110m 数据约 1.06 万个顶点，留出余量 */
+const MIN_VERTEX_COUNT = 9000
 
 const CHECK_ONLY = process.argv.slice(2).includes('--check')
 
@@ -106,6 +108,7 @@ function validate(geo) {
   }
 
   const seen = new Set()
+  let vertexCount = 0
   for (const feature of features) {
     const nameZh = feature.properties?.NAME_ZH
     const isoA3 = feature.properties?.ISO_A3
@@ -133,11 +136,41 @@ function validate(geo) {
       errors.push(`要素 ${label} 的坐标为空`)
       continue
     }
+    // 逐个顶点校验范围。数据源可能是镜像，异常响应里的越界或 NaN 坐标
+    // 写进 Float32Array 后会让 GPU 顶点数据出现 NaN，面片错乱或整个地球消失。
+    let bad = 0
+    for (const polygon of polygons) {
+      for (const ring of polygon) {
+        for (const coord of ring) {
+          vertexCount++
+          const [lon, lat] = coord
+          if (
+            !Number.isFinite(lon) ||
+            !Number.isFinite(lat) ||
+            lon < -180 ||
+            lon > 180 ||
+            lat < -90 ||
+            lat > 90
+          ) {
+            bad++
+          }
+        }
+      }
+    }
+    if (bad > 0) {
+      errors.push(`要素 ${label} 有 ${bad} 个坐标越界或非数字`)
+    }
     const point = polygons[0]?.[0]?.[0]
     if (!Array.isArray(point) || point.length < 2 || !point.every((n) => typeof n === 'number')) {
       errors.push(`要素 ${label} 的坐标格式异常`)
     }
   }
+
+  // 顶点总量下限：响应被截断或换了格式时，顶点数会明显偏少
+  if (vertexCount < MIN_VERTEX_COUNT) {
+    errors.push(`顶点总数偏少，应不少于 ${MIN_VERTEX_COUNT}，实际 ${vertexCount}`)
+  }
+
   return errors
 }
 

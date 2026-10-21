@@ -157,6 +157,10 @@ const labelsVisible = ref(true)
 let scene, camera, renderer, earth, controls, animationId
 let provinceGroup = null
 let labelGroup = null
+// 地级市视角下的省界参照。单独存一份，才能在切换视角时摘掉。
+let provinceOutline = null
+// 组件是否已卸载。异步加载完成后要检查，否则会往已销毁的场景里加对象。
+let disposed = false
 let stars = null
 let starGeometry = null
 let starSizes = null
@@ -322,6 +326,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  disposed = true
   cancelAnimationFrame(animationId)
   window.removeEventListener('resize', onResize)
   window.removeEventListener('scroll', refreshCanvasRect, { capture: true })
@@ -541,11 +546,67 @@ const loadBoundaryData = async () => {
   return { geoJson, provinceFeature }
 }
 
+/** 释放一个对象树的几何体、材质与贴图 */
+const disposeObject = (object) => {
+  if (!object) return
+  object.traverse((obj) => {
+    if (obj.geometry) obj.geometry.dispose()
+    const materials = Array.isArray(obj.material) ? obj.material : [obj.material]
+    materials.forEach((material) => {
+      if (!material) return
+      if (material.map) material.map.dispose()
+      material.dispose()
+    })
+  })
+}
+
+/**
+ * 摘掉并释放当前的省份面、标注与省界参照。
+ *
+ * 切换 scope（省 ↔ 地级市视角）或点击「重试」时都要先清一遍，
+ * 否则同一区域会叠着两层半透明面，标注也会重复。
+ */
+const clearProvinceLayers = () => {
+  if (!earth) return
+  for (const [group, key] of [
+    [provinceGroup, 'provinceGroup'],
+    [labelGroup, 'labelGroup'],
+    [provinceOutline, 'provinceOutline'],
+  ]) {
+    if (!group) continue
+    earth.remove(group)
+    disposeObject(group)
+    if (key === 'provinceGroup') provinceGroup = null
+    else if (key === 'labelGroup') labelGroup = null
+    else provinceOutline = null
+  }
+  provinceFeatures.clear()
+}
+
+// 切换 scope 时重新加载数据。
+//
+// /drill/510000 与 /drill/520000 属于同一条路由记录，浏览器前进/后退时
+// vue-router 会复用组件实例——没有这个 watcher 的话，球面仍铺着上一个省的数据。
+watch(
+  () => [props.scope?.type, props.scope?.adcode],
+  async (next, prev) => {
+    if (next[0] === prev[0] && next[1] === prev[1]) return
+    await nextTick()
+    if (disposed) return
+    initProvinces()
+  },
+)
+
 const initProvinces = async () => {
   provinceStatus.value = 'loading'
   provinceError.value = ''
+  // 重试或切换 scope 时先把上一份面与标注摘掉并释放。
+  // 不清的话会叠加第二份：同一区域两层半透明面（z-fighting、颜色变深）且标注重复。
+  clearProvinceLayers()
   try {
     const { geoJson, provinceFeature } = await loadBoundaryData()
+    // 加载期间可能已经离开这个页面：这时不能再往场景里加对象
+    if (disposed || !earth) return
 
     geoJson.features.forEach((feature) => {
       provinceFeatures.set(String(feature.properties.adcode), feature)
@@ -569,7 +630,10 @@ const initProvinces = async () => {
         },
         lineColor: 0x4fd8ff,
       })
-      if (outline) earth.add(outline)
+      if (outline) {
+        provinceOutline = outline
+        earth.add(outline)
+      }
     }
 
     // 球面省名标注
@@ -600,6 +664,8 @@ const initProvinces = async () => {
 
     provinceStatus.value = 'ready'
   } catch (error) {
+    // 组件已经卸载时不要再改状态
+    if (disposed) return
     provinceError.value = `行政区划数据加载失败：${error.message}`
     provinceStatus.value = 'error'
     console.error('加载行政区划数据失败:', error)
@@ -719,6 +785,8 @@ const initCountryBorder = async () => {
     const response = await fetch('/geojson/china.json')
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
     const geoJson = await response.json()
+    // 加载期间组件可能已卸载：这时不能再往场景里加对象
+    if (disposed || !earth) return
     const feature = geoJson.features[0]
     if (!feature) return
 
