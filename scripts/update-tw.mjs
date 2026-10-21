@@ -5,14 +5,13 @@
  * DataV.GeoAtlas 只有台湾省的整体边界（`710000.json`），没有它下面的县市，
  * 所以这一份单独从两个源合成：
  *
- * - **几何**：geojson.cn 的台湾省市县边界（`/api/china/710000.json`）。
- *   数据托管在阿里云 OSS，国内直连。
+ * - **几何**：geoBoundaries 的 TWN ADM1（OpenStreetMap / Wambacher，
+ *   **ODbL 1.0**），22 个县市，简化版 251 KB。
  * - **属性**：内政部「縣市行政區劃」官方资料（d3 的 `COUNTY_MOI_1081121`），
  *   提供法定中文名与内政部县市代码。
  *
  * 两个源没有共同的标识字段，只能靠下面的对照表关联。表是逐条人工核对的：
- * 一边是内政部的 5 位 COUNTYCODE 与法定中文名，一边是 geojson.cn 的
- * 简体全称（`fullname`）。
+ * 一边是内政部的 5 位 COUNTYCODE 与法定中文名，一边是 ISO 3166-2 码。
  *
  * **代码约定**：内政部没有 6 位的县市代码（县市是 3 位，村里码体系里的县市段是 5 位），
  * 而本项目的 adcode 统一 6 位、前 2 位是省级代码。所以这里按内政部 COUNTYCODE
@@ -20,8 +19,9 @@
  * `provinceAdcodeOf()` 的「前 2 位 + 0000」规则因此自动成立，下钻链路与其他省相同。
  * 内政部的原始代码保留在 `moiCode` 字段里，可逐条核对。
  *
- * **覆盖范围**：geojson.cn 目前只提供 20 个县市，缺金门县与连江县（两个离岛县）。
- * 它们仍留在对照表里占着 710001 与 710002 的位置，上游补齐后无需改代码即可自动出现。
+ * **许可**：几何来自 ODbL 1.0（Open Database License）。本文件是它的衍生数据库，
+ * 因此同样以 ODbL 1.0 提供——署名与相同方式共享的义务见 `LICENSES.md`。
+ * 属性部分来自内政部公开发布的资料。
  *
  * 用法：
  *   node scripts/update-tw.mjs          拉取并写入有变化的文件
@@ -36,8 +36,16 @@ import { featureCenter } from '../src/utils/globeMath.js'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
-/** 几何来源：geojson.cn 的台湾省市县边界（数据托管在阿里云 OSS） */
-const GEOMETRY_URL = 'https://geojson.cn/api/china/710000.json'
+/**
+ * 几何来源：geoBoundaries 的 TWN ADM1。
+ *
+ * 上游托管在 GitHub，国内直连不稳定；`ghproxy.net` 是国内镜像，
+ * 放在前面能提高同步成功率。两者内容一致，取到即可。
+ */
+const GEOMETRY_SOURCES = [
+  'https://ghproxy.net/https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/TWN/ADM1/geoBoundaries-TWN-ADM1_simplified.geojson',
+  'https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/TWN/ADM1/geoBoundaries-TWN-ADM1_simplified.geojson',
+]
 
 /** 写入的目标文件：与其它省的地级市边界同构 */
 const TARGET = 'public/geojson/cities/710000.json'
@@ -46,36 +54,34 @@ const TARGET = 'public/geojson/cities/710000.json'
 const PROVINCE_ADCODE = '710000'
 
 /**
- * 内政部 5 位 COUNTYCODE + 法定中文名 + geojson.cn 的简体全称。
+ * ISO 3166-2 码 → 内政部 5 位 COUNTYCODE + 法定中文名。
  *
  * 逐条对照内政部「COUNTY_MOI_1081121」的 COUNTYCODE/COUNTYNAME 与
- * geojson.cn 的 `fullname` 核对而来；两者没有共同的标识字段，只能人工关联。
- *
- * `iso` 是 ISO 3166-2 码，保留在输出里便于与外部资料对照。
+ * geoBoundaries 的 shapeISO 核对而来；两者没有共同的标识字段，只能人工关联。
  */
 const COUNTY_TABLE = [
-  { iso: 'TW-HSQ', moiCode: '10004', name: '新竹縣', geoName: '新竹县' },
-  { iso: 'TW-HSZ', moiCode: '10018', name: '新竹市', geoName: '新竹市' },
-  { iso: 'TW-CHA', moiCode: '10007', name: '彰化縣', geoName: '彰化县' },
-  { iso: 'TW-CYI', moiCode: '10020', name: '嘉義市', geoName: '嘉义市' },
-  { iso: 'TW-CYQ', moiCode: '10010', name: '嘉義縣', geoName: '嘉义县' },
-  { iso: 'TW-ILA', moiCode: '10002', name: '宜蘭縣', geoName: '宜兰县' },
-  { iso: 'TW-KEE', moiCode: '10017', name: '基隆市', geoName: '基隆市' },
-  { iso: 'TW-KHH', moiCode: '64000', name: '高雄市', geoName: '高雄市' },
-  { iso: 'TW-KIN', moiCode: '09020', name: '金門縣', geoName: '金门县' },
-  { iso: 'TW-LIE', moiCode: '09007', name: '連江縣', geoName: '连江县' },
-  { iso: 'TW-MIA', moiCode: '10005', name: '苗栗縣', geoName: '苗栗县' },
-  { iso: 'TW-NAN', moiCode: '10008', name: '南投縣', geoName: '南投县' },
-  { iso: 'TW-NWT', moiCode: '65000', name: '新北市', geoName: '新北市' },
-  { iso: 'TW-PIF', moiCode: '10013', name: '屏東縣', geoName: '屏东县' },
-  { iso: 'TW-PEN', moiCode: '10016', name: '澎湖縣', geoName: '澎湖县' },
-  { iso: 'TW-TAO', moiCode: '68000', name: '桃園市', geoName: '桃园市' },
-  { iso: 'TW-TNN', moiCode: '67000', name: '臺南市', geoName: '台南市' },
-  { iso: 'TW-TPE', moiCode: '63000', name: '臺北市', geoName: '台北市' },
-  { iso: 'TW-TXG', moiCode: '66000', name: '臺中市', geoName: '台中市' },
-  { iso: 'TW-TTT', moiCode: '10014', name: '臺東縣', geoName: '台东县' },
-  { iso: 'TW-YUN', moiCode: '10009', name: '雲林縣', geoName: '云林县' },
-  { iso: 'TW-HUA', moiCode: '10015', name: '花蓮縣', geoName: '花莲县' },
+  { iso: 'TW-HSQ', moiCode: '10004', name: '新竹縣' },
+  { iso: 'TW-HSZ', moiCode: '10018', name: '新竹市' },
+  { iso: 'TW-CHA', moiCode: '10007', name: '彰化縣' },
+  { iso: 'TW-CYI', moiCode: '10020', name: '嘉義市' },
+  { iso: 'TW-CYQ', moiCode: '10010', name: '嘉義縣' },
+  { iso: 'TW-ILA', moiCode: '10002', name: '宜蘭縣' },
+  { iso: 'TW-KEE', moiCode: '10017', name: '基隆市' },
+  { iso: 'TW-KHH', moiCode: '64000', name: '高雄市' },
+  { iso: 'TW-KIN', moiCode: '09020', name: '金門縣' },
+  { iso: 'TW-LIE', moiCode: '09007', name: '連江縣' },
+  { iso: 'TW-MIA', moiCode: '10005', name: '苗栗縣' },
+  { iso: 'TW-NAN', moiCode: '10008', name: '南投縣' },
+  { iso: 'TW-NWT', moiCode: '65000', name: '新北市' },
+  { iso: 'TW-PIF', moiCode: '10013', name: '屏東縣' },
+  { iso: 'TW-PEN', moiCode: '10016', name: '澎湖縣' },
+  { iso: 'TW-TAO', moiCode: '68000', name: '桃園市' },
+  { iso: 'TW-TNN', moiCode: '67000', name: '臺南市' },
+  { iso: 'TW-TPE', moiCode: '63000', name: '臺北市' },
+  { iso: 'TW-TXG', moiCode: '66000', name: '臺中市' },
+  { iso: 'TW-TTT', moiCode: '10014', name: '臺東縣' },
+  { iso: 'TW-YUN', moiCode: '10009', name: '雲林縣' },
+  { iso: 'TW-HUA', moiCode: '10015', name: '花蓮縣' },
 ]
 
 const CHECK_ONLY = process.argv.slice(2).includes('--check')
@@ -92,40 +98,45 @@ const normalize = (text) => text.replace(/\s+$/, '')
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
-/** 拉取上游文本，带退避重试（本机 DNS 偶发 ENOTFOUND） */
-async function fetchText(url, { retries = 5 } = {}) {
+/**
+ * 依次尝试各个数据源地址，每个地址都带退避重试。
+ *
+ * 本机解析域名走 Clash 的本地 DNS 代理，偶发 ENOTFOUND，单次失败说明不了问题。
+ */
+async function fetchText() {
   let lastError
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      const response = await fetch(url, {
-        headers: { 'User-Agent': '3D-earth geo updater' },
-        // 超时是必须的：一次 TCP 挂起会让整个同步任务无限期停着
-        signal: AbortSignal.timeout(30_000),
-      })
-      if (!response.ok) throw new Error(`HTTP ${response.status}`)
-      return await response.text()
-    } catch (error) {
-      lastError = error
-      if (attempt === retries) break
-      await sleep(400 * (attempt + 1))
+  for (const url of GEOMETRY_SOURCES) {
+    for (let attempt = 0; attempt <= 5; attempt++) {
+      try {
+        const response = await fetch(url, {
+          headers: { 'User-Agent': '3D-earth geo updater' },
+          // 超时是必须的：一次 TCP 挂起会让整个同步任务无限期停着
+          signal: AbortSignal.timeout(60_000),
+        })
+        if (!response.ok) throw new Error(`HTTP ${response.status}`)
+        return await response.text()
+      } catch (error) {
+        lastError = error
+        if (attempt === 5) break
+        await sleep(400 * (attempt + 1))
+      }
     }
+    console.log(`  · ${url} 失败：${lastError.message}`)
   }
-  throw new Error(`拉取 ${url} 失败：${lastError.message}`)
+  throw new Error(`所有数据源都不可用：${lastError.message}`)
 }
 
-/** 把 geojson.cn 的要素转成与其它省地级市文件同构的形状 */
+/** 把 geoBoundaries 的要素转成与其它省地级市文件同构的形状 */
 function toProjectShape(feature, entry, adcode) {
   const center = featureCenter(feature)
   if (!center) return null
-  const seat = feature.properties?.center
   return {
     type: 'Feature',
     properties: {
       adcode,
       name: entry.name,
       level: 'city',
-      // 市治所在地用上游的中心点，质心用几何实算——与其它省的口径一致
-      center: Array.isArray(seat) && seat.length >= 2 ? seat : center,
+      center: center.map((n) => Number(n.toFixed(6))),
       centroid: center.map((n) => Number(n.toFixed(6))),
       childrenNum: 0,
       parent: { adcode: PROVINCE_ADCODE },
@@ -137,15 +148,15 @@ function toProjectShape(feature, entry, adcode) {
   }
 }
 
-function validate(geo, expected) {
+function validate(geo) {
   const errors = []
   if (geo?.type !== 'FeatureCollection') {
     errors.push('顶层 type 不是 FeatureCollection')
     return errors
   }
   const features = Array.isArray(geo.features) ? geo.features : []
-  if (features.length !== expected) {
-    errors.push(`要素数应为 ${expected}，实际 ${features.length}`)
+  if (features.length !== COUNTY_TABLE.length) {
+    errors.push(`要素数应为 ${COUNTY_TABLE.length}，实际 ${features.length}`)
   }
   const names = new Set()
   for (const feature of features) {
@@ -168,50 +179,29 @@ function validate(geo, expected) {
 }
 
 async function main() {
-  console.log('拉取 geojson.cn 台湾县市边界…')
-  const raw = LOCAL_SOURCE
-    ? await readFile(LOCAL_SOURCE, 'utf8')
-    : await fetchText(GEOMETRY_URL)
+  console.log('拉取 geoBoundaries 台湾县市边界…')
+  const raw = LOCAL_SOURCE ? await readFile(LOCAL_SOURCE, 'utf8') : await fetchText()
+  const source = JSON.parse(raw)
 
-  let source
-  try {
-    source = JSON.parse(raw)
-  } catch (error) {
-    throw new Error(`上游返回的不是合法 JSON：${error.message}`)
+  const byIso = new Map(source.features.map((f) => [f.properties.shapeISO, f]))
+  const missing = COUNTY_TABLE.filter((entry) => !byIso.has(entry.iso))
+  if (missing.length > 0) {
+    throw new Error(
+      `上游缺少这些 ISO 码对应的要素：${missing.map((m) => m.iso).join(', ')}`,
+    )
   }
-
-  const byName = new Map((source.features ?? []).map((f) => [f.properties?.fullname, f]))
 
   // 按内政部 COUNTYCODE 升序生成 6 位 adcode，保证编号稳定
   const ordered = [...COUNTY_TABLE].sort((a, b) => a.moiCode.localeCompare(b.moiCode))
   const features = []
-  const missing = []
   ordered.forEach((entry, index) => {
     const adcode = `71${String(index + 1).padStart(4, '0')}`
-    const shape = byName.get(entry.geoName)
-    if (!shape) {
-      missing.push(`${entry.name}（${entry.geoName}）`)
-      return
-    }
-    const projected = toProjectShape(shape, entry, adcode)
-    if (projected) features.push(projected)
+    const shape = toProjectShape(byIso.get(entry.iso), entry, adcode)
+    if (shape) features.push(shape)
   })
 
-  if (missing.length > 0) {
-    console.log(`· 上游暂缺 ${missing.length} 个县市：${missing.join('、')}`)
-  }
-
-  // 上游多出来的要素也要报出来：说明对照表漏了新设的县市
-  const known = new Set(COUNTY_TABLE.map((entry) => entry.geoName))
-  const unknown = (source.features ?? [])
-    .map((f) => f.properties?.fullname)
-    .filter((name) => name && !known.has(name))
-  if (unknown.length > 0) {
-    throw new Error(`上游出现了对照表里没有的县市：${unknown.join('、')}`)
-  }
-
   const geo = { type: 'FeatureCollection', features }
-  const errors = validate(geo, features.length)
+  const errors = validate(geo)
   if (errors.length > 0) {
     console.error('✗ 校验未通过：')
     for (const message of errors) console.error(`  - ${message}`)

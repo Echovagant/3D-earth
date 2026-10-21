@@ -50,6 +50,7 @@ describe('路由表', () => {
     ['/city/440100', 'City'],
     ['/world', 'World'],
     ['/country/CHN', 'Country'],
+    ['/licenses', 'Licenses'],
   ])('%s 命中 %s 路由', async (path, name) => {
     const router = makeRouter()
     await router.push(path)

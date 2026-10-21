@@ -44,13 +44,17 @@
         <span>点击</span> {{ isCityLevel ? '进入地级市' : '进入省份' }}
       </p>
 
-      <button v-if="!isCityLevel" type="button" class="hud__world-link" @click="goWorld">
-        全球视角
-      </button>
+      <div class="hud__corner">
+        <button v-if="!isCityLevel" type="button" class="hud__world-link" @click="goWorld">
+          全球视角
+        </button>
 
-      <button class="hud__labels-toggle" type="button" @click="labelsVisible = !labelsVisible">
-        省名标注<span class="mono">{{ labelsVisible ? 'ON' : 'OFF' }}</span>
-      </button>
+        <button class="hud__labels-toggle" type="button" @click="labelsVisible = !labelsVisible">
+          省名标注<span class="mono">{{ labelsVisible ? 'ON' : 'OFF' }}</span>
+        </button>
+
+        <router-link class="hud__corner-link" to="/licenses">许可</router-link>
+      </div>
 
       <div
         v-if="hoveredName && highlightSource === 'globe'"
@@ -1148,11 +1152,18 @@ const animate = () => {
   margin-left: 0;
 }
 
-/* 切到全球视角 */
-.hud__world-link {
+/* 右下角一组控件：全球视角、省名标注开关、许可链接 */
+.hud__corner {
   position: absolute;
   right: var(--sp-4);
   bottom: var(--sp-4);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+/* 切到全球视角 */
+.hud__world-link {
   padding: 6px 16px;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
@@ -1224,9 +1235,6 @@ const animate = () => {
 
 /* 省名标注开关 */
 .hud__labels-toggle {
-  position: absolute;
-  right: var(--sp-4);
-  bottom: var(--sp-4);
   padding: 5px 14px;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
@@ -1247,6 +1255,20 @@ const animate = () => {
 
 .hud__labels-toggle span {
   margin-left: 8px;
+  color: var(--accent);
+}
+
+/* 许可链接：与两个按钮同一组，排在最右 */
+.hud__corner-link {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.12em;
+  color: var(--text-lo);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.hud__corner-link:hover {
   color: var(--accent);
 }
 

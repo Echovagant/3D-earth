@@ -47,6 +47,12 @@ export const routes = [
     props: true,
   },
   {
+    // 数据来源与许可
+    path: '/licenses',
+    name: 'Licenses',
+    component: () => import('../components/LicensesPage.vue'),
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/',
   },

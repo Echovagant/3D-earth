@@ -55,6 +55,7 @@
     <!-- 底部提示 -->
     <div class="hud hud--hint">
       <span>拖拽 旋转</span><span>滚轮 缩放</span><span>点击 国家</span>
+      <router-link class="hud__hint-link" to="/licenses">许可</router-link>
     </div>
   </div>
 </template>
@@ -787,6 +788,17 @@ onUnmounted(() => {
   gap: var(--sp-3);
   letter-spacing: 0.1em;
   color: var(--text-lo);
+}
+
+/* 许可链接：与提示语同排 */
+.hud__hint-link {
+  color: var(--text-lo);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.hud__hint-link:hover {
+  color: var(--accent);
 }
 
 .hud--hint span {

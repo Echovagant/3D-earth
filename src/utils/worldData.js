@@ -76,19 +76,17 @@ const SUBREGION_HUES = new Map([
   // 美洲：青
   ['Caribbean', 163],
   ['Central America', 172],
-  ['North America', 156],
+  ['Northern America', 156],
   ['South America', 186],
   // 亚洲：红
   ['Central Asia', 338],
   ['Eastern Asia', 354],
-  ['South-Eastern Asia', 2],
+  ['South-eastern Asia', 2],
   ['Southern Asia', 344],
   ['Western Asia', 332],
   // 欧洲：紫
-  ['Central Europe', 268],
   ['Eastern Europe', 276],
   ['Northern Europe', 254],
-  ['Southeast Europe', 272],
   ['Southern Europe', 268],
   ['Western Europe', 262],
   // 大洋洲：绿
@@ -106,7 +104,7 @@ const SUBREGION_HUES = new Map([
 const REGION_HUES = new Map([
   ['Africa', 26],
   ['Americas', 170],
-  ['Antarctic', 204],
+  ['Antarctica', 204],
   ['Asia', 348],
   ['Europe', 265],
   ['Oceania', 120],

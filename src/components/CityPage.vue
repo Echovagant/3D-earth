@@ -7,6 +7,7 @@
         <span>{{ backLabel }}</span>
       </button>
       <span class="detail-page__brand">3D-EARTH <i>/</i> CITY</span>
+      <router-link class="detail-page__licenses" to="/licenses">许可</router-link>
       <span class="detail-page__code mono">{{ adcode }}</span>
     </header>
 

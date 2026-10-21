@@ -34,23 +34,16 @@ describe('citySyncTargets', () => {
   })
 })
 
-describe('数据源', () => {
-  it('同步脚本只连国内可取的数据源', () => {
-    // 境外托管（GitHub raw、jsDelivr、unpkg）在国内经常连不上，
-    // 也不该成为构建链路的单点。卫星贴图是随仓库分发的，不走这里。
-    const forbidden = [
-      'raw.githubusercontent.com',
-      'media.githubusercontent.com',
-      'cdn.jsdelivr.net',
-      'unpkg.com',
-      'ghproxy',
-      'geoboundaries',
-      'natural-earth',
-    ]
+describe('数据源与许可', () => {
+  it('同步脚本不使用来源不明或限制用途的数据集', () => {
+    // geojson.cn 的台湾数据集是付费离线包，免费接口只是预览，
+    // 且站内声明「仅供学习研究使用」——不适合作为公开仓库再分发的数据来源。
+    // jsDelivr / unpkg 是境外 CDN，同样不用。
+    const forbidden = ['cdn.jsdelivr.net', 'unpkg.com', 'geojson.cn']
     for (const name of ['update-geo.mjs', 'update-world.mjs', 'update-tw.mjs']) {
       const text = readFileSync(fileURLToPath(new URL(`../../scripts/${name}`, import.meta.url)), 'utf-8')
       for (const host of forbidden) {
-        expect(text, `${name} 引用了境外数据源 ${host}`).not.toContain(host)
+        expect(text, `${name} 引用了不该用的数据源 ${host}`).not.toContain(host)
       }
     }
   })
@@ -62,9 +55,28 @@ describe('数据源', () => {
       const urls = [...text.matchAll(/https?:\/\/[^\s'"`)]+/g)].map((m) => m[0])
       for (const url of urls) {
         expect(url, `${file} 请求了境外地址 ${url}`).not.toMatch(
-          /githubusercontent|github\.com|jsdelivr|unpkg\.com|natural-earth/i,
+          /githubusercontent|github\.com|jsdelivr|unpkg\.com/i,
         )
       }
+    }
+  })
+
+  it('用到的每个数据源都在 LICENSES.md 里登记了来源与许可', () => {
+    const licenses = readFileSync(fileURLToPath(new URL('LICENSES.md', repoRoot)), 'utf-8')
+    const required = [
+      'DataV.GeoAtlas',
+      'geoBoundaries',
+      '内政部',
+      '@surbowl/world-geo-json-zh',
+      'un-m49',
+      'NASA',
+      'ODbL 1.0',
+      'Unlicense',
+      'MIT',
+      'Apache License 2.0',
+    ]
+    for (const item of required) {
+      expect(licenses, `LICENSES.md 没有登记 ${item}`).toContain(item)
     }
   })
 })

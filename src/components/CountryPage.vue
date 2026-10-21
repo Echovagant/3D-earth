@@ -6,6 +6,7 @@
         <span>返回全球</span>
       </button>
       <span class="detail-page__brand">3D-EARTH <i>/</i> COUNTRY</span>
+      <router-link class="detail-page__licenses" to="/licenses">许可</router-link>
       <span class="detail-page__code mono">{{ iso3 }}</span>
     </header>
 

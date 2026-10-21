@@ -10,11 +10,13 @@
  *
  * - **几何与中文名**：`@surbowl/world-geo-json-zh` —— 239 个国家/地区的
  *   GeoJSON，简体中文名 + ISO 3166-1 的 alpha-2 / alpha-3 / 数字码。
- * - **大洲与次区域**：`world-countries` —— 联合国 M49 的地区划分
- *   （`region` / `subregion`），另附英文名。它只有属性没有几何。
+ *   许可为 Unlicense（作者放弃著作权，进入公有领域）。
+ * - **大洲与次区域**：`un-m49` —— 联合国 M49 地区划分表（MIT 许可）。
+ *   按它推导每个国家所在的大洲与次区域。
  *
- * 两边靠 ISO alpha-3 关联。属性表本来还带人口，但国内没有可自动同步的
- * 权威人口源，所以人口一律不展示，详情页改用边界几何实算的面积。
+ * 两边靠 ISO alpha-3 关联。英文名用运行时自带的 `Intl.DisplayNames` 生成，
+ * 不再引入任何外部属性数据源。人口没有可自动同步的权威源，一律不展示——
+ * 详情页改用边界几何实算的面积。
  */
 
 import { createHash } from 'node:crypto'
@@ -35,11 +37,11 @@ const GEOMETRY_PACKAGE = {
   entry: 'package/world.zh.json',
 }
 
-/** 大洲、次区域与英文名 */
-const ATTRIBUTES_PACKAGE = {
-  name: 'world-countries',
-  version: '5.1.0',
-  entry: 'package/dist/countries.json',
+/** 大洲与次区域（联合国 M49 地区划分） */
+const REGIONS_PACKAGE = {
+  name: 'un-m49',
+  version: '2.2.0',
+  entry: 'package/index.js',
 }
 
 /** 写入的目标文件 */
@@ -167,23 +169,106 @@ async function fetchPackageFile(pkg) {
 }
 
 /**
+ * 解析 un-m49 的地区划分表。
+ *
+ * 包里是一个 JS 字面量（`export const unM49 = [ { type: 1, name: 'Africa', ... } ]`）。
+ * 这里逐字段用正则取值——**不执行远端代码**，同步脚本不引入任何第三方运行时。
+ *
+ * 层级：0 世界 / 1 大洲 / 2 次区域 / 3 中间区域 / 4 国家或地区。
+ */
+function parseM49(source) {
+  const start = source.indexOf('export const unM49 = [')
+  if (start < 0) throw new Error('上游包的结构变了：找不到 unM49 数组')
+
+  const entries = []
+  // 名字的引号两种写法都有（`'Kenya'` 与 `"Democratic People's Republic of Korea"`），
+  // 也可能有转义引号，所以两种引号都收，名字部分用 `(?:[^'\\]|\\.)*` 匹配。
+  const blockPattern =
+    /\{\s*type:\s*(\d),\s*name:\s*(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)")([\s\S]*?)\}/g
+  let match
+  while ((match = blockPattern.exec(source.slice(start))) !== null) {
+    const [, type, singleQuoted, doubleQuoted, rest] = match
+    const rawName = singleQuoted ?? doubleQuoted ?? ''
+    const name = rawName.replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/\\\\/g, '\\')
+    const code = /code:\s*'([^']*)'/.exec(rest)?.[1] ?? ''
+    const iso3166 = /iso3166:\s*'([^']*)'/.exec(rest)?.[1] ?? ''
+    const parent = /parent:\s*'([^']*)'/.exec(rest)?.[1] ?? ''
+    entries.push({ type: Number(type), name, code, iso3166, parent })
+  }
+
+  if (entries.length < 250) {
+    throw new Error(`解析出的 M49 条目偏少：${entries.length}`)
+  }
+  return entries
+}
+
+/**
+ * 由 M49 层级推出大洲与次区域。
+ *
+ * 向上找：最近的 type 2/3 作次区域，type 1 作大洲。
+ * 南极洲这类直接挂在世界下面的地区没有大洲祖先，用它自己的名字作大洲。
+ */
+function buildRegionLookup(entries) {
+  const byCode = new Map(entries.map((entry) => [entry.code, entry]))
+  const byIso = new Map(entries.filter((e) => e.iso3166).map((e) => [e.iso3166, e]))
+
+  // 入参优先是 M49 数字码（上游要素自带），其次是 ISO 3166-1 alpha-3
+  const lookup = (numericCode, iso3166) => {
+    const entry = byCode.get(numericCode) ?? byIso.get(iso3166)
+    if (!entry) return null
+    let cursor = byCode.get(entry.parent)
+    let subregion = ''
+    let region = ''
+    while (cursor) {
+      if (!subregion && (cursor.type === 2 || cursor.type === 3)) subregion = cursor.name
+      if (cursor.type === 1) {
+        region = cursor.name
+        break
+      }
+      cursor = byCode.get(cursor.parent)
+    }
+    if (!region && entry.type === 4) region = entry.name
+    return { region, subregion, name: entry.name }
+  }
+
+  return lookup
+}
+
+/** 英文名：优先用运行时自带的地区名，回退到 M49 里的正式名 */
+function buildEnglishNames(entries) {
+  const display = new Intl.DisplayNames(['en'], { type: 'region' })
+  const byIso = new Map(entries.filter((e) => e.iso3166).map((e) => [e.iso3166, e]))
+  return (iso2, iso3) => {
+    if (iso2 && iso2 !== '-99') {
+      try {
+        const name = display.of(iso2)
+        if (name && name !== iso2) return name
+      } catch {
+        // Intl 认不出的代码走下面的兜底
+      }
+    }
+    return byIso.get(iso3)?.name ?? ''
+  }
+}
+
+/**
  * 把上游要素转成仓库里用的形状。
  *
  * 上游属性是 `iso_a2` / `iso_a3` / `iso_n3`，这里换成小写驼峰，
  * 运行时读起来更顺。
  */
-function toProjectShape(feature, attributes, id) {
+function toProjectShape(feature, id, nameEn, region, subregion) {
   const source = feature.properties ?? {}
   const extra = EXTRA_ENTRIES[source.name]
   const properties = {
     name: source.name,
     fullName: source.full_name,
-    nameEn: extra ? extra.nameEn : (attributes?.name?.common ?? ''),
+    nameEn: extra ? extra.nameEn : nameEn,
     iso2: extra ? '' : source.iso_a2,
     iso3: id,
     isoN3: extra ? '' : source.iso_n3,
-    region: extra ? extra.region : (attributes?.region ?? ''),
-    subregion: extra ? extra.subregion : (attributes?.subregion ?? ''),
+    region: extra ? extra.region : region,
+    subregion: extra ? extra.subregion : subregion,
   }
   return {
     type: 'Feature',
@@ -210,6 +295,7 @@ function validate(geo) {
     const props = feature.properties ?? {}
     const label = props.name || props.iso3 || '(未命名)'
     if (!props.name) errors.push(`要素 ${label} 缺少中文名`)
+    if (!props.nameEn) errors.push(`要素 ${label} 缺少英文名`)
     if (!props.iso3) errors.push(`要素 ${label} 缺少标识`)
     if (props.iso3 && seen.has(props.iso3)) errors.push(`标识重复：${props.iso3}`)
     if (props.iso3) seen.add(props.iso3)
@@ -269,46 +355,59 @@ function validate(geo) {
 
 async function main() {
   console.log('拉取世界国界数据（npmmirror）…')
-  const [geometryText, attributesText] = await Promise.all([
+  const [geometryText, regionsText] = await Promise.all([
     fetchPackageFile(GEOMETRY_PACKAGE),
-    fetchPackageFile(ATTRIBUTES_PACKAGE),
+    fetchPackageFile(REGIONS_PACKAGE),
   ])
 
   let geometry
-  let attributes
   try {
     geometry = JSON.parse(geometryText)
-    attributes = JSON.parse(attributesText)
   } catch (error) {
     throw new Error(`上游返回的不是合法 JSON：${error.message}`)
   }
 
+  const m49 = parseM49(regionsText)
+  const lookupRegion = buildRegionLookup(m49)
+  const lookupEnglish = buildEnglishNames(m49)
+
   const sourceFeatures = Array.isArray(geometry.features) ? geometry.features : []
   if (sourceFeatures.length === 0) throw new Error('上游没有返回任何要素')
 
-  // 同一 iso_a3 出现多次时，靠 EXTRA_ENTRIES 把多出来的那个摘出去
-  const attributesByIso = new Map((attributes ?? []).map((item) => [item.cca3, item]))
+  const features = []
   const usedExtra = new Set()
 
-  const features = []
   for (const feature of sourceFeatures) {
     const name = feature.properties?.name
     const iso = feature.properties?.iso_a3
     const extra = EXTRA_ENTRIES[name]
 
-    // 登记在 EXTRA_ENTRIES 里的要素用补的标识，其余的用上游的 ISO 代码。
+    // 登记在 EXTRA_ENTRIES 里的要素用补的标识；其余的用上游的 ISO 代码。
     // 上游把阿什莫尔和卡捷群岛也标成了 AUS，靠 EXTRA_ENTRIES 把它摘出去，
     // 剩下的 AUS 才是澳大利亚本身——不依赖要素的先后顺序。
-    if (!extra && (!iso || iso === '-99')) {
-      throw new Error(`要素 ${name} 没有可用的 ISO 代码，也没有登记在 EXTRA_ENTRIES 里`)
-    }
+    let id
     if (extra) {
       if (usedExtra.has(name)) throw new Error(`EXTRA_ENTRIES 里 ${name} 重复`)
       usedExtra.add(name)
+      id = extra.id
+    } else {
+      if (!iso || iso === '-99') {
+        throw new Error(`要素 ${name} 没有可用的 ISO 代码，也没有登记在 EXTRA_ENTRIES 里`)
+      }
+      id = iso
     }
 
-    const id = extra ? extra.id : iso
-    features.push(toProjectShape(feature, attributesByIso.get(id), id))
+    // EXTRA_ENTRIES 里的地区没有 ISO 代码，M49 里也查不到，它们的
+    // 大洲与次区域直接取自对照表。
+    const m49Entry = extra ? null : lookupRegion(feature.properties?.iso_n3, iso)
+    const region = extra ? extra.region : (m49Entry?.region ?? '')
+    const subregion = extra ? extra.subregion : (m49Entry?.subregion ?? '')
+    if (!region) {
+      throw new Error(`要素 ${name} 在 M49 地区划分里找不到大洲`)
+    }
+
+    const nameEn = lookupEnglish(feature.properties?.iso_a2, id)
+    features.push(toProjectShape(feature, id, nameEn, region, subregion))
   }
 
   // EXTRA_ENTRIES 里的条目必须都在上游存在，否则说明上游改名了，

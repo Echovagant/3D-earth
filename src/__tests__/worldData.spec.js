@@ -136,7 +136,7 @@ describe('分区配色', () => {
     const antarctica = features.find((f) => countryName(f) === '南极洲')
     expect(antarctica).toBeTruthy()
     expect(countryRegion(antarctica)).toBe('')
-    expect(countryContinent(antarctica)).toBe('Antarctic')
+    expect(countryContinent(antarctica)).toBe('Antarctica')
     expect(regionColor(antarctica)).not.toBe(regionColor(features.find((f) => countryName(f) === '中国')))
   })
 })

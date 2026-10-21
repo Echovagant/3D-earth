@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/screenshot-globe.jpg" alt="3D-earth 界面预览" width="880" />
+<img src="docs/screenshot-globe.jpeg" alt="3D-earth 地球主视图" width="880" />
 
 # 3D-earth
 
@@ -21,14 +21,22 @@
 
 把真实行政区划边界三角化后贴合到球面，渲染成一个可以拖拽旋转、悬停拾取、点击聚焦的 3D 地球。界面是深空科技 HUD 风格：左上角实时遥测读数，右上角按地理分区排列的图例，鼠标悬停时出现准星锁定与引线标注。
 
-中国视角下到省级，进到省份详情页还能继续下钻到该省的地级市；全球视角下到国家。
+中国视角下到省级、省份详情页再下钻到地级市；全球视角下到国家。
 
 <p align="center">
-  <img src="docs/screenshot-detail.jpg" alt="省份详情页" width="620" />
+  <img src="docs/screenshot-world.jpeg" alt="全球视角" width="880" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshot-detail.jpeg" alt="省份详情页" width="620" />
 </p>
 
 <p align="center">
   <img src="docs/screenshot-drill.jpeg" alt="地级市下钻视图" width="880" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshot-country.jpeg" alt="国家详情页" width="620" />
 </p>
 
 ## 核心能力
@@ -39,14 +47,14 @@
 | 🎯 HUD 拾取 | 准星锁定 + 引线标注 + 遥测面板（中心经纬 / 视距 / 自转状态） |
 | 🗺️ 完整多岛几何 | 三沙群岛、台湾离岛、舟山群岛、南海断续线全部正确渲染 |
 | 🧭 聚焦联动 | 点击省份 → 相机飞向该省并暂停自转 → 进入详情页 |
-| 🏙 地级市下钻 | 省份详情页一键下钻，该省地级市按真实边界铺上球面，再点城市进详情页 |
+| 🏙 地级市下钻 | 省份详情页一键下钻，该省地级市按真实边界铺上球面，再点城市进详情页；台湾省 22 个县市同样可下钻 |
 | 🌍 全球视角 | 239 个国家/地区按真实边界贴上球面，共用同一张卫星贴图、中文国名标注、点国家进详情页 |
 | 📇 详情页 | 行政区划代码、中心坐标、实算面积、省情简介与标签 |
 | 🎨 分区图例 | 按华北 / 东北 / 华东 / 华中 / 华南 / 西南 / 西北 / 港澳台分组，与球面悬停双向联动 |
 | 🏷 球面省名标注 | 省名钉在球面上，屏幕空间自动去重叠；放大后小省逐个浮现，可一键开关 |
 | 🔍 图例过滤 | 按省名或行政区划代码即时过滤 |
 | ♿ 动效降级 | 遵循系统的「减少动态效果」设置 |
-| 🧪 有测试 | 431 个用例，CI 在每次 push 与 PR 上自动验证 |
+| 🧪 有测试 | 433 个用例，CI 在每次 push 与 PR 上自动验证 |
 
 ## 技术亮点
 
@@ -64,47 +72,21 @@
 
 **拾取只针对需要的对象.** 射线只对省份组求交，避免每次 `mousemove` 都遍历整个场景。指针位置走非响应式通道 + 命令式 DOM 写入，不触发组件重渲染。
 
-## 数据来源
+## 数据来源与许可
 
-| 文件 | 内容 | 来源 |
+仓库里同时有代码与第三方地理数据，两者适用不同许可。**逐项来源、许可与义务见 [LICENSES.md](./LICENSES.md)，应用内也有同样一份：路由 [`/licenses`](http://localhost:5173/licenses)。**
+
+| 数据 | 来源 | 许可 |
 |---|---|---|
-| `public/geojson/china-provinces.json` | 34 个省级行政区 + 1 个南海断续线要素（`adcode = 100000_JD`） | [DataV.GeoAtlas 行政区划边界](https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json) |
-| `public/geojson/china.json` | 中华人民共和国整体边界 | [DataV.GeoAtlas 行政区划边界](https://geo.datav.aliyun.com/areas_v3/bound/100000.json) |
-| `public/geojson/cities/<adcode>.json`（34 个省） | 各地级市边界 | [DataV.GeoAtlas 行政区划边界](https://geo.datav.aliyun.com/areas_v3/bound/) |
-| `public/geojson/cities/710000.json` | 台湾省 20 个县市边界 | 几何：[geojson.cn 台湾省市县边界](https://geojson.cn/api/china/710000.json)；属性：[内政部「縣市行政區劃」](https://www.moi.gov.tw/)（`COUNTY_MOI_1081121`） |
-| `public/geojson/world-countries.json` | 239 个国家/地区边界，含中文名、ISO 代码与地区划分 | [`@surbowl/world-geo-json-zh`](https://registry.npmmirror.com/@surbowl/world-geo-json-zh) + [`world-countries`](https://registry.npmmirror.com/world-countries)，经 npmmirror 国内镜像分发 |
-| `public/textures/earth_atmos_2048.jpg` | 地球贴图（两个视角共用） | 随仓库提供 |
-| `public/data/provinces/<adcode>.json` | 省份详情页数据 | 随仓库提供 |
+| 中国省界、地级市界 | [DataV.GeoAtlas 行政区划边界](https://geo.datav.aliyun.com/areas_v3/bound/)（阿里云） | 上游公开接口数据 |
+| 台湾省 22 个县市边界 | 几何：[geoBoundaries TWN ADM1](https://www.geoboundaries.org/)；属性：[内政部「縣市行政區劃」](https://www.moi.gov.tw/) | 几何 ODbL 1.0（衍生文件同样以 ODbL 1.0 提供） |
+| 世界国界（239 国/地区） | 几何与中文名：`@surbowl/world-geo-json-zh`；大洲与次区域：联合国 M49 | Unlicense（公有领域）+ MIT |
+| 地球贴图 | NASA Blue Marble Next Generation | NASA 影像一般不受著作权保护，无需许可 |
+| 省份人口与简介 | 2023 年末公开统计口径，逐条标注来源 | 各来源归各自权利人 |
 
-仓库内是随代码分发的副本，与上游同步。`public/geojson/` 下的文件是**只读数据源，不要手工修改**——它们由 `scripts/update-geo.mjs`、`scripts/update-world.mjs` 与 `scripts/update-tw.mjs` 从上游同步，手工改动会在下次同步时被覆盖。
+本项目是**纯静态前端**：没有后端、没有统计脚本、不使用 Cookie、不收集也不上传任何个人信息。
 
-`adcode` 的类型在不同文件里不一样：GeoJSON 里是数字（保持上游原样），`public/data/provinces/` 里是字符串（与文件名一致）；代码统一用 `String()` 比较，两种类型都能对上。
-
-### 台湾省的数据是怎么来的
-
-DataV.GeoAtlas 只有台湾省的整体边界（`710000.json`），没有它下面的县市，所以这一份单独合成：
-
-- **几何**取自 [geojson.cn](https://geojson.cn/) 的台湾省市县边界，数据托管在阿里云 OSS。
-- **属性**取自[内政部「縣市行政區劃」](https://www.moi.gov.tw/)官方资料（`COUNTY_MOI_1081121`），提供法定中文名与内政部县市代码。
-
-两个源没有共同的标识字段，只能靠 `scripts/update-tw.mjs` 里的对照表关联，该表逐条人工核对过。
-
-**代码约定**：内政部没有 6 位的县市代码（县市是 3 位，村里码体系里的县市段是 5 位），而本项目 adcode 统一 6 位、前 2 位是省级代码。所以台湾县市按内政部 `COUNTYCODE` 升序生成 `710001`–`710022`，前 2 位 `71` 与台湾省 `710000` 一致——`provinceAdcodeOf()` 的「前 2 位 + 0000」规则因此自动成立，下钻链路与其他省完全相同。内政部的原始代码保留在 `moiCode` 字段里，可逐条核对。
-
-县市名保留**内政部法定中文（繁体）**，未做简繁转换。geojson.cn 目前只提供 20 个县市，缺金门县与连江县两个离岛县——它们仍占着 `710001` 与 `710002` 的位置，上游补齐后无需改代码即可自动出现。
-
-## 地理数据同步
-
-行政区划边界与世界国界由一条 GitHub Actions 定时任务每周同步一次：
-
-```sh
-npm run geo:check      # 校验本地数据与上游是否一致（只读）
-npm run geo:update     # 同步中国省界与地级市边界
-npm run world:update   # 同步世界国界
-npm run tw:update      # 同步台湾省县市边界
-```
-
-同步脚本在写盘之前会校验上游数据：要素数、几何类型、坐标格式都要合法。**行政区划的新增或撤销会被直接拒绝**——那会牵动配色、图例与详情页数据，需要人工确认后再改。流水线只在边界真的变了时才产生提交。
+`public/geojson/` 下的文件是**只读数据源**，由 `scripts/` 下的同步脚本从上游取回后随仓库分发，不要手工修改。
 
 ## 快速开始
 
@@ -137,6 +119,7 @@ src/
     CityPage.vue             地级市详情页
     WorldScene.vue           全球视角：世界国界、中文国名标注、国家拾取
     CountryPage.vue          国家详情页
+    LicensesPage.vue         数据来源与许可
   utils/
     geoDataProcessor.js      GeoJSON → 球面 Mesh 的三角化、贴面与描边
     globeMath.js             球面交互纯函数：拾取归一化、飞行插值、球面质心
@@ -159,11 +142,10 @@ docs/                        README 引用的界面截图
 ## 当前限制
 
 - 地球贴图为 2048×1024 近地表图，放大到省级尺度会有明显模糊
-- 省级详情页的人口是公开统计口径，各省统计年份不完全一致；分省人口的权威自动源在受限网络下不可达
-- 台湾县市的 6 位代码是本项目生成的，内政部原始 `COUNTYCODE` 保留在 `moiCode` 里；县市名保留法定繁体
-- 全球视角不含人口统计：国内没有可自动同步的权威人口源，与其放一个几年不更新的估计值，不如改用边界实算面积
-- 主包约 491 kB（几乎全部是 three.js）：three 已拆成独立块，业务代码迭代时用户不必重新下载它
+- 省级详情页的人口是 2023 年末的公开统计口径，各省统计年份不完全一致
+- 全球视角不含人口统计：国内没有可自动同步的权威人口源，改用边界实算面积
 - 球面交互目前只支持鼠标
+- 主包约 491 kB（几乎全部是 three.js）：three 已拆成独立块，业务代码迭代时用户不必重新下载它
 
 ## 贡献
 
@@ -172,7 +154,7 @@ docs/                        README 引用的界面截图
 几条最容易踩的：
 
 - **不要手工修改 `public/geojson/` 下的文件**，它们是只读数据源，由脚本从上游同步
-- **数据源只用国内可取的**：中国行政区划走 DataV，世界国界走 npmmirror，台湾县市走 geojson.cn。不要引回 GitHub raw 之类的境外地址
+- **新增数据源前先查许可**：优先选有明确开放许可的（Unlicense / MIT / ODbL / 公有领域）；付费数据集、仅供学习研究的采集站、来源不明的镜像都不要用。改完记得在 `LICENSES.md` 里登记
 - 改动涉及几何处理时，务必跑 `npm run test:unit`——`src/__tests__/geoDataProcessor.spec.js` 会校验 35 个要素的渲染范围与参考实现逐顶点一致
 - 提交信息用 `git commit -F <文件>`，不要用 `git commit -m "..."`：PowerShell 下双引号会吞掉反引号并可能破坏中文
 - 三角化时顶点表必须按 polygon 重建，这是本项目最容易被重新引入的 bug
@@ -180,4 +162,4 @@ docs/                        README 引用的界面截图
 
 ## License
 
-[Apache License 2.0](./LICENSE)
+代码：[Apache License 2.0](./LICENSE)　·　数据与素材：见 [LICENSES.md](./LICENSES.md)

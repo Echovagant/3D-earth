@@ -7,6 +7,7 @@
         <span>返回地球</span>
       </button>
       <span class="detail-page__brand">3D-EARTH <i>/</i> PROVINCE</span>
+      <router-link class="detail-page__licenses" to="/licenses">许可</router-link>
       <span class="detail-page__code mono">{{ route.params.adcode || '——' }}</span>
     </header>
 
