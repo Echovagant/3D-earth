@@ -29,6 +29,19 @@ const routes = [
     props: true,
   },
   {
+    // 全球视角
+    path: '/world',
+    name: 'World',
+    component: () => import('../components/WorldScene.vue'),
+  },
+  {
+    // 国家详情
+    path: '/country/:iso3',
+    name: 'Country',
+    component: () => import('../components/CountryPage.vue'),
+    props: true,
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/',
   },

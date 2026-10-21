@@ -6,7 +6,7 @@
 
 **基于 Three.js 的 3D 地球可视化**
 
-中国 35 个省级行政区实时渲染 · 球面拾取与相机聚焦 · 可下钻到地级市
+中国 35 个省级行政区实时渲染 · 可下钻到地级市 · 全球 177 国视角
 
 [![CI](https://github.com/Echovagant/3D-earth/actions/workflows/ci.yml/badge.svg)](https://github.com/Echovagant/3D-earth/actions/workflows/ci.yml)
 [![stars](https://img.shields.io/github/stars/Echovagant/3D-earth?style=flat-square&label=stars&color=4fd8ff)](https://github.com/Echovagant/3D-earth/stargazers)
@@ -40,6 +40,7 @@
 | 🗺️ 完整多岛几何 | 三沙群岛、台湾离岛、舟山群岛、南海断续线全部正确渲染 |
 | 🧭 聚焦联动 | 点击省份 → 相机飞向该省并暂停自转 → 进入详情页 |
 | 🏙 地级市下钻 | 省份详情页一键下钻，该省地级市按真实边界铺上球面，再点城市进详情页 |
+| 🌍 全球视角 | 177 个国家/地区按真实边界贴上球面，中文国名标注、点国家进详情页（面积与人口） |
 | 📇 详情页 | 行政区划代码、中心坐标、面积人口、省情简介与标签 |
 | 🎨 分区图例 | 按华北 / 东北 / 华东 / 华中 / 华南 / 西南 / 西北 / 港澳台分组，与球面悬停双向联动 |
 | 🏷 球面省名标注 | 省名钉在球面上，屏幕空间自动去重叠；放大后小省逐个浮现，可一键开关 |
@@ -57,7 +58,9 @@
 
 **拾取只针对需要的对象.** 射线只对省份组求交，避免每次 `mousemove` 都遍历整个场景（含 5000 个点的星空）。指针位置走非响应式通道 + 命令式 DOM 写入，不触发组件重渲染。
 
-**地级市边界按需拉取，不进仓库.** 34 个省的地级市边界全量约 6.5 MB，且绝大多数用户只看一两个省。改成进到下钻页时才向 DataV 请求那一个省的文件（单省约 190 KB），省级边界仍随仓库分发。
+**地级市边界随仓库分发，下钻不依赖在线接口.** 34 个省的地级市边界全量约 6.5 MB，改成预先同步进仓库（压缩到 3.7 MB），下钻时只下载用户点进去的那一个省。既不拖慢首屏，也不受第三方接口可用性影响。
+
+**全球视角用一套数据解决三个问题.** Natural Earth 的 admin_0 数据里同时带边界、中文名（NAME_ZH）与人口估计（POP_EST），省掉另找属性数据源这一步。精简属性后 177 个国家只有 0.27 MB。
 
 **面积是算出来的，不是抄来的.** 地级市的行政面积直接用球面鞋带公式从行政区划边界算，洞（内环）从外环里扣掉。这是「边界围合面积」：内陆城市与官方口径差 1% 左右，沿海城市的行政边界包含管辖海域，因此比常引用的陆地面积偏大——深圳约 +7%、珠海约 +12%。
 
@@ -67,24 +70,28 @@
 |---|---|---|
 | `public/geojson/china-provinces.json` | 34 个省级行政区 + 1 个南海断续线要素（`adcode = 100000_JD`） | [DataV.GeoAtlas 行政区划边界](https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json) |
 | `public/geojson/china.json` | 中华人民共和国整体边界 | [DataV.GeoAtlas 行政区划边界](https://geo.datav.aliyun.com/areas_v3/bound/100000.json) |
+| `public/geojson/cities/<adcode>.json` | 33 个省的地级市边界（台湾省上游无数据） | [DataV.GeoAtlas 行政区划边界](https://geo.datav.aliyun.com/areas_v3/bound/) |
+| `public/geojson/world-countries.json` | 177 个国家/地区边界，含中文名、ISO 代码与人口估计 | [Natural Earth admin_0 110m](https://github.com/nvkelso/natural-earth-vector) |
 | `public/textures/earth_atmos_2048.jpg` | 地球贴图 | 随仓库提供 |
 | `public/data/provinces/<adcode>.json` | 省份详情页数据 | 随仓库提供 |
-| 地级市边界 | 下钻时按省从 `geo.datav.aliyun.com` 实时拉取 | [DataV.GeoAtlas 行政区划边界](https://geo.datav.aliyun.com/areas_v3/bound/) |
 
-仓库内是随代码分发的副本，与上游同步。`public/geojson/` 下的两个文件保持上游原样——其中 `adcode` 是数字（南海断续线要素例外，是字符串 `100000_JD`），`public/data/provinces/` 里的 `adcode` 是字符串，与文件名一致；代码里统一用 `String()` 比较，两种类型都能对上。
+仓库内是随代码分发的副本，与上游同步。`public/geojson/` 下的文件保持上游原样——其中 `adcode` 是数字（南海断续线要素例外，是字符串 `100000_JD`），`public/data/provinces/` 里的 `adcode` 是字符串，与文件名一致；代码里统一用 `String()` 比较，两种类型都能对上。
 
-`public/geojson/` 下的两个文件是**只读数据源，不要手工修改**——它们由 `scripts/update-geo.mjs` 从上游同步，手工改动会在下次同步时被覆盖。地级市边界不进仓库——需要联网，且只在用户下钻时才请求。
+`public/geojson/` 下的文件是**只读数据源，不要手工修改**——它们由 `scripts/update-geo.mjs` 与 `scripts/update-world.mjs` 从上游同步，手工改动会在下次同步时被覆盖。
 
 ## 地理数据同步
 
-行政区划边界来自 [DataV.GeoAtlas](https://geo.datav.aliyun.com/areas_v3/bound/)，由一条 GitHub Actions 定时任务每周同步一次：
+行政区划边界来自 [DataV.GeoAtlas](https://geo.datav.aliyun.com/areas_v3/bound/)，世界国界来自 [Natural Earth](https://github.com/nvkelso/natural-earth-vector)，由一条 GitHub Actions 定时任务每周同步一次：
 
 ```sh
 npm run geo:check      # 校验本地数据与上游是否一致（只读）
-npm run geo:update     # 同步到 public/geojson/
+npm run geo:update     # 同步中国省界与地级市边界
+npm run world:update   # 同步世界国界
 ```
 
 同步脚本在写盘之前会校验上游数据：要素数、几何类型、坐标格式都要合法。**行政区划的新增或撤销会被直接拒绝**——那会牵动配色、图例与详情页数据，需要人工确认后再改。流水线只在边界真的变了时才产生提交，提交信息里会列出哪些要素的边界变了。
+
+地级市边界也随仓库分发：33 个省共 3.7 MB、475 个要素。下钻时按需取用——用户只下载自己点进去的那一个省（约 190 KB），因此下钻不依赖第三方接口在线。
 
 ## 快速开始
 
@@ -110,9 +117,10 @@ npm run geo:check      # 校验本地地理数据与上游是否一致
 - 点击聚焦与相机飞行
 - 省份详情页
 - 地级市层级下钻（省 → 市两级球面视图 + 市详情页）
+- 全球视角（177 国边界 + 中文国名标注 + 国家详情页）
 - 地理数据自动更新流水线（定时同步上游边界，变更前校验）
 - 深空科技 HUD 界面
-- 122 个单元测试 + CI 流水线
+- 378 个单元测试 + CI 流水线
 
 **进行中**
 
@@ -133,14 +141,18 @@ src/
     ProvincePage.vue         省份详情页
     DrillView.vue            地级市视角（把 EarthScene 切到省级以下范围）
     CityPage.vue             地级市详情页
+    WorldScene.vue           全球视角：世界国界、中文国名标注、国家拾取
+    CountryPage.vue          国家详情页
   utils/
     geoDataProcessor.js      GeoJSON → 球面 Mesh 的三角化、贴面与描边
     provinceColors.js        adcode → 颜色的稳定映射与地理分区
     provinceLabels.js        球面标注的贴面定位、屏幕空间去重叠
     areaData.js              行政区划数据获取、球面面积计算
+    worldData.js             世界国界数据获取、配色、球面质心
   __tests__/                 Vitest 用例
 scripts/
-  update-geo.mjs             地理数据同步：拉取、校验、写入
+  update-geo.mjs             中国地理数据同步：省界、地级市边界、面积
+  update-world.mjs           世界国界同步：拉取、校验、写入
 public/
   geojson/                   地理数据源（只读，由脚本更新）
   data/provinces/            省份详情页静态数据
@@ -150,11 +162,12 @@ docs/                        README 引用的界面截图
 
 ## 当前限制
 
-- 地球贴图为 2048×1024 近地表图，放大到省级尺度会有明显模糊
-- 详情页数据为静态示例值，没有后端与实时数据源
-- 地级市下钻依赖 DataV 的在线接口：断网或该服务不可用时下钻会失败（界面会给出错误提示与重试按钮）
+- 地球贴图为 2048×1024 近地表图，放大到省级尺度会有明显模糊；全球视角用的是纯色球体，没有贴图
+- 省级详情页的人口是公开统计口径，各省统计年份不完全一致；分省人口的权威自动源在受限网络下不可达
+- 全球视角的人口为 Natural Earth 的估计值，不同国家的数据年份不完全一致
+- 台湾省没有地级市边界（上游无数据），下钻时会提示加载失败
 - 依赖漏洞审计（`npm audit`）需切到官方 npm registry 执行，国内镜像不实现该接口
-- 主包约 630 kB（几乎全部是 three.js）：详情页与下钻页已按路由做了代码分割，three 仍是首屏刚需，拆包只改变缓存策略、不减少首屏字节数
+- 主包约 491 kB（几乎全部是 three.js）：three 已拆成独立块，业务代码迭代时用户不必重新下载它；它仍是首屏刚需，拆块不减少首屏字节数
 - 球面交互目前只支持鼠标
 
 ## 贡献
@@ -163,10 +176,11 @@ docs/                        README 引用的界面截图
 
 几条最容易踩的：
 
-- **不要修改 `public/geojson/` 下的两个文件**，它们是只读数据源
+- **不要手工修改 `public/geojson/` 下的文件**，它们是只读数据源，由脚本从上游同步
 - 改动涉及几何处理时，务必跑 `npm run test:unit`——`src/__tests__/geoDataProcessor.spec.js` 会校验 35 个要素的渲染范围与参考实现逐顶点一致
 - 提交信息用 `git commit -F <文件>`，不要用 `git commit -m "..."`：PowerShell 下双引号会吞掉反引号并可能破坏中文
 - 三角化时顶点表必须按 polygon 重建，这是本项目最容易被重新引入的 bug
+- 球面标注的 sprite 位置是**地球局部坐标**，与相机（世界坐标）比较前必须用 `earthLocalToWorld()` 转换，漏了会让标注全部消失
 
 ## License
 

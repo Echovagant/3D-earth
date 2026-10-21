@@ -44,6 +44,10 @@
         <span>点击</span> {{ isCityLevel ? '进入地级市' : '进入省份' }}
       </p>
 
+      <button v-if="!isCityLevel" type="button" class="hud__world-link" @click="goWorld">
+        全球视角
+      </button>
+
       <button class="hud__labels-toggle" type="button" @click="labelsVisible = !labelsVisible">
         省名标注<span class="mono">{{ labelsVisible ? 'ON' : 'OFF' }}</span>
       </button>
@@ -885,6 +889,9 @@ const handleProvinceClick = (provinceName, adcode) => {
 // 从地级市视角返回全国视角
 const backToCountry = () => router.push('/')
 
+// 切到全球视角
+const goWorld = () => router.push('/world')
+
 // 相机飞行到指定经纬度，duration 毫秒内做 easeInOutCubic 插值
 const flyTo = (lon, lat, distance = 3.2, duration = 900) => {
   if (!camera || !controls) return
@@ -1067,6 +1074,30 @@ const animate = () => {
 
 .hud__hint span:first-child {
   margin-left: 0;
+}
+
+/* 切到全球视角 */
+.hud__world-link {
+  position: absolute;
+  right: var(--sp-4);
+  bottom: var(--sp-4);
+  padding: 6px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: rgba(4, 7, 15, 0.6);
+  color: var(--text-mid);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.16em;
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease),
+    background var(--dur-fast) var(--ease);
+}
+
+.hud__world-link:hover {
+  color: var(--accent);
+  border-color: var(--line-strong);
+  background: var(--accent-dim);
 }
 
 /* 面包屑：地级市视角下提示当前层级并提供返回 */
