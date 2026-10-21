@@ -398,7 +398,7 @@ const initEarth = () => {
   const textureLoader = new THREE.TextureLoader()
   // 使用占位贴图（项目 public/textures 中会提供真实贴图）
   const earthTexture = textureLoader.load(
-    '/textures/earth_atmos_2048.jpg',
+    '/textures/earth_atmos_4096.jpg',
     undefined,
     undefined,
     () => {

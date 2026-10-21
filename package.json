@@ -22,6 +22,7 @@
     "world:check": "node scripts/update-world.mjs --check",
     "tw:update": "node scripts/update-tw.mjs",
     "tw:check": "node scripts/update-tw.mjs --check",
+    "licenses:check": "node scripts/check-licenses.mjs",
     "format": "prettier --write src/"
   },
   "overrides": {

@@ -38,6 +38,11 @@ jobs:
       - name: 拉取并校验台湾县市边界
         run: node scripts/update-tw.mjs
 
+      # 上游可能下线、改名或改了许可条款。同步脚本只管拉数据，
+      # 察觉不到「条款变了」——这一步专门盯这个。
+      - name: 体检数据源（可达性与许可）
+        run: node scripts/check-licenses.mjs
+
       # GITHUB_TOKEN 推送的提交不会触发 ci.yml——GitHub 的既定行为。
       # 所以机器人同步进来的第三方几何数据必须在这里自己过一遍门禁，
       # 否则坏数据会绕过全部 lint/测试/构建直达 main。

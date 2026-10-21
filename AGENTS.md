@@ -33,6 +33,7 @@
 | `scripts/update-geo.mjs` | 中国地理数据同步：省界、地级市边界、各省面积 |
 | `scripts/update-world.mjs` | 世界国界同步：拉取、校验、写入 |
 | `scripts/update-tw.mjs` | 台湾省 22 个县市边界同步（几何取 geoBoundaries，属性取内政部） |
+| `scripts/check-licenses.mjs` | 数据源体检：上游是否还可达、许可是否还与 `LICENSES.md` 登记的一致 |
 | `public/geojson/` | 地理数据源，**只读**（由上述脚本更新，不要手工改） |
 | `public/data/provinces/` | 省份详情页静态数据 |
 | `docs/` | README 引用的界面截图 |
@@ -54,6 +55,7 @@ npm run geo:update     # 从 DataV 同步中国地理数据到 public/geojson/
 npm run world:check    # 校验世界国界与上游是否一致
 npm run world:update   # 从 npmmirror 同步世界国界
 npm run tw:update      # 同步台湾省县市边界
+npm run licenses:check # 体检数据源：上游可达性与许可是否仍与登记一致
 ```
 
 CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `test:unit` + `build`。
@@ -137,7 +139,7 @@ npmmirror 的单文件接口对这几个包是 403，tarball 是唯一通道。`
 
 ## 已知限制
 
-- 地球贴图 2048×1024，放大到省级尺度会模糊；中国视角与全球视角共用这一张贴图。
+- 地球贴图 4096×2048，放大到省级尺度仍会模糊；中国视角与全球视角共用这一张贴图。
 - 省级详情页的人口是 2023 年末的公开统计口径，各省统计年份不完全一致；分省人口的权威自动源在受限网络下不可达。
 - 全球视角不含人口：国内没有可自动同步的权威人口源，改用边界实算面积。
 - 上游几何覆盖不全：世界数据没有科索沃（两个上游都没有它的边界）。

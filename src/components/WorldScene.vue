@@ -256,7 +256,7 @@ const initThree = () => {
     new THREE.SphereGeometry(2, 64, 64),
     new THREE.MeshPhongMaterial({
       // 与地球页同一张卫星贴图：两个视角是同一个产品，视觉语言必须一致
-      map: new THREE.TextureLoader().load('/textures/earth_atmos_2048.jpg'),
+      map: new THREE.TextureLoader().load('/textures/earth_atmos_4096.jpg'),
       color: 0xffffff,
       specular: new THREE.Color(0x333333),
       shininess: 10,

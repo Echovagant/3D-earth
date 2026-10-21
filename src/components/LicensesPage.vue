@@ -107,10 +107,10 @@
             </thead>
             <tbody>
               <tr>
-                <td><code>public/textures/earth_atmos_2048.jpg</code></td>
+                <td><code>public/textures/earth_atmos_4096.jpg</code></td>
                 <td>地球贴图（两个视角共用）</td>
                 <td>
-                  NASA Blue Marble Next Generation（<code>land_ocean_ice_2048</code>），经色彩调整
+                  NASA Blue Marble Next Generation「地形与水深」产品，2004 年 7 月，原始 5400×2700
                 </td>
                 <td>NASA 影像一般不受著作权保护，无需取得许可；按其媒体使用指引署名</td>
               </tr>
