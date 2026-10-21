@@ -135,6 +135,35 @@
       </section>
 
       <section class="licenses__block">
+        <h2>数据完整性</h2>
+        <ul class="licenses__list">
+          <li>中国部分：34 个省级行政区 + 南海断续线要素；下一级共 497 个边界要素（直辖市这一级为市辖区）。</li>
+          <li>世界部分：239 个国家/地区。台湾省在中国地图里作为中国的一个省级行政区呈现；科索沃在两个上游数据里都没有单列条目，那块地并入塞尔维亚的轮廓。</li>
+          <li>人口为 2023 年末公开统计口径；全球视角不含人口统计。</li>
+          <li>完整的收录口径与权威对照链接见 README 的「数据完整性与收录口径」一节。</li>
+        </ul>
+      </section>
+
+      <section class="licenses__block">
+        <h2>地图合规</h2>
+        <ul class="licenses__list">
+          <li>
+            本项目是非商业、不收费、无后端的开源作品，<strong>不提供互联网地图服务</strong>（不提供定位、不提供地图数据下载接口），
+            也不提供审图号。行政区划以官方发布为准。
+          </li>
+          <li>
+            依据<a href="https://www.gov.cn/zhengce/zhengceku/2015-12/14/content_10403.htm" target="_blank" rel="noreferrer noopener">《地图管理条例》</a>第二条、第十五条，
+            向社会公开的地图应当报送审核；依据<a href="http://www.gov.cn/gongbao/content/2018/content_5271747.htm" target="_blank" rel="noreferrer noopener">《地图审核管理规定》</a>第六条，
+            直接使用测绘地理信息主管部门提供的具有审图号的公益性地图不需要审核。
+          </li>
+          <li>
+            审图号由审核机关核发，不能随开源协议转让。用于课件、出版物或对外产品时，请自行使用
+            <a href="https://www.zrzyst.cn/" target="_blank" rel="noreferrer noopener">自然资源部审图中心的标准地图</a>并标注审图号。
+          </li>
+        </ul>
+      </section>
+
+      <section class="licenses__block">
         <h2>数据更新</h2>
         <ul class="licenses__list">
           <li><code>scripts/update-geo.mjs</code> —— 中国省界、地级市边界与各省面积（DataV）。</li>
