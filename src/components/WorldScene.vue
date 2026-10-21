@@ -141,7 +141,7 @@ const visibleCountries = computed(() => {
   )
 })
 
-// 遥测读数走命令式 DOM 写入：它每帧都在变，走响应式会带着 177 项列表一起重渲染。
+// 遥测读数走命令式 DOM 写入：它每帧都在变，走响应式会带着 239 项列表一起重渲染。
 const telemetryCenter = ref(null)
 const telemetryDistance = ref(null)
 const telemetryRotation = ref(null)

@@ -23,23 +23,20 @@
           <h1>{{ country.name }}</h1>
           <span class="detail-page__sub mono">
             {{ country.nameEn }} · ISO {{ country.iso3 }}
-            <template v-if="country.iso2 && country.iso2 !== '-99'"> / {{ country.iso2 }}</template>
+            <template v-if="country.iso2"> / {{ country.iso2 }}</template>
           </span>
         </div>
       </section>
 
       <HudPanel class="detail-page__facts" title="基础数据" meta="FACTS">
         <dl class="facts">
+          <div v-if="country.fullName !== country.name" class="facts__cell">
+            <dt>官方名称</dt>
+            <dd>{{ country.fullName }}</dd>
+          </div>
           <div class="facts__cell">
             <dt>边界围合面积</dt>
             <dd class="mono">{{ formatArea(country.areaKm2) }}</dd>
-          </div>
-          <div class="facts__cell">
-            <dt>人口估计</dt>
-            <dd class="mono">
-              {{ formatPopulation(country.population) }}
-              <small v-if="country.populationYear" class="facts__year">{{ country.populationYear }} 年</small>
-            </dd>
           </div>
           <div class="facts__cell">
             <dt>所属大洲</dt>
@@ -63,8 +60,8 @@
         <span class="detail-page__intro-label">数据说明 / NOTES</span>
         <p>
           边界围合面积由该国的行政区划边界在球面上直接计算得到（球面鞋带公式，地球平均半径
-          6371.0088 km），与省级、地级市详情页用的是同一个公式。人口为 Natural Earth
-          的估计值，不同国家的数据年份不完全一致，仅供参考。
+          6371.0088 km），与省级、地级市详情页用的是同一个公式。国名与 ISO 代码取自
+          ISO 3166-1 地区划分；这套数据不含人口统计。
         </p>
       </section>
 
@@ -84,12 +81,12 @@ import {
   loadWorldCountries,
   countryId,
   countryName,
-  countryPopulation,
-  populationYear,
+  countryFullName,
+  countryNameEn,
+  countryIso2,
   countryContinent,
   countryRegion,
   featureCenter,
-  formatPopulation,
 } from '../utils/worldData'
 
 const route = useRoute()
@@ -110,11 +107,10 @@ const load = async () => {
     country.value = {
       id: countryId(feature),
       name: countryName(feature),
-      nameEn: feature.properties.NAME || '—',
+      nameEn: countryNameEn(feature) || '—',
+      fullName: countryFullName(feature),
       iso3: countryId(feature),
-      iso2: feature.properties.POSTAL || '',
-      population: countryPopulation(feature),
-      populationYear: populationYear(feature),
+      iso2: countryIso2(feature),
       continent: countryContinent(feature),
       region: countryRegion(feature),
       center: featureCenter(feature),

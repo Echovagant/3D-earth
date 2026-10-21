@@ -52,6 +52,44 @@ export function spinAroundY(point, angle) {
 }
 
 /**
+ * 要素的球面质心（经纬度）。
+ *
+ * 用单位向量求平均而不是直接平均经纬度：俄罗斯这类横跨 180° 经线的国家，
+ * 直接平均会跑到太平洋里去。
+ */
+export function featureCenter(feature) {
+  const rings = []
+  if (feature?.geometry?.type === 'Polygon') rings.push(...feature.geometry.coordinates)
+  else if (feature?.geometry?.type === 'MultiPolygon') {
+    for (const polygon of feature.geometry.coordinates) rings.push(...polygon)
+  }
+
+  let x = 0
+  let y = 0
+  let z = 0
+  let count = 0
+  for (const ring of rings) {
+    for (const coord of ring) {
+      const [lon, lat] = coord
+      if (!Number.isFinite(lon) || !Number.isFinite(lat)) continue
+      const phi = (lon * Math.PI) / 180
+      const theta = (lat * Math.PI) / 180
+      x += Math.cos(theta) * Math.cos(phi)
+      y += Math.cos(theta) * Math.sin(phi)
+      z += Math.sin(theta)
+      count++
+    }
+  }
+  if (!count) return null
+  const length = Math.hypot(x, y, z)
+  if (!length) return null
+  return [
+    (Math.atan2(y / length, x / length) * 180) / Math.PI,
+    (Math.asin(z / length) * 180) / Math.PI,
+  ]
+}
+
+/**
  * 相机飞行的插值位置。
  *
  * @param {{x:number,y:number,z:number}} from 起点

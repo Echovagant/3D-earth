@@ -4,7 +4,7 @@
 
 ## 项目是什么
 
-基于 Three.js 的 3D 地球可视化：把中国 35 个省级行政区渲染到球面上，支持轨道控制、悬停高亮、点击聚焦并进入省份详情页；进到省份详情页后可继续下钻到该省的地级市；另有独立的全球视角（177 个国家/地区）。Vue 3 + Vite + 原生 Three.js，**没有后端**。
+基于 Three.js 的 3D 地球可视化：把中国 35 个省级行政区渲染到球面上，支持轨道控制、悬停高亮、点击聚焦并进入省份详情页；进到省份详情页后可继续下钻到该省的地级市；另有独立的全球视角（239 个国家/地区）。Vue 3 + Vite + 原生 Three.js，**没有后端**。
 
 ## 目录职责
 
@@ -18,19 +18,20 @@
 | `src/components/HudPanel.vue` | 通用玻璃面板（四角角标 + 标题栏） |
 | `src/components/ProvinceLegend.vue` | 右上角分区图例，与球面悬停双向联动 |
 | `src/components/ProvincePage.vue` | 省份详情页（读 `public/data/provinces/<adcode>.json`） |
-| `src/components/DrillView.vue` | 地级市视角：把 `EarthScene` 的 scope 切到某个省 |
+| `src/components/DrillView.vue` | 地级市视角：把 EarthScene 的 scope 切到某个省 |
 | `src/components/CityPage.vue` | 地级市详情页（边界优先读本地 `public/geojson/cities/`，取不到才回退在线接口；面积由几何算出） |
 | `src/components/WorldScene.vue` | 全球视角：世界国界、中文国名标注、国家拾取与相机飞行 |
-| `src/components/CountryPage.vue` | 国家详情页（面积由几何算出，人口取 Natural Earth 估计值） |
+| `src/components/CountryPage.vue` | 国家详情页（面积由几何算出；不含人口） |
 | `src/utils/geoDataProcessor.js` | GeoJSON → 球面 Mesh 的三角化、贴面与描边 |
+| `src/utils/globeMath.js` | 球面交互的纯函数：拾取归一化、飞行插值、球面质心（两个场景共用一份） |
 | `src/utils/provinceColors.js` | adcode → 颜色的稳定映射与地理分区 |
 | `src/utils/provinceLabels.js` | 球面省名标注：位置、朝向、尺寸与屏幕空间去重叠 |
 | `src/utils/areaData.js` | 行政区划数据的获取（`loadAreaData` / `provinceAdcodeOf`）与球面面积计算 |
-| `src/utils/worldData.js` | 世界国界数据获取、稳定配色、球面质心 |
+| `src/utils/worldData.js` | 世界国界数据获取、分区配色（球面质心从 `globeMath.js` 转出） |
 | `src/__tests__/` | Vitest 用例 |
 | `scripts/update-geo.mjs` | 中国地理数据同步：省界、地级市边界、各省面积 |
 | `scripts/update-world.mjs` | 世界国界同步：拉取、校验、写入 |
-| `scripts/update-tw.mjs` | 台湾省 22 个县市边界同步（几何取 geoBoundaries，属性取内政部） |
+| `scripts/update-tw.mjs` | 台湾省县市边界同步（几何取 geojson.cn，属性取内政部） |
 | `public/geojson/` | 地理数据源，**只读**（由上述脚本更新，不要手工改） |
 | `public/data/provinces/` | 省份详情页静态数据（示例值） |
 | `docs/` | README 引用的界面截图 |
@@ -49,20 +50,22 @@ npm run build          # 生产构建
 npm run geo:check      # 校验本地地理数据与上游是否一致（只读，不写文件）
 npm run geo:update     # 从 DataV 同步中国地理数据到 public/geojson/
 npm run world:check    # 校验世界国界与上游是否一致
-npm run world:update   # 从 Natural Earth 同步世界国界
-npm run tw:update      # 同步台湾省 22 个县市边界
+npm run world:update   # 从 npmmirror 同步世界国界
+npm run tw:update      # 同步台湾省县市边界
 ```
 
 CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `test:unit` + `build`。
 
-`npm run test:unit` 必须是绿的才算完成改动。当前有 402 个用例：
+`npm run test:unit` 必须是绿的才算完成改动。当前有 431 个用例：
 `src/__tests__/App.spec.js`（应用挂载）、
 `src/__tests__/geoDataProcessor.spec.js`（35 个要素的渲染范围覆盖、与参考实现逐顶点一致、海南/台湾/九段线定点断言）、
 `src/__tests__/provinceData.spec.js`（省份详情数据与 GeoJSON 的一致性契约：adcode/name/center 严格相等、字段结构完整、分区覆盖无重叠、配色不落兜底、面积与几何重算一致、两个面积口径不差数量级、人口合计与全国人口相差 3% 以内）、
 `src/__tests__/provinceLabels.spec.js`（标注的朝向淡出、尺寸缩放、中心点解析、球面位置、地球坐标系换算、尺寸代理、像素高度、矩形相交）、
 `src/__tests__/areaData.spec.js`（球面面积公式、洞的处理、面积格式化、市 → 省 adcode 推导）、
-`src/__tests__/cityBoundaries.spec.js`（随仓库分发的 33 个地级市边界文件：合法 FeatureCollection、同省 6 位代码、几何与面积可算）、
-`src/__tests__/worldData.spec.js`（世界国界：177 国、中文名与 ISO 代码、球面质心不跨 180°、配色稳定且为数值、人口格式化）。
+`src/__tests__/cityBoundaries.spec.js`（随仓库分发的 34 个地级市边界文件：合法 FeatureCollection、同省 6 位代码、几何与面积可算、台湾 20 个县市）、
+`src/__tests__/geoScripts.spec.js`（同步脚本的回归：城市同步目标、`formatJson` 幂等、**数据源不得指向境外地址**）、
+`src/__tests__/worldData.spec.js`（世界国界：239 国、中文名与 ISO 代码、次区域与配色、球面质心不跨 180°）、
+`src/__tests__/globeMath.spec.js`（拾取归一化、缓动、绕 Y 轴旋转、球面质心）。
 
 ## 硬约束
 
@@ -72,10 +75,11 @@ CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `tes
 4. 三角化时**顶点表必须按 polygon 重建**。earcut 的索引在每个 polygon 内从 0 开始，跨 polygon 累加会让多岛屿省份（海南、台湾、浙江、广东、辽宁…）只渲染出第一个 polygon。这是本项目最容易被重新引入的 bug，`geoDataProcessor.spec.js` 会抓住它。
 5. 提交信息**必须**用 `git commit -F <文件>`，不要用 `git commit -m "..."`：PowerShell 下双引号会吞掉反引号并可能破坏中文。
 6. **行政区划代码的位数是 6 位**：前 2 位是省级代码，后 4 位是市级代码。市 → 省用 `provinceAdcodeOf()` 推导，不要自己切片——切成 7 位会请求到不存在的 URL。
-7. **不要新增运行时依赖。** `scripts/` 下的脚本只用 Node 内置的 `fetch` 与 `node:crypto`，不引入第三方包。
-8. **球面标注的 sprite 位置是地球局部坐标**，相机在世界坐标。比较或投影前必须用 `earthLocalToWorld()` 转换——漏了会让标注全部不可见（opacity 恒为 0）。
-9. **three.js 的 `Color` 不认 `'0xRRGGBB'` 字符串**，只认数值或 `'#RRGGBB'`。传错类型不会报错，只是颜色静默变成默认灰。
-10. **台湾县市的 6 位代码是本项目生成的**（`710001`–`710022`，按内政部 `COUNTYCODE` 升序）。内政部没有 6 位县市代码。前 2 位 `71` 与台湾省 `710000` 一致，`provinceAdcodeOf()` 因此自动成立。原始代码在 `moiCode` 字段里。
+7. **不要新增运行时依赖。** `scripts/` 下的脚本只用 Node 内置的 `fetch`、`node:crypto`、`node:zlib`，不引入第三方包。
+8. **数据源只用国内可取的地址。** 中国行政区划分走 DataV，世界国界走 npmmirror（npm 国内镜像），台湾县市走 geojson.cn。不要引回 GitHub raw、jsDelivr、unpkg 之类的境外地址——它们在国内经常连不上，也不该成为构建链路的单点。`geoScripts.spec.js` 会对同步脚本与 `src/utils/` 做扫描来兜住这条。
+9. **球面标注的 sprite 位置是地球局部坐标**，相机在世界坐标。比较或投影前必须用 `earthLocalToWorld()` 转换——漏了会让标注全部不可见（opacity 恒为 0）。
+10. **three.js 的 `Color` 不认 `'0xRRGGBB'` 字符串**，只认数值或 `'#RRGGBB'`。传错类型不会报错，只是颜色静默变成默认灰。
+11. **台湾县市的 6 位代码是本项目生成的**（`710001`–`710022`，按内政部 `COUNTYCODE` 升序）。内政部没有 6 位县市代码。前 2 位 `71` 与台湾省 `710000` 一致，`provinceAdcodeOf()` 因此自动成立。原始代码在 `moiCode` 字段里。
 
 ## 地理数据同步
 
@@ -88,20 +92,31 @@ CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `tes
 | `<省adcode>_full.json`（33 个省；台湾省由 `update-tw.mjs` 负责） | `public/geojson/cities/<省adcode>.json` |
 | —— | `public/data/provinces/<adcode>.json` 里的 `areaKm2`（由边界几何算出） |
 
-`scripts/update-world.mjs` 从 Natural Earth 拉取 `ne_110m_admin_0_countries.geojson`，
-精简属性后写入 `public/geojson/world-countries.json`（177 国，含中文名、ISO 代码与人口估计）。
+`scripts/update-world.mjs` 从 npm 国内镜像（npmmirror）拉两个包并合并：
 
-`scripts/update-tw.mjs` 合成台湾省 22 个县市：几何取 geoBoundaries 的 TWN ADM1，
+| 包 | 提供 | 写入 |
+|---|---|---|
+| `@surbowl/world-geo-json-zh` | 几何 + 简体中文名 + ISO 3166-1 代码 | `public/geojson/world-countries.json` |
+| `world-countries` | 联合国 M49 的大洲 / 次区域 + 英文名 | 同上 |
+
+两边靠 ISO alpha-3 关联。**没有人口**：国内没有可自动同步的权威人口源，详情页改展示边界实算面积。
+
+`scripts/update-tw.mjs` 合成台湾省县市：几何取 geojson.cn 的 `/api/china/710000.json`，
 属性取内政部 `COUNTY_MOI_1081121`。两个源没有共同标识字段，靠脚本里的对照表关联
 （逐条人工核对过）。DataV 只有台湾省整体边界，不提供下辖区县。
+geojson.cn 目前只提供 20 个县市，缺金门县与连江县；脚本会把缺的列出来，上游补齐后自动出现。
 
-写盘的是上游响应原文（末尾空白统一去掉），因此数据没变时不产生 diff。
+npm 包要从 npmmirror 取 tarball 再解包（`node:zlib` 解 gzip，tar 头部手写解析）——
+npmmirror 的单文件接口对这两个包是 403，tarball 是唯一通道。
+
+写盘的是合并后的结果，因此数据没变时不产生 diff。
 
 脚本会拦住这些情况并以非零码退出：
 
 - 上游返回的不是合法 JSON，或 HTTP 非 200
 - 要素数不对、几何类型非法、坐标不是数字对
 - **adcode 集合发生变化**（新增或撤销行政区划）——这类变更会牵动配色、图例与详情页数据，必须人工确认
+- 台湾县市的对照表与上游对不上（上游多出新县市，或少了能对上的）
 
 `.github/workflows/update-geo.yml` 每周一自动跑一次，也支持手动触发；有变化才提交，提交信息里带变更摘要。
 
@@ -118,6 +133,7 @@ CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `tes
 
 - 地球贴图 2048×1024，放大到省级尺度会模糊；中国视角与全球视角共用这一张贴图。
 - 省级详情页的人口是公开统计口径，各省统计年份不完全一致；分省人口的权威自动源在受限网络下不可达。
+- 全球视角不含人口：国内没有可自动同步的权威人口源，改用边界实算面积。
+- 上游几何覆盖不全：世界数据没有科索沃（两个上游都没有它的边界），台湾县市缺金门县与连江县。
 - 台湾县市的 6 位代码是项目生成的（`710001`–`710022`），内政部原始 `COUNTYCODE` 保留在 `moiCode` 里；县市名保留法定繁体。
-- 全球视角的人口为 Natural Earth 的估计值，不同国家数据年份不一致。
 - `npm audit` 需切到官方 npm registry 执行（国内镜像不实现 `/-/npm/v1/security/*` 接口），依赖漏洞需换官方源再审。

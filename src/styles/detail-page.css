@@ -4,6 +4,7 @@
  * 这份文件从三个页面各自的 scoped 样式合并而来——原先三处各抄一份，
  * 归一化后有 127 行完全相同，且已经开始漂移（某个页面多一行 font-style，
  * 另一个页面多一个 .facts__year）。现在是唯一一份。
+ * .facts__year 原本用来标注人口统计年份，世界数据不再带人口，已随之移除。
  *
  * 非 scoped：三个页面的根元素都是 .detail-page，类名前缀足够独特，不会误伤。
  */
@@ -316,12 +317,6 @@
   margin-left: auto;
   color: var(--accent-warm);
   opacity: 0.7;
-}
-
-.facts__year {
-  margin-left: 4px;
-  font-size: var(--fs-label);
-  color: var(--text-lo);
 }
 
 @keyframes rise {

@@ -65,7 +65,7 @@ const CITY_CONCURRENCY = 4
  * 由 scripts/update-tw.mjs 单独同步的省。
  *
  * 台湾省的上游（DataV）没有下辖区县数据，404 是预期结果而不是故障；
- * 它的县市边界来自内政部与 geoBoundaries 的合成，由另一个脚本负责。
+ * 它的县市边界来自内政部与 geojson.cn 的合成，由另一个脚本负责。
  * 这里要跳过，否则整个同步会因为一个 404 而中止。
  */
 const EXTERNAL_PROVINCES = new Set(['710000'])

@@ -1,40 +1,92 @@
 #!/usr/bin/env node
 /**
- * 世界国界数据同步：从 Natural Earth 拉取全球国家边界，精简后存入
- * public/geojson/world-countries.json。
+ * 世界国界数据同步。
  *
  * 用法：
  *   node scripts/update-world.mjs          拉取并写入有变化的文件
  *   node scripts/update-world.mjs --check  只校验本地数据与上游是否一致
  *
- * 数据源是 Natural Earth 的 admin_0 110m 分辨率国界：单文件、177 个国家，
- * 且每个要素都带中文名（NAME_ZH）、人口估计（POP_EST）与 ISO 代码，
- * 省掉另找属性数据源这一步。
+ * 数据源是 npm 上的两个包，走 npmmirror（阿里巴巴的 npm 国内镜像）下载：
  *
- * 上游在 GitHub 上，国内直连不稳定，默认经 ghproxy 镜像拉取；
- * 可用 WORLD_SOURCE 环境变量覆盖成原始地址。
+ * - **几何与中文名**：`@surbowl/world-geo-json-zh` —— 239 个国家/地区的
+ *   GeoJSON，简体中文名 + ISO 3166-1 的 alpha-2 / alpha-3 / 数字码。
+ * - **大洲与次区域**：`world-countries` —— 联合国 M49 的地区划分
+ *   （`region` / `subregion`），另附英文名。它只有属性没有几何。
+ *
+ * 两边靠 ISO alpha-3 关联。属性表本来还带人口，但国内没有可自动同步的
+ * 权威人口源，所以人口一律不展示，详情页改用边界几何实算的面积。
  */
 
 import { createHash } from 'node:crypto'
+import { gunzipSync } from 'node:zlib'
 import { readFile, writeFile } from 'node:fs/promises'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import path from 'node:path'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
-const RAW_PATH = 'nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson'
-const SOURCES = [
-  `https://ghproxy.net/https://raw.githubusercontent.com/${RAW_PATH}`,
-  `https://raw.githubusercontent.com/${RAW_PATH}`,
-]
+/** npm 国内镜像 */
+const REGISTRY = 'https://registry.npmmirror.com'
+
+/** 几何与中文名 */
+const GEOMETRY_PACKAGE = {
+  name: '@surbowl/world-geo-json-zh',
+  version: '2.1.5',
+  entry: 'package/world.zh.json',
+}
+
+/** 大洲、次区域与英文名 */
+const ATTRIBUTES_PACKAGE = {
+  name: 'world-countries',
+  version: '5.1.0',
+  entry: 'package/dist/countries.json',
+}
 
 /** 写入的目标文件 */
 const TARGET = 'public/geojson/world-countries.json'
 
-/** 预期要素数：Natural Earth 的 admin_0 110m 是 177 个 */
-const EXPECTED_FEATURES = 177
-/** 顶点总数下限：实测 110m 数据约 1.06 万个顶点，留出余量 */
+/** 预期要素数：上游是 239 个国家/地区 */
+const EXPECTED_FEATURES = 239
+/** 顶点总数下限：实测约 1.17 万个顶点，留出余量 */
 const MIN_VERTEX_COUNT = 9000
+
+/**
+ * 上游没有独立 ISO 代码的 4 个地区。
+ *
+ * 索马里兰、北塞浦路斯、锡亚琴冰川在 ISO 3166-1 里没有对应条目，
+ * 阿什莫尔和卡捷群岛是澳大利亚的海外属地、也没有自己的代码——
+ * 上游给它们的 `iso_a3` 要么是 `'-99'`，要么和母国重复（阿什莫尔
+ * 与澳大利亚都是 `AUS`）。
+ *
+ * 这里用 ISO 3166-1 的用户自定义码段（X 开头）补一个稳定标识：
+ * 它只用于路由、配色与去重，不代表任何官方承认。
+ */
+const EXTRA_ENTRIES = {
+  索马里兰: {
+    id: 'XSOM',
+    nameEn: 'Somaliland',
+    region: 'Africa',
+    subregion: 'Eastern Africa',
+  },
+  北塞浦路斯: {
+    id: 'XNCY',
+    nameEn: 'Northern Cyprus',
+    region: 'Asia',
+    subregion: 'Western Asia',
+  },
+  锡亚琴冰川: {
+    id: 'XSIC',
+    nameEn: 'Siachen Glacier',
+    region: 'Asia',
+    subregion: 'Southern Asia',
+  },
+  阿什莫尔和卡捷群岛: {
+    id: 'XACC',
+    nameEn: 'Ashmore and Cartier Islands',
+    region: 'Oceania',
+    subregion: 'Australia and New Zealand',
+  },
+}
 
 const CHECK_ONLY = process.argv.slice(2).includes('--check')
 
@@ -43,50 +95,95 @@ const normalize = (text) => text.replace(/\s+$/, '')
 
 const sha256 = (text) => createHash('sha256').update(text).digest('hex')
 
-/** 依次尝试各个数据源地址 */
-async function fetchText() {
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+/**
+ * 从 npm tarball 里取出指定的文件。
+ *
+ * tar 的结构很简单：512 字节一块的头 + 内容，文件名在头部前 100 字节，
+ * 大小在 124–136 字节（八进制）。用 node:zlib 解 gzip，不引入第三方依赖。
+ */
+function extractFromTarball(gzipBuffer, wantedPath) {
+  const tar = gunzipSync(gzipBuffer)
+  let offset = 0
+  let longName = null
+
+  while (offset + 512 <= tar.length) {
+    const header = tar.subarray(offset, offset + 512)
+    if (header.every((byte) => byte === 0)) break
+
+    const name = header.subarray(0, 100).toString('utf8').replace(/\0.*$/, '')
+    const prefix = header.subarray(345, 500).toString('utf8').replace(/\0.*$/, '')
+    const size = Number.parseInt(header.subarray(124, 136).toString('utf8').replace(/\0.*$/, '').trim(), 8) || 0
+    const type = String.fromCharCode(header[156])
+
+    offset += 512
+    const data = tar.subarray(offset, offset + size)
+    offset += Math.ceil(size / 512) * 512
+
+    // 长文件名：GNU tar 的 'L' 类型项，文件名在数据里
+    if (type === 'L') {
+      longName = data.toString('utf8').replace(/\0.*$/, '')
+      continue
+    }
+
+    const fullName = longName ?? (prefix ? `${prefix}/${name}` : name)
+    longName = null
+
+    if ((type === '0' || type === '\0') && fullName === wantedPath) return data
+  }
+
+  return null
+}
+
+/** 拉取 tarball，带退避重试（本机解析域名走本地 DNS 代理，偶发失败） */
+async function fetchTarball(pkg) {
+  const url = `${REGISTRY}/${pkg.name}/-/${pkg.name.split('/').pop()}-${pkg.version}.tgz`
   let lastError
-  for (const url of SOURCES) {
+  for (let attempt = 0; attempt <= 4; attempt++) {
     try {
       const response = await fetch(url, {
         headers: { 'User-Agent': '3D-earth geo updater' },
         // 超时是必须的：一次 TCP 挂起会让整个同步任务无限期停着
-        signal: AbortSignal.timeout(30_000),
+        signal: AbortSignal.timeout(120_000),
       })
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
-      return await response.text()
+      return Buffer.from(await response.arrayBuffer())
     } catch (error) {
       lastError = error
-      console.log(`  · ${url} 失败：${error.message}`)
+      if (attempt === 4) break
+      await sleep(600 * (attempt + 1))
     }
   }
-  throw new Error(`所有数据源都不可用：${lastError.message}`)
+  throw new Error(`拉取 ${url} 失败：${lastError.message}`)
+}
+
+/** 拉取一个包并取出入口文件 */
+async function fetchPackageFile(pkg) {
+  const tarball = await fetchTarball(pkg)
+  const data = extractFromTarball(tarball, pkg.entry)
+  if (!data) throw new Error(`${pkg.name} 的 tarball 里没有 ${pkg.entry}`)
+  return data.toString('utf8')
 }
 
 /**
- * 精简属性：Natural Earth 的原始要素有上百个字段，全带上会让文件大一倍，
- * 而运行时只用到下面这些。
+ * 把上游要素转成仓库里用的形状。
+ *
+ * 上游属性是 `iso_a2` / `iso_a3` / `iso_n3`，这里换成小写驼峰，
+ * 运行时读起来更顺。
  */
-const KEEP_PROPERTIES = [
-  'NAME_ZH',
-  'NAME',
-  'ADM0_A3',
-  'ISO_A3',
-  'POSTAL',
-  'POP_EST',
-  'POP_YEAR',
-  'CONTINENT',
-  'REGION_UN',
-  'SUBREGION',
-  'SOV_A3',
-]
-
-/** 把 Natural Earth 的要素转成仓库里用的形状 */
-function toProjectShape(feature) {
+function toProjectShape(feature, attributes, id) {
   const source = feature.properties ?? {}
-  const properties = {}
-  for (const key of KEEP_PROPERTIES) {
-    if (source[key] !== undefined && source[key] !== null) properties[key] = source[key]
+  const extra = EXTRA_ENTRIES[source.name]
+  const properties = {
+    name: source.name,
+    fullName: source.full_name,
+    nameEn: extra ? extra.nameEn : (attributes?.name?.common ?? ''),
+    iso2: extra ? '' : source.iso_a2,
+    iso3: id,
+    isoN3: extra ? '' : source.iso_n3,
+    region: extra ? extra.region : (attributes?.region ?? ''),
+    subregion: extra ? extra.subregion : (attributes?.subregion ?? ''),
   }
   return {
     type: 'Feature',
@@ -103,25 +200,21 @@ function validate(geo) {
     return errors
   }
   const features = Array.isArray(geo.features) ? geo.features : []
-  if (features.length < 150) {
-    errors.push(`要素数偏少，应约为 ${EXPECTED_FEATURES}，实际 ${features.length}`)
+  if (features.length < 200) {
+    errors.push(`要素数偏少，应为 ${EXPECTED_FEATURES}，实际 ${features.length}`)
   }
 
   const seen = new Set()
   let vertexCount = 0
   for (const feature of features) {
-    const nameZh = feature.properties?.NAME_ZH
-    const isoA3 = feature.properties?.ISO_A3
-    const adm0A3 = feature.properties?.ADM0_A3
-    const label = nameZh || isoA3 || '(未命名)'
-    if (!nameZh) errors.push(`要素 ${label} 缺少中文名`)
-    // ISO_A3 为 -99 是 Natural Earth 的哨兵值，表示该地区没有 ISO 代码
-    // （争议领地、法属南方与antarctic 属地等），不算缺失。
-    if (!isoA3) errors.push(`要素 ${label} 缺少 ISO_A3`)
-    // 唯一标识用 ADM0_A3：每个要素都有，且在 Natural Earth 内唯一
-    if (!adm0A3) errors.push(`要素 ${label} 缺少 ADM0_A3`)
-    if (adm0A3 && seen.has(adm0A3)) errors.push(`ADM0_A3 重复：${adm0A3}`)
-    if (adm0A3) seen.add(adm0A3)
+    const props = feature.properties ?? {}
+    const label = props.name || props.iso3 || '(未命名)'
+    if (!props.name) errors.push(`要素 ${label} 缺少中文名`)
+    if (!props.iso3) errors.push(`要素 ${label} 缺少标识`)
+    if (props.iso3 && seen.has(props.iso3)) errors.push(`标识重复：${props.iso3}`)
+    if (props.iso3) seen.add(props.iso3)
+    if (!props.region) errors.push(`要素 ${label} 缺少大洲`)
+
     if (!feature.geometry) {
       errors.push(`要素 ${label} 缺少几何`)
       continue
@@ -175,20 +268,58 @@ function validate(geo) {
 }
 
 async function main() {
-  console.log('拉取 Natural Earth 世界国界…')
-  const raw = await fetchText()
+  console.log('拉取世界国界数据（npmmirror）…')
+  const [geometryText, attributesText] = await Promise.all([
+    fetchPackageFile(GEOMETRY_PACKAGE),
+    fetchPackageFile(ATTRIBUTES_PACKAGE),
+  ])
 
-  let source
+  let geometry
+  let attributes
   try {
-    source = JSON.parse(raw)
+    geometry = JSON.parse(geometryText)
+    attributes = JSON.parse(attributesText)
   } catch (error) {
     throw new Error(`上游返回的不是合法 JSON：${error.message}`)
   }
 
-  const geo = {
-    type: 'FeatureCollection',
-    features: (source.features ?? []).map(toProjectShape),
+  const sourceFeatures = Array.isArray(geometry.features) ? geometry.features : []
+  if (sourceFeatures.length === 0) throw new Error('上游没有返回任何要素')
+
+  // 同一 iso_a3 出现多次时，靠 EXTRA_ENTRIES 把多出来的那个摘出去
+  const attributesByIso = new Map((attributes ?? []).map((item) => [item.cca3, item]))
+  const usedExtra = new Set()
+
+  const features = []
+  for (const feature of sourceFeatures) {
+    const name = feature.properties?.name
+    const iso = feature.properties?.iso_a3
+    const extra = EXTRA_ENTRIES[name]
+
+    // 登记在 EXTRA_ENTRIES 里的要素用补的标识，其余的用上游的 ISO 代码。
+    // 上游把阿什莫尔和卡捷群岛也标成了 AUS，靠 EXTRA_ENTRIES 把它摘出去，
+    // 剩下的 AUS 才是澳大利亚本身——不依赖要素的先后顺序。
+    if (!extra && (!iso || iso === '-99')) {
+      throw new Error(`要素 ${name} 没有可用的 ISO 代码，也没有登记在 EXTRA_ENTRIES 里`)
+    }
+    if (extra) {
+      if (usedExtra.has(name)) throw new Error(`EXTRA_ENTRIES 里 ${name} 重复`)
+      usedExtra.add(name)
+    }
+
+    const id = extra ? extra.id : iso
+    features.push(toProjectShape(feature, attributesByIso.get(id), id))
   }
+
+  // EXTRA_ENTRIES 里的条目必须都在上游存在，否则说明上游改名了，
+  // 补标识的对照表要跟着更新。
+  for (const name of Object.keys(EXTRA_ENTRIES)) {
+    if (!usedExtra.has(name)) {
+      throw new Error(`上游没有名为「${name}」的要素，EXTRA_ENTRIES 需要更新`)
+    }
+  }
+
+  const geo = { type: 'FeatureCollection', features }
 
   const errors = validate(geo)
   if (errors.length > 0) {
@@ -208,7 +339,6 @@ async function main() {
 
   if (local !== null && normalize(local) === normalize(text)) {
     console.log('· 本地数据与上游一致，无需更新')
-    if (CHECK_ONLY) return
     return
   }
 
@@ -220,7 +350,7 @@ async function main() {
 
   await writeFile(path.join(ROOT, TARGET), text, 'utf8')
   console.log(
-    `✓ 已更新 ${TARGET}：${geo.features.length} 个国家，${(text.length / 1024 / 1024).toFixed(2)} MB，sha256=${sha256(text).slice(0, 12)}`,
+    `✓ 已更新 ${TARGET}：${features.length} 个国家/地区，${(text.length / 1024).toFixed(0)} KB，sha256=${sha256(text).slice(0, 12)}`,
   )
 }
 

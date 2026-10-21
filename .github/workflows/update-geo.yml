@@ -60,7 +60,7 @@ jobs:
           {
             echo "chore: 同步行政区划边界数据"
             echo
-            echo "由 GitHub Actions 定时任务从 DataV.GeoAtlas 与 Natural Earth 同步。"
+            echo "由 GitHub Actions 定时任务从 DataV.GeoAtlas、npmmirror 与 geojson.cn 同步。"
             echo
             cat geo-summary.md
           } > commit-msg.txt
