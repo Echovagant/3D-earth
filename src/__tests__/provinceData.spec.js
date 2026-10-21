@@ -82,7 +82,7 @@ describe('面积口径', () => {
   it.each(cases)('$name 的 areaKm2 与边界几何算出的面积一致', (c) => {
     const data = c.readData()
     // 数据文件里的 areaKm2 由 scripts/update-geo.mjs 算出，
-    // 用的是与地级市详情页同一个公式；这里独立重算一遍，防止公式被改过而数据没跟上。
+    // 用的是与国家详情页同一个公式；这里独立重算一遍，防止公式被改过而数据没跟上。
     expect(data.areaKm2).toBeCloseTo(featureAreaKm2(c.feature), 1)
   })
 

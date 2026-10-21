@@ -68,9 +68,8 @@
         <span class="detail-page__intro-label">数据口径 / NOTES</span>
         <p>
           <b>边界围合面积</b>由本省的行政区划边界在球面上直接计算得到（球面鞋带公式，
-          地球平均半径 6371.0088 km），与地级市详情页用的是同一个公式，因此两处口径一致；
-          它随边界数据自动更新。<b>公布面积</b>是统计口径的公开数值，沿海省份的行政边界包含管辖海域，
-          前者因此会略大于后者。人口取自{{ data.populationSource }}口径的公开统计值，
+          地球平均半径 6371.0088 km）；它随边界数据自动更新。<b>公布面积</b>是统计口径的公开数值，
+          沿海省份的行政边界包含管辖海域，前者因此会略大于后者。人口取自{{ data.populationSource }}口径的公开统计值，
           各省统计年份不完全一致，34 个省级行政区合计与全国人口相差约 2%。
         </p>
       </section>
@@ -83,9 +82,6 @@
       </ul>
 
       <div class="detail-page__actions">
-        <button type="button" class="detail-page__cta detail-page__cta--ghost" @click="drillDown">
-          下钻到地级市<span v-if="cityCount" class="mono">（{{ cityCount }} 个）</span>
-        </button>
         <button type="button" class="detail-page__cta" @click="goBack">返回地球</button>
       </div>
     </main>
@@ -103,7 +99,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import HudPanel from './HudPanel.vue'
-import { formatArea, loadAreaData } from '../utils/areaData'
+import { formatArea } from '../utils/areaData'
 
 const route = useRoute()
 const router = useRouter()
@@ -111,8 +107,6 @@ const router = useRouter()
 const data = ref(null)
 const loading = ref(true)
 const error = ref('')
-// 该省的地级市数量，取不到就只显示按钮不显示数字
-const cityCount = ref(null)
 
 const load = async () => {
   loading.value = true
@@ -126,21 +120,7 @@ const load = async () => {
   } finally {
     loading.value = false
   }
-  loadCityCount()
 }
-
-// 顺带取下地级市数量，让下钻入口可预期
-const loadCityCount = async () => {
-  try {
-    const geo = await loadAreaData(route.params.adcode)
-    cityCount.value = geo.features.length
-  } catch {
-    cityCount.value = null
-  }
-}
-
-// 下钻到该省的地级市
-const drillDown = () => router.push(`/drill/${route.params.adcode}`)
 
 const goBack = () => {
   // 返回地球页面

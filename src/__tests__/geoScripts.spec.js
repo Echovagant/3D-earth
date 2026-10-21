@@ -4,35 +4,11 @@ import { describe, it, expect } from 'vitest'
 import { readFileSync, readdirSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
-import { citySyncTargets, formatJson } from '../../scripts/update-geo.mjs'
+import { formatJson } from '../../scripts/update-geo.mjs'
 
 const repoRoot = new URL('../../', import.meta.url)
 const provincesDir = fileURLToPath(new URL('public/data/provinces/', repoRoot))
 
-describe('citySyncTargets', () => {
-  it('排除由 update-tw.mjs 负责的台湾省', () => {
-    // 台湾省在 DataV 没有下辖区县数据，拉取会 404；
-    // 不排除的话整个同步会因为这一个 404 中止。
-    expect(citySyncTargets(['710000'])).toEqual([])
-  })
-
-  it('保留其它省', () => {
-    expect(citySyncTargets(['440000', '510000'])).toEqual(['440000', '510000'])
-  })
-
-  it('对真实的 34 个省，只跳过台湾省', () => {
-    const geo = JSON.parse(
-      readFileSync(fileURLToPath(new URL('public/geojson/china-provinces.json', repoRoot)), 'utf-8'),
-    )
-    const adcodes = geo.features
-      .map((f) => String(f.properties.adcode))
-      .filter((code) => /^\d{6}$/.test(code))
-    expect(adcodes).toHaveLength(34)
-    expect(adcodes).toContain('710000')
-    expect(citySyncTargets(adcodes)).toHaveLength(33)
-    expect(citySyncTargets(adcodes)).not.toContain('710000')
-  })
-})
 
 describe('数据源与许可', () => {
   it('同步脚本不使用来源不明或限制用途的数据集', () => {
@@ -40,7 +16,13 @@ describe('数据源与许可', () => {
     // 且站内声明「仅供学习研究使用」——不适合作为公开仓库再分发的数据来源。
     // jsDelivr / unpkg 是境外 CDN，同样不用。
     const forbidden = ['cdn.jsdelivr.net', 'unpkg.com', 'geojson.cn']
-    for (const name of ['update-geo.mjs', 'update-world.mjs', 'update-tw.mjs']) {
+    const scripts = [
+      'update-geo.mjs',
+      'update-world.mjs',
+      'update-standard-maps.mjs',
+      'check-licenses.mjs',
+    ]
+    for (const name of scripts) {
       const text = readFileSync(fileURLToPath(new URL(`../../scripts/${name}`, import.meta.url)), 'utf-8')
       for (const host of forbidden) {
         expect(text, `${name} 引用了不该用的数据源 ${host}`).not.toContain(host)
@@ -65,12 +47,11 @@ describe('数据源与许可', () => {
     const licenses = readFileSync(fileURLToPath(new URL('LICENSES.md', repoRoot)), 'utf-8')
     const required = [
       'DataV.GeoAtlas',
-      'geoBoundaries',
-      '内政部',
+      '标准地图服务系统',
+      '审图号',
       '@surbowl/world-geo-json-zh',
       'un-m49',
       'NASA',
-      'ODbL 1.0',
       'Unlicense',
       'MIT',
       'Apache License 2.0',

@@ -35,8 +35,8 @@ jobs:
       - name: 拉取并校验世界国界数据
         run: node scripts/update-world.mjs
 
-      - name: 拉取并校验台湾县市边界
-        run: node scripts/update-tw.mjs
+      - name: 拉取标准地图与审图号清单
+        run: node scripts/update-standard-maps.mjs
 
       # 上游可能下线、改名或改了许可条款。同步脚本只管拉数据，
       # 察觉不到「条款变了」——这一步专门盯这个。

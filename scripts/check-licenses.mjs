@@ -37,14 +37,23 @@ const SOURCES = [
     license: null,
   },
   {
-    id: 'geoboundaries',
-    name: 'geoBoundaries TWN ADM1',
+    id: 'sbsm',
+    name: '标准地图服务系统',
     kind: 'http',
-    // 与 update-tw.mjs 用同一组地址：国内镜像优先，直连兜底
-    urls: [
-      'https://ghproxy.net/https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/TWN/ADM1/geoBoundaries-TWN-ADM1_simplified.geojson',
-      'https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/TWN/ADM1/geoBoundaries-TWN-ADM1_simplified.geojson',
-    ],
+    // 标准地图服务系统的检索接口（表单 POST，返回标准地图清单与审图号）
+    url: 'http://bzdt.ch.mnr.gov.cn/sbsm/supermap/searchPicture.do',
+    post: {
+      seachText: '',
+      scale: '',
+      size: '',
+      pageNum: '1',
+      orderSearch: '',
+      superclass: '中国全图',
+      subclass: '',
+      smallclass: '',
+      border: '',
+      largeclass: '',
+    },
     license: null,
   },
   {
@@ -126,11 +135,31 @@ async function checkSource(source) {
         try {
           // 不抛异常地探测：状态码本身要用来区分「源失效」和「网络不通」
           const response = await fetch(url, {
-            headers: { 'User-Agent': '3D-earth geo updater', Range: 'bytes=0-0' },
+            method: source.post ? 'POST' : 'GET',
+            headers: {
+              'User-Agent': '3D-earth geo updater',
+              ...(source.post
+                ? { 'Content-Type': 'application/x-www-form-urlencoded' }
+                : { Range: 'bytes=0-0' }),
+            },
+            ...(source.post ? { body: new URLSearchParams(source.post).toString() } : {}),
             signal: AbortSignal.timeout(45_000),
           })
           if (response.ok || response.status === 206) {
             const bytes = response.headers.get('content-length')
+            // 表单 POST 的接口用 Range 探测没有意义，得看一眼正文才敢说它活着
+            if (source.post) {
+              const body = await response.text()
+              if (!body.trim()) {
+                lastStatus = response.status
+                lastError = new Error('HTTP 200 但正文为空')
+                continue
+              }
+              return {
+                ok: true,
+                detail: `可达（HTTP ${response.status}，POST 正常返回 ${Math.round(body.length / 1024)} KB）`,
+              }
+            }
             return {
               ok: true,
               detail: `可达（HTTP ${response.status}${bytes ? `，${Math.round(Number(bytes) / 1024)} KB` : ''}）`,

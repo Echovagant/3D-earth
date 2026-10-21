@@ -18,34 +18,24 @@
         </dl>
       </HudPanel>
 
-      <nav v-if="isCityLevel" class="hud__breadcrumb">
-        <button type="button" class="hud__crumb" @click="backToCountry">
-          <span class="hud__crumb-arrow">‹</span>全国
-        </button>
-        <span class="hud__crumb-sep">/</span>
-        <span class="hud__crumb-current">{{ scopeName }}</span>
-        <span class="hud__crumb-sep">/</span>
-        <span class="hud__crumb-current">地级市</span>
-      </nav>
-
       <ProvinceLegend
         v-if="legendItems.length"
         class="hud__legend"
         :items="legendItems"
         :active="hoveredAdcode"
-        :grouped="!isCityLevel"
-        :title="isCityLevel ? '地级市' : '省级行政区'"
+        grouped
+        title="省级行政区"
         @hover="onLegendHover"
       />
 
       <p class="hud__hint">
         <span>拖拽</span> 旋转
         <span>滚轮</span> 缩放
-        <span>点击</span> {{ isCityLevel ? '进入地级市' : '进入省份' }}
+        <span>点击</span> 进入省份
       </p>
 
       <div class="hud__corner">
-        <button v-if="!isCityLevel" type="button" class="hud__world-link" @click="goWorld">
+        <button type="button" class="hud__world-link" @click="goWorld">
           全球视角
         </button>
 
@@ -92,15 +82,15 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
+import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { useRouter } from 'vue-router'
 import { createProvinceMeshFromFeature, lonLatToCartesian } from '../utils/geoDataProcessor'
 import { easeInOutCubic, pointerToNdc } from '../utils/globeMath'
 import { isClickGesture } from '../utils/gesture'
-import { getProvinceColor, getCityColor, toHexString } from '../utils/provinceColors'
-import { featureAreaKm2, loadAreaData } from '../utils/areaData'
+import { getProvinceColor, toHexString } from '../utils/provinceColors'
+import { featureAreaKm2 } from '../utils/areaData'
 import {
   LABEL_BASE_HEIGHT,
   cameraDirectionInEarthFrame,
@@ -119,20 +109,6 @@ import ProvinceLegend from './ProvinceLegend.vue'
 
 const container = ref(null)
 const router = useRouter()
-
-const props = defineProps({
-  /**
-   * 视角范围：
-   * - { type: 'country' }          省级视角
-   * - { type: 'province', adcode } 指定省的地级市视角
-   */
-  scope: { type: Object, default: () => ({ type: 'country' }) },
-})
-
-// 是否处于地级市视角
-const isCityLevel = computed(() => props.scope.type === 'province')
-// 面包屑里显示的省名
-const scopeName = ref('')
 
 // 悬停中的省份
 const hoveredName = ref('')
@@ -161,8 +137,6 @@ const labelsVisible = ref(true)
 let scene, camera, renderer, earth, controls, animationId
 let provinceGroup = null
 let labelGroup = null
-// 地级市视角下的省界参照。单独存一份，才能在切换视角时摘掉。
-let provinceOutline = null
 // 组件是否已卸载。异步加载完成后要检查，否则会往已销毁的场景里加对象。
 let disposed = false
 let stars = null
@@ -528,28 +502,11 @@ const initControls = () => {
 }
 
 // 按当前视角取边界数据。
-// 省级视角用随仓库分发的文件；地级市视角按需从 DataV 拉取那一个省的城市边界，
-// 不必把 30+ 个省的文件都塞进仓库。
+// 省级边界随仓库分发，运行时不再请求第三方接口。
 const loadBoundaryData = async () => {
-  if (!isCityLevel.value) {
-    const response = await fetch('/geojson/china-provinces.json')
-    if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    return { geoJson: await response.json(), provinceFeature: null }
-  }
-
-  const [geoJson, nationalResponse] = await Promise.all([
-    loadAreaData(props.scope.adcode),
-    fetch('/geojson/china-provinces.json'),
-  ])
-  if (!nationalResponse.ok) throw new Error(`HTTP ${nationalResponse.status}`)
-
-  const national = await nationalResponse.json()
-  const provinceFeature =
-    national.features.find(
-      (feature) => String(feature.properties.adcode) === String(props.scope.adcode),
-    ) ?? null
-  scopeName.value = provinceFeature?.properties?.name ?? ''
-  return { geoJson, provinceFeature }
+  const response = await fetch('/geojson/china-provinces.json')
+  if (!response.ok) throw new Error(`HTTP ${response.status}`)
+  return { geoJson: await response.json() }
 }
 
 /** 释放一个对象树的几何体、材质与贴图 */
@@ -567,50 +524,33 @@ const disposeObject = (object) => {
 }
 
 /**
- * 摘掉并释放当前的省份面、标注与省界参照。
+ * 摘掉并释放当前的省份面与标注。
  *
- * 切换 scope（省 ↔ 地级市视角）或点击「重试」时都要先清一遍，
- * 否则同一区域会叠着两层半透明面，标注也会重复。
+ * 点击「重试」时也要先清一遍，否则同一区域会叠着两层半透明面，标注也会重复。
  */
 const clearProvinceLayers = () => {
   if (!earth) return
   for (const [group, key] of [
     [provinceGroup, 'provinceGroup'],
     [labelGroup, 'labelGroup'],
-    [provinceOutline, 'provinceOutline'],
   ]) {
     if (!group) continue
     earth.remove(group)
     disposeObject(group)
     if (key === 'provinceGroup') provinceGroup = null
-    else if (key === 'labelGroup') labelGroup = null
-    else provinceOutline = null
+    else labelGroup = null
   }
   provinceFeatures.clear()
 }
 
-// 切换 scope 时重新加载数据。
-//
-// /drill/510000 与 /drill/520000 属于同一条路由记录，浏览器前进/后退时
-// vue-router 会复用组件实例——没有这个 watcher 的话，球面仍铺着上一个省的数据。
-watch(
-  () => [props.scope?.type, props.scope?.adcode],
-  async (next, prev) => {
-    if (next[0] === prev[0] && next[1] === prev[1]) return
-    await nextTick()
-    if (disposed) return
-    initProvinces()
-  },
-)
-
 const initProvinces = async () => {
   provinceStatus.value = 'loading'
   provinceError.value = ''
-  // 重试或切换 scope 时先把上一份面与标注摘掉并释放。
+  // 重试时先把上一份面与标注摘掉并释放。
   // 不清的话会叠加第二份：同一区域两层半透明面（z-fighting、颜色变深）且标注重复。
   clearProvinceLayers()
   try {
-    const { geoJson, provinceFeature } = await loadBoundaryData()
+    const { geoJson } = await loadBoundaryData()
     // 加载期间可能已经离开这个页面：这时不能再往场景里加对象
     if (disposed || !earth) return
 
@@ -622,26 +562,6 @@ const initProvinces = async () => {
     provinceGroup = createProvincesFromGeoJson(geoJson)
     earth.add(provinceGroup)
 
-    // 地级市视角：先描出省界作为空间参照
-    if (provinceFeature) {
-      const outline = createProvinceMeshFromFeature(provinceFeature, {
-        radius: 2,
-        elevation: 0.012,
-        materialOptions: {
-          color: 0x4fd8ff,
-          transparent: true,
-          opacity: 0.05,
-          side: THREE.DoubleSide,
-          depthWrite: false,
-        },
-        lineColor: 0x4fd8ff,
-      })
-      if (outline) {
-        provinceOutline = outline
-        earth.add(outline)
-      }
-    }
-
     // 球面省名标注
     labelGroup = createProvinceLabels(geoJson.features)
     earth.add(labelGroup)
@@ -652,21 +572,9 @@ const initProvinces = async () => {
       .map((feature) => ({
         adcode: String(feature.properties.adcode),
         name: feature.properties.name,
-        color: isCityLevel.value
-          ? getCityColor(feature.properties.adcode)
-          : toHexString(getProvinceColor(feature.properties.adcode)),
+        color: toHexString(getProvinceColor(feature.properties.adcode)),
         area: featureAreaKm2(feature),
       }))
-      // 城市层级没有地理分区可用，改为按面积从大到小平铺
-      .sort((a, b) => (isCityLevel.value ? b.area - a.area : 0))
-
-    // 地级市视角：飞向该省并停下自转
-    if (isCityLevel.value) {
-      const center = provinceFeature?.properties?.center
-      if (Array.isArray(center) && center.length >= 2) {
-        flyTo(center[0], center[1], 2.9)
-      }
-    }
 
     provinceStatus.value = 'ready'
   } catch (error) {
@@ -767,8 +675,6 @@ const updateProvinceLabels = () => {
 // 加载中国整体边界：一份淡色底板 + 白色国界，让国界与省界的层级更清楚。
 // china.json 本身是 MultiPolygon，能正确三角化的前提是顶点表按 polygon 重建。
 const initCountryBorder = async () => {
-  // 地级市视角用省界做参照，不再画全国底板
-  if (isCityLevel.value) return
   try {
     const response = await fetch('/geojson/china.json')
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
@@ -811,9 +717,7 @@ const createProvincesFromGeoJson = (geoJson) => {
       radius: 2,
       elevation: 0.02,
       materialOptions: {
-        color: isCityLevel.value
-          ? getCityColor(adcode)
-          : getProvinceColor(adcode),
+        color: getProvinceColor(adcode),
         transparent: true,
         opacity: 0.7, // 降低透明度让轮廓更明显
         shininess: 30,
@@ -917,24 +821,13 @@ const handleProvinceClick = (provinceName, adcode) => {
   const center = feature?.properties?.center
   const canFly = Array.isArray(center) && center.length >= 2
 
-  if (!isCityLevel.value) {
-    // 省级视角：相机飞到该省上空，飞行结束后再进入省份详情
-    // 九段线不是省级行政区，没有详情页
-    if (!provinceName) return
-    const go = () => router.push(`/province/${encodeURIComponent(adcode)}`)
-    if (canFly) flyTo(center[0], center[1], 3.2, FLY_DURATION, go)
-    else go()
-    return
-  }
-
-  // 地级市视角：相机飞到该市上空，飞行结束后再进入城市详情
-  const goCity = () => router.push(`/city/${encodeURIComponent(adcode)}`)
-  if (canFly) flyTo(center[0], center[1], 2.5, FLY_DURATION, goCity)
-  else goCity()
+  // 相机飞到该省上空，飞行结束后再进入省份详情
+  // 九段线不是省级行政区，没有详情页
+  if (!provinceName) return
+  const go = () => router.push(`/province/${encodeURIComponent(adcode)}`)
+  if (canFly) flyTo(center[0], center[1], 3.2, FLY_DURATION, go)
+  else go()
 }
-
-// 从地级市视角返回全国视角
-const backToCountry = () => router.push('/')
 
 // 切到全球视角
 const goWorld = () => router.push('/world')
@@ -1181,56 +1074,6 @@ const animate = () => {
   color: var(--accent);
   border-color: var(--line-strong);
   background: var(--accent-dim);
-}
-
-/* 面包屑：地级市视角下提示当前层级并提供返回 */
-.hud__breadcrumb {
-  position: absolute;
-  top: var(--sp-4);
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-  padding: 5px 14px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  background: var(--bg-panel);
-  backdrop-filter: blur(8px);
-  font-family: var(--font-mono);
-  font-size: var(--fs-label);
-  letter-spacing: 0.1em;
-  animation: hud-in var(--dur-slow) var(--ease) both;
-}
-
-.hud__crumb {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: var(--accent);
-  font: inherit;
-  cursor: pointer;
-}
-
-.hud__crumb:hover {
-  text-decoration: underline;
-}
-
-.hud__crumb-arrow {
-  font-size: 13px;
-  line-height: 1;
-}
-
-.hud__crumb-sep {
-  color: var(--text-lo);
-  opacity: 0.6;
-}
-
-.hud__crumb-current {
-  color: var(--text-hi);
 }
 
 /* 省名标注开关 */

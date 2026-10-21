@@ -2,7 +2,7 @@
 
 本仓库同时包含**代码**与**第三方地理数据与素材**。两者适用不同的许可，这里逐项列明。
 
-应用内同样有一份：路由 `/licenses`。
+站内有同样一份：路由 `/licenses`。标准地图与审图号另见路由 `/standard-map`。
 
 ---
 
@@ -31,20 +31,11 @@
 
 | 文件 | 内容 | 来源 | 许可 |
 |---|---|---|---|
-| `china-provinces.json` | 34 个省级行政区 + 南海断续线要素 | [DataV.GeoAtlas 行政区划边界](https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json)（阿里云） | 上游公开接口数据 |
-| `china.json` | 中华人民共和国整体边界 | [DataV.GeoAtlas 行政区划边界](https://geo.datav.aliyun.com/areas_v3/bound/100000.json) | 上游公开接口数据 |
-| `cities/<省adcode>.json`（34 个） | 各地级市边界 | [DataV.GeoAtlas 行政区划边界](https://geo.datav.aliyun.com/areas_v3/bound/) | 上游公开接口数据 |
-| `cities/710000.json` | 台湾省 22 个县市边界 | 几何：[geoBoundaries TWN ADM1](https://www.geoboundaries.org/)（OpenStreetMap / Wambacher）；属性：[内政部「縣市行政區劃」](https://www.moi.gov.tw/)（`COUNTY_MOI_1081121`） | 几何为 **ODbL 1.0**；本文件是它的衍生数据库，同样以 **ODbL 1.0** 提供 |
+| `china-provinces.json` | 34 个省级行政区 + 南海断续线要素 | [DataV.GeoAtlas 行政区划边界](https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json)（阿里云） | 上游公开接口数据，随仓库分发 |
+| `china.json` | 中华人民共和国整体边界 | [DataV.GeoAtlas 行政区划边界](https://geo.datav.aliyun.com/areas_v3/bound/100000.json) | 上游公开接口数据，随仓库分发 |
 | `world-countries.json` | 239 个国家/地区边界，含中文名、ISO 3166-1 代码与地区划分 | 几何与中文名：[`@surbowl/world-geo-json-zh`](https://registry.npmmirror.com/@surbowl/world-geo-json-zh)；大洲与次区域：联合国 M49 地区划分（[`un-m49`](https://registry.npmmirror.com/un-m49)） | **Unlicense**（公有领域）+ **MIT** |
 
-### ODbL 1.0 的义务
-
-`public/geojson/cities/710000.json` 来自 Open Database License 1.0 授权的数据库，因此：
-
-- **署名**：本文件及其衍生作品须保留对 geoBoundaries（数据源 OpenStreetMap / Wambacher）的署名——本文件即为该署名。
-- **相同方式共享**：再分发本文件时，须以 ODbL 1.0 提供。
-
-其余文件不含 copyleft 条款的义务，署名仍列在上表里以便追溯。
+两个 npm 包都从 npmmirror（阿里云的 npm 国内镜像）取 tarball：npmmirror 的单文件接口对它们是 403，tarball 是唯一通道。`un-m49` 的入口是 JS 字面量，脚本用正则逐字段解析，**不执行远端代码**。
 
 ---
 
@@ -52,13 +43,11 @@
 
 | 文件 | 内容 | 来源 | 许可 |
 |---|---|---|---|
-| `public/textures/earth_atmos_4096.jpg` | 地球贴图（两个视角共用） | NASA Blue Marble Next Generation「地形与水深」产品，2004 年 7 月，原始 5400×2700（[原图](https://assets.science.nasa.gov/content/dam/science/esd/eo/images/bmng/bmng-topography-bathymetry/july/world.topo.bathy.200407.3x5400x2700.jpg)） | NASA 影像一般不受著作权保护，无需取得许可；按其媒体使用指引署名 |
-
-贴图的处理过程：缩放到 4096×2048 → 逐通道配平亮度与饱和度，使观感与原先的 2048 版一致 → 存为 JPEG（质量 80）→ 不写 EXIF / XMP。
-
-原先那份 2048×1024 的贴图是 three.js 示例资源 `examples/textures/planets/earth_atmos_2048.jpg` 的逐字节副本（sha256 `2faa400d…`），其影像本体同样是 NASA Blue Marble。
+| `public/textures/earth_atmos_4096.jpg` | 地球贴图（两个视角共用） | NASA Blue Marble Next Generation「地形与水深」2004 年 7 月版（`world.topo.bathy.200407.3x5400x2700.jpg`），经缩放至 4096×2048 并逐通道配平 | NASA 影像一般不受著作权保护，无需取得许可；按其媒体使用指引署名 |
 
 贴图文件已去掉 EXIF / XMP 元数据（其中只有编辑工具与时间戳，不含署名信息）。
+
+原先那份 2048×1024 的贴图是 three.js 示例资源 `examples/textures/planets/earth_atmos_2048.jpg` 的逐字节副本（sha256 `2faa400d…`），其影像本体同样是 NASA Blue Marble（`land_ocean_ice_2048`），现已替换为分辨率更高的 BMNG 地形与水深版。
 
 ---
 
@@ -68,20 +57,28 @@
 |---|---|---|
 | 面积（`area`、`areaKm2`） | 由行政区划边界在球面上实算 | 球面鞋带公式，地球平均半径 6371.0088 km；不是抄来的公布值 |
 | 人口（`population`） | 2023 年末公开统计口径 | 31 个省、自治区、直辖市取国家统计局；台湾省、香港、澳门取各自主管部门。每个数值在页面上标注了来源 |
-| 中心坐标、下辖区县数 | 取自行政区划数据本身 | — |
+| 中心坐标 | 取自行政区划数据本身 | — |
 | 简介与亮点 | 人工整理 | 描述性文字，著作权归整理者 |
 
 ---
 
-## 五、地图合规
+## 五、标准地图与审图号（`public/data/standard-maps.json`）
 
-本项目是非商业、不收费、无后端的开源作品，**不提供互联网地图服务**（不提供定位、不提供地图数据下载接口），也不提供审图号。行政区划以官方发布为准。
+| 内容 | 来源 | 说明 |
+|---|---|---|
+| 133 张标准地图的元数据：名称、内容、比例尺、**审图号**、审核年份 | [自然资源部主管的标准地图服务系统](http://bzdt.ch.mnr.gov.cn/) | 由 `scripts/update-standard-maps.mjs` 同步；**只收录元数据，不下载也不分发地图图片** |
 
-- 依据[《地图管理条例》](https://www.gov.cn/zhengce/zhengceku/2015-12/14/content_10403.htm)第二条、第十五条，向社会公开的地图应当报送审核。
-- 依据[《地图审核管理规定》](http://www.gov.cn/gongbao/content/2018/content_5271747.htm)第六条，直接使用测绘地理信息主管部门提供的具有审图号的公益性地图不需要审核。
-- 审图号由审核机关核发，不能随开源协议转让。用于课件、出版物或对外产品时，请自行使用[自然资源部审图中心的标准地图](https://www.zrzyst.cn/)并标注审图号。
+### 为什么只列元数据
 
-数据覆盖范围与权威对照链接见 README 的「数据完整性与收录口径」一节。
+标准地图可以免费下载使用，但有两条硬要求：**不得改动地图内容**、**使用时须标注审图号**。把官方图片打包进自己的仓库属于再分发，风险与收益不匹配；把审图号和来源列出来，则任何人都能自己去官方服务取到可用的地图。
+
+### 审图号不适用于本项目的 3D 地球
+
+审图号是对**特定平面地图产品**的核准编号，绑定那张地图的内容与表现形式。本站把行政区划投到球面上、重新配色、加了标注与交互，是**另一种表现形式**，因此**不能沿用上表中的审图号**，也不应被当作「经审核的标准地图」转发或使用。
+
+需要一张可直接使用、审图号齐全的地图，请到[标准地图服务系统](http://bzdt.ch.mnr.gov.cn/)下载。
+
+依据：《地图管理条例》（国务院令第664号）第二条、第十五条、第十六条与《地图审核管理规定》（国土资源部令第77号）第六条、第十六条、第二十七条、第二十八条。
 
 ---
 
@@ -91,7 +88,8 @@
 |---|---|---|
 | `scripts/update-geo.mjs` | DataV.GeoAtlas | GitHub Actions 每周一 |
 | `scripts/update-world.mjs` | npm 国内镜像 npmmirror | 同上 |
-| `scripts/update-tw.mjs` | geoBoundaries | 同上 |
+| `scripts/update-standard-maps.mjs` | 标准地图服务系统 | 同上 |
+| `scripts/check-licenses.mjs` | 逐个体检上游可达性与许可字段 | 同上 |
 
 同步脚本在写盘前会校验要素数、几何类型与坐标范围；行政区划的新增或撤销会被直接拒绝——那需要人工确认后再改。
 

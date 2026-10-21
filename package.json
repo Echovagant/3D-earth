@@ -20,9 +20,9 @@
     "geo:check": "node scripts/update-geo.mjs --check",
     "world:update": "node scripts/update-world.mjs",
     "world:check": "node scripts/update-world.mjs --check",
-    "tw:update": "node scripts/update-tw.mjs",
-    "tw:check": "node scripts/update-tw.mjs --check",
     "licenses:check": "node scripts/check-licenses.mjs",
+    "standard:update": "node scripts/update-standard-maps.mjs",
+    "standard:check": "node scripts/update-standard-maps.mjs --check",
     "format": "prettier --write src/"
   },
   "overrides": {

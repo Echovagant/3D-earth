@@ -20,20 +20,6 @@ export const routes = [
     props: true,
   },
   {
-    // 某个省的地级市视角
-    path: '/drill/:adcode',
-    name: 'Drill',
-    component: () => import('../components/DrillView.vue'),
-    props: true,
-  },
-  {
-    // 地级市详情
-    path: '/city/:adcode',
-    name: 'City',
-    component: () => import('../components/CityPage.vue'),
-    props: true,
-  },
-  {
     // 全球视角
     path: '/world',
     name: 'World',
@@ -51,6 +37,12 @@ export const routes = [
     path: '/licenses',
     name: 'Licenses',
     component: () => import('../components/LicensesPage.vue'),
+  },
+  {
+    // 标准地图与审图号
+    path: '/standard-map',
+    name: 'StandardMap',
+    component: () => import('../components/StandardMapPage.vue'),
   },
   {
     path: '/:pathMatch(.*)*',

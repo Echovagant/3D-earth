@@ -1,15 +1,11 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest'
-
 import {
-  AREA_DATA_BASE,
-  areaDataUrl,
   featureAreaKm2,
   featureLevel,
   featureParentAdcode,
   formatArea,
   geometryAreaKm2,
-  provinceAdcodeOf,
 } from '../utils/areaData'
 
 /** 以赤道为基准、边长 1°×1° 的经纬格子，球面面积约 12366 km² */
@@ -22,41 +18,6 @@ const ring = (lon, lat, dLon = 1, dLat = 1) => [
   [lon, lat + dLat],
   [lon, lat],
 ]
-
-describe('areaDataUrl', () => {
-  it('指向 DataV 的分省地级市边界文件', () => {
-    expect(areaDataUrl('440000')).toBe(`${AREA_DATA_BASE}/440000_full.json`)
-  })
-})
-
-describe('provinceAdcodeOf', () => {
-  it('取前 2 位补成省级代码', () => {
-    expect(provinceAdcodeOf('440300')).toBe('440000')
-    expect(provinceAdcodeOf('441800')).toBe('440000')
-  })
-
-  it('直辖市的地级市回到本市', () => {
-    expect(provinceAdcodeOf('110100')).toBe('110000')
-    expect(provinceAdcodeOf('120100')).toBe('120000')
-  })
-
-  it('省直辖县级市归到所属省', () => {
-    // 济源市由河南省直辖
-    expect(provinceAdcodeOf('419001')).toBe('410000')
-  })
-
-  it('结果恒为 6 位省级代码', () => {
-    for (const code of ['440300', '110100', '419001', '659001', '460300']) {
-      const province = provinceAdcodeOf(code)
-      expect(province).toHaveLength(6)
-      expect(province).toMatch(/^\d{2}0000$/)
-    }
-  })
-
-  it('已经是省级代码时原样返回', () => {
-    expect(provinceAdcodeOf('440000')).toBe('440000')
-  })
-})
 
 describe('geometryAreaKm2', () => {
   it('赤道上的 1°×1° 格子约 12366 km²', () => {

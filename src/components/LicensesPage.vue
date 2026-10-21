@@ -6,6 +6,7 @@
         <span>返回</span>
       </button>
       <span class="detail-page__brand">3D-EARTH <i>/</i> LICENSES</span>
+      <router-link class="detail-page__licenses" to="/standard-map">审图号</router-link>
       <span class="detail-page__code mono">许可</span>
     </header>
 
@@ -53,27 +54,6 @@
                   （阿里云）
                 </td>
                 <td>公开接口数据，随仓库分发</td>
-              </tr>
-              <tr>
-                <td><code>public/geojson/cities/&lt;省adcode&gt;.json</code>（34 个省）</td>
-                <td>各地级市边界</td>
-                <td>
-                  <a href="https://geo.datav.aliyun.com/areas_v3/bound/" target="_blank" rel="noreferrer noopener"
-                    >DataV.GeoAtlas 行政区划边界</a
-                  >
-                </td>
-                <td>公开接口数据，随仓库分发</td>
-              </tr>
-              <tr>
-                <td><code>public/geojson/cities/710000.json</code></td>
-                <td>台湾省 22 个县市边界</td>
-                <td>
-                  几何：geoBoundaries TWN ADM1（OpenStreetMap / Wambacher）；属性：
-                  <a href="https://www.moi.gov.tw/" target="_blank" rel="noreferrer noopener">内政部「縣市行政區劃」</a>
-                </td>
-                <td>
-                  <strong>ODbL 1.0</strong>（几何；本文件为衍生数据库，同样以 ODbL 1.0 提供）
-                </td>
               </tr>
               <tr>
                 <td><code>public/geojson/world-countries.json</code></td>
@@ -130,7 +110,7 @@
             「人口」为 2023 年末的公开统计口径：31 个省、自治区、直辖市取国家统计局，
             港澳台取各自主管部门。数值在页面里标注了来源。
           </li>
-          <li>「中心坐标」与「下辖区县数」直接取自行政区划数据本身。</li>
+          <li>「中心坐标」直接取自行政区划数据本身。</li>
         </ul>
       </section>
 
@@ -164,11 +144,38 @@
       </section>
 
       <section class="licenses__block">
+        <h2>标准地图与审图号</h2>
+        <ul class="licenses__list">
+          <li>
+            <code>public/data/standard-maps.json</code> 收录
+            <a href="http://bzdt.ch.mnr.gov.cn/" target="_blank" rel="noreferrer noopener"
+              >标准地图服务系统</a
+            >
+            公开的 133 张标准地图元数据：名称、比例尺、审图号、审核年份，由
+            <code>scripts/update-standard-maps.mjs</code> 同步。
+          </li>
+          <li>
+            <strong>只收录元数据，不下载也不分发地图图片</strong>：标准地图可免费下载使用，但要求不改内容、标注审图号；
+            把图片打包进本仓库属于再分发。
+          </li>
+          <li>
+            <strong>审图号不适用于本项目的 3D 地球</strong>：审图号绑定的是特定平面地图产品的内容与表现形式，
+            本站把行政区划投到球面、重新配色并加了交互，属于另一种表现形式。需要审图号齐全的地图，
+            请到官方服务系统下载。
+          </li>
+        </ul>
+        <p class="licenses__note">
+          站内 <router-link to="/standard-map">标准地图与审图号</router-link> 页可直接查完整清单。
+        </p>
+      </section>
+
+      <section class="licenses__block">
         <h2>数据更新</h2>
         <ul class="licenses__list">
-          <li><code>scripts/update-geo.mjs</code> —— 中国省界、地级市边界与各省面积（DataV）。</li>
+          <li><code>scripts/update-geo.mjs</code> —— 中国省界与各省面积（DataV）。</li>
           <li><code>scripts/update-world.mjs</code> —— 世界国界（npm 国内镜像 npmmirror）。</li>
-          <li><code>scripts/update-tw.mjs</code> —— 台湾省县市边界（geoBoundaries）。</li>
+          <li><code>scripts/update-standard-maps.mjs</code> —— 标准地图与审图号清单（标准地图服务系统）。</li>
+          <li><code>scripts/check-licenses.mjs</code> —— 逐个体检上游可达性与许可字段。</li>
         </ul>
         <p class="licenses__note">
           同步脚本在写盘前会校验要素数、几何类型与坐标范围；行政区划的新增或撤销会被直接拒绝，

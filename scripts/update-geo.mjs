@@ -20,7 +20,7 @@
 
 import { createHash } from 'node:crypto'
 import { lookup } from 'node:dns/promises'
-import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
+import { readFile, writeFile } from 'node:fs/promises'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import path from 'node:path'
 
@@ -51,44 +51,7 @@ const EXPECTED_PROVINCE_COUNT = 35
 /** 九段线要素的 adcode（上游给的是字符串） */
 const JD_ADCODE = '100000_JD'
 
-/**
- * 地级市边界按省单独存放。
- *
- * 34 个省的全量约 6.5 MB，放进仓库后下钻时按需取用，用户只会下载自己点进去的那一个
- * （约 190 KB）。这样下钻不依赖第三方接口在线，离线也能用。
- */
-const CITY_DIR = 'public/geojson/cities'
-/** 同时请求上游的最大并发数，避免把对方接口打爆 */
-const CITY_CONCURRENCY = 4
-
-/**
- * 由 scripts/update-tw.mjs 单独同步的省。
- *
- * 台湾省的上游（DataV）没有下辖区县数据，404 是预期结果而不是故障；
- * 它的县市边界来自内政部与 geoBoundaries 的合成，由另一个脚本负责。
- * 这里要跳过，否则整个同步会因为一个 404 而中止。
- */
-const EXTERNAL_PROVINCES = new Set(['710000'])
-
-/**
- * 需要从上游同步地级市边界的省。
- *
- * 单独抽成纯函数是为了能单测：加新省时若忘了把它排除在 EXTERNAL_PROVINCES 之外，
- * 同步就会因为一个 404 整体中止。
- */
-export function citySyncTargets(adcodes) {
-  return adcodes.filter((adcode) => !EXTERNAL_PROVINCES.has(String(adcode)))
-}
-
 const CHECK_ONLY = process.argv.slice(2).includes('--check')
-
-/**
- * 从本地目录导入地级市边界，走与在线同步同一套校验。
- *
- * 用于本机解析不了上游域名、但手头已有文件的情况；CI 上直接在线拉取即可。
- */
-const importIndex = process.argv.indexOf('--import-cities')
-const IMPORT_DIR = importIndex >= 0 ? process.argv[importIndex + 1] : null
 
 /** 变更摘要的输出路径（供 CI 拼提交信息） */
 const summaryFileIndex = process.argv.indexOf('--summary-file')
@@ -308,22 +271,6 @@ async function readLocal(file) {
 }
 
 async function main() {
-  // 从本地目录导入：不需要能解析上游域名
-  if (IMPORT_DIR) {
-    const results = await importCityBoundaries(IMPORT_DIR)
-    const invalid = results.filter((r) => r.status === 'invalid')
-    for (const r of invalid) {
-      console.error(`  ✗ ${r.adcode}: ${r.errors.join('; ')}`)
-    }
-    console.log(
-      `· 从 ${IMPORT_DIR} 导入 ${results.length - invalid.length} 个省的地级市边界，异常 ${invalid.length}`,
-    )
-    if (invalid.length > 0) {
-      throw new Error(`${invalid.length} 个文件校验未通过，已中止导入`)
-    }
-    return
-  }
-
   const changedFiles = []
   const summaryLines = []
   let provincesGeo = null
@@ -393,7 +340,7 @@ async function main() {
   }
 
   // 边界同步之后，顺带把各省的「边界围合面积」算出来写进详情页数据。
-  // 这个值由行政区划边界在球面上直接围合得到，跟地级市详情页用的是同一个公式，
+  // 这个值由行政区划边界在球面上直接围合得到，与国家详情页用的是同一个公式，
   // 因此两处口径一致；它随边界自动更新，不依赖人工维护。
   let areaUpdates = []
   if (provincesGeo) {
@@ -407,44 +354,13 @@ async function main() {
     }
   }
 
-  // 地级市边界：按省同步，供下钻时按需加载
-  let cityResults = []
-  if (provincesGeo) {
-    const provinceAdcodes = (provincesGeo.features ?? [])
-      .map((f) => String(f.properties?.adcode ?? ''))
-      .filter((code) => /^\d{6}$/.test(code))
-    cityResults = await syncCityBoundaries(provinceAdcodes, { dryRun: CHECK_ONLY })
-    const failed = cityResults.filter((r) => r.status === 'failed' || r.status === 'invalid')
-    const updated = cityResults.filter((r) => r.status === 'updated')
-    console.log(
-      `· 地级市边界：${cityResults.length} 个省，更新 ${updated.length}，异常 ${failed.length}`,
-    )
-    for (const r of failed) {
-      console.error(`  ✗ ${r.adcode}: ${r.errors.join('; ')}`)
-    }
-    if (failed.length > 0) {
-      throw new Error(`${failed.length} 个省的地级市边界校验未通过，已中止更新`)
-    }
-    if (updated.length > 0) {
-      summaryLines.push(
-        `- 地级市边界：${updated.length} 个省更新（${updated.map((r) => r.adcode).join(', ')}）`,
-      )
-    }
-  }
-
   if (CHECK_ONLY) {
-    const cityOutdated = cityResults.filter((r) => r.status === 'updated')
-    if (changedFiles.length > 0 || areaUpdates.length > 0 || cityOutdated.length > 0) {
+    if (changedFiles.length > 0 || areaUpdates.length > 0) {
       if (changedFiles.length > 0) {
         console.error(`\n✗ 有 ${changedFiles.length} 个文件与上游不一致：${changedFiles.join(', ')}`)
       }
       if (areaUpdates.length > 0) {
         console.error(`✗ 省份详情数据的面积与上游边界不一致：${areaUpdates.join(', ')}`)
-      }
-      if (cityOutdated.length > 0) {
-        console.error(
-          `✗ 地级市边界与上游不一致：${cityOutdated.map((r) => r.adcode).join(', ')}`,
-        )
       }
       process.exitCode = 1
     } else {
@@ -454,141 +370,17 @@ async function main() {
     return
   }
 
-  if (changedFiles.length === 0 && areaUpdates.length === 0 && cityResults.length > 0) {
-    const cityUpdated = cityResults.filter((r) => r.status === 'updated')
-    if (cityUpdated.length === 0) {
-      console.log('\n全部文件均与上游一致，未做修改')
-      await writeSummaryFile(['地理数据与上游一致，无变更'])
-      return
-    }
-  }
-
   console.log(`\n已更新 ${changedFiles.length} 个文件：${changedFiles.join(', ')}`)
   if (areaUpdates.length > 0) {
     summaryLines.push(
       `- 省份详情数据：${areaUpdates.length} 个省的边界围合面积已更新（${areaUpdates.join(', ')}）`,
     )
   }
-  const cityUpdated = cityResults.filter((r) => r.status === 'updated')
-  if (cityUpdated.length > 0) {
-    console.log(`地级市边界已更新 ${cityUpdated.length} 个省`)
-  }
   if (summaryLines.length > 0) {
     console.log('\n变更摘要：')
     for (const line of summaryLines) console.log(line)
   }
   await writeSummaryFile(summaryLines)
-}
-
-/**
- * 拉取各省的地级市边界，存成 public/geojson/cities/<adcode>.json。
- *
- * 写盘的是上游响应原文，与省级边界同一套格式。校验不通过的文件不写盘——
- * 坏数据留在仓库里比缺数据更难排查。
- */
-export async function syncCityBoundaries(adcodes, { dryRun = false } = {}) {
-  const dir = path.join(ROOT, CITY_DIR)
-  await mkdir(dir, { recursive: true })
-
-  const targets = citySyncTargets(adcodes)
-  const results = []
-  let index = 0
-
-  const worker = async () => {
-    while (index < targets.length) {
-      const adcode = targets[index++]
-      const url = `${AREA_BASE}/${adcode}_full.json`
-      const file = path.join(dir, `${adcode}.json`)
-      try {
-        const raw = await fetchText(url)
-        const text = normalize(raw)
-        const geo = JSON.parse(text)
-
-        const errors = validateCityGeo(geo)
-        if (errors.length > 0) {
-          results.push({ adcode, status: 'invalid', errors })
-          continue
-        }
-
-        const local = await readLocal(`${CITY_DIR}/${adcode}.json`)
-        if (local !== null && normalize(local) === text) {
-          results.push({ adcode, status: 'unchanged' })
-          continue
-        }
-
-        results.push({ adcode, status: 'updated' })
-        if (!dryRun) await writeFile(file, text, 'utf8')
-      } catch (error) {
-        results.push({ adcode, status: 'failed', errors: [error.message] })
-      }
-    }
-  }
-
-  await Promise.all(Array.from({ length: CITY_CONCURRENCY }, worker))
-  return results
-}
-
-/** 校验一个省的地级市边界 */
-function validateCityGeo(geo) {
-  const errors = []
-  if (geo?.type !== 'FeatureCollection') {
-    errors.push('顶层 type 不是 FeatureCollection')
-    return errors
-  }
-  const features = Array.isArray(geo.features) ? geo.features : []
-  if (features.length === 0) {
-    errors.push('要素为空')
-    return errors
-  }
-  for (const feature of features) {
-    const featureAdcode = String(feature.properties?.adcode ?? '')
-    if (!/^\d{6}$/.test(featureAdcode)) {
-      errors.push(`要素 ${featureAdcode} 的 adcode 不是 6 位行政区划代码`)
-    }
-    checkGeometry(feature, `要素 ${featureAdcode}`, errors)
-  }
-  // 直属市（省辖市）只有一个要素，那是正常的。
-  // 省本级不一定是要素：湖南省本级不是地级市，文件里只有 13 个地级市；
-  // 只有直辖市（京、津、沪、渝）的文件里才带着与省同名的那个要素。
-  return errors
-}
-
-/**
- * 从本地目录导入地级市边界：校验后写入 public/geojson/cities/。
- *
- * 与在线同步走同一套校验，所以「从别处拿来的文件」和「在线拉的文件」有一样的质量门槛。
- */
-export async function importCityBoundaries(sourceDir) {
-  const dir = path.join(ROOT, CITY_DIR)
-  await mkdir(dir, { recursive: true })
-
-  const entries = (await readdir(sourceDir)).filter((f) => f.endsWith('.json'))
-  const results = []
-
-  for (const entry of entries) {
-    const adcode = entry.replace(/\.json$/, '')
-    if (!/^\d{6}$/.test(adcode)) {
-      results.push({ adcode, status: 'invalid', errors: ['文件名不是 6 位行政区划代码'] })
-      continue
-    }
-    const raw = await readFile(path.join(sourceDir, entry), 'utf8')
-    const text = normalize(raw)
-    let geo
-    try {
-      geo = JSON.parse(text)
-    } catch (error) {
-      results.push({ adcode, status: 'invalid', errors: [`不是合法 JSON：${error.message}`] })
-      continue
-    }
-    const errors = validateCityGeo(geo)
-    if (errors.length > 0) {
-      results.push({ adcode, status: 'invalid', errors })
-      continue
-    }
-    await writeFile(path.join(dir, `${adcode}.json`), text, 'utf8')
-    results.push({ adcode, status: 'updated' })
-  }
-  return results
 }
 
 /**

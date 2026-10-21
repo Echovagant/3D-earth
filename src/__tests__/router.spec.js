@@ -31,8 +31,6 @@ describe('路由表', () => {
   it('参数名与页面约定的入参一致', () => {
     const byName = Object.fromEntries(routes.map((r) => [r.name, r]))
     expect(byName.Province.path).toBe('/province/:adcode')
-    expect(byName.Drill.path).toBe('/drill/:adcode')
-    expect(byName.City.path).toBe('/city/:adcode')
     expect(byName.Country.path).toBe('/country/:iso3')
   })
 
@@ -46,11 +44,10 @@ describe('路由表', () => {
   it.each([
     ['/', 'Earth'],
     ['/province/440000', 'Province'],
-    ['/drill/440000', 'Drill'],
-    ['/city/440100', 'City'],
     ['/world', 'World'],
     ['/country/CHN', 'Country'],
     ['/licenses', 'Licenses'],
+    ['/standard-map', 'StandardMap'],
   ])('%s 命中 %s 路由', async (path, name) => {
     const router = makeRouter()
     await router.push(path)
