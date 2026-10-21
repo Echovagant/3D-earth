@@ -240,6 +240,8 @@ export function createLabelTexture(text, { fontSize = 40 } = {}) {
   ctx.fillText(text, width / 2, height / 2)
 
   const texture = new THREE.CanvasTexture(canvas)
+  // Canvas 画的是 sRGB 颜色，声明清楚才不会在渲染时被当成线性数据
+  texture.colorSpace = THREE.SRGBColorSpace
   texture.anisotropy = 4
   texture.needsUpdate = true
   return { texture, width, height }

@@ -252,11 +252,17 @@ const initThree = () => {
   sun.position.set(5, 2, 3)
   scene.add(sun)
 
+  // 与地球页同一张卫星贴图：两个视角是同一个产品，视觉语言必须一致
+  const earthTexture = new THREE.TextureLoader().load('/textures/earth_atmos_4096.jpg')
+  // 贴图是 sRGB 编码的 JPEG，必须声明成 sRGB 颜色空间，否则会被当成线性数据，
+  // 整个球会发灰、对比度被压掉。详见 EarthScene.vue 里的同一处说明。
+  earthTexture.colorSpace = THREE.SRGBColorSpace
+  earthTexture.anisotropy = renderer.capabilities.getMaxAnisotropy()
+
   const globe = new THREE.Mesh(
     new THREE.SphereGeometry(2, 64, 64),
     new THREE.MeshPhongMaterial({
-      // 与地球页同一张卫星贴图：两个视角是同一个产品，视觉语言必须一致
-      map: new THREE.TextureLoader().load('/textures/earth_atmos_4096.jpg'),
+      map: earthTexture,
       color: 0xffffff,
       specular: new THREE.Color(0x333333),
       shininess: 10,

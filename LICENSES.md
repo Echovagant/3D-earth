@@ -43,9 +43,10 @@
 
 | 文件 | 内容 | 来源 | 许可 |
 |---|---|---|---|
-| `public/textures/earth_atmos_4096.jpg` | 地球贴图（两个视角共用） | NASA Blue Marble Next Generation「地形与水深」2004 年 7 月版（`world.topo.bathy.200407.3x5400x2700.jpg`），经缩放至 4096×2048 并逐通道配平 | NASA 影像一般不受著作权保护，无需取得许可；按其媒体使用指引署名 |
+| `public/textures/earth_atmos_4096.jpg` | 地球贴图（两个视角共用） | NASA Blue Marble Next Generation「地形与水深」2004 年 7 月版（`world.topo.bathy.200407.3x5400x2700.jpg`），等比缩放至 4096×2048 | NASA 影像一般不受著作权保护，无需取得许可；按其媒体使用指引署名 |
 
 贴图文件已去掉 EXIF / XMP 元数据（其中只有编辑工具与时间戳，不含署名信息）。
+**贴图不做任何色彩调整**——直接用 NASA 原图缩放，颜色由渲染端的 sRGB 色彩空间保证正确。
 
 原先那份 2048×1024 的贴图是 three.js 示例资源 `examples/textures/planets/earth_atmos_2048.jpg` 的逐字节副本（sha256 `2faa400d…`），其影像本体同样是 NASA Blue Marble（`land_ocean_ice_2048`），现已替换为分辨率更高的 BMNG 地形与水深版。
 

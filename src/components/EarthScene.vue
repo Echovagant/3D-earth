@@ -370,7 +370,7 @@ const initEarth = () => {
   // 创建地球材质和几何体
   const geometry = new THREE.SphereGeometry(2, 64, 64)
   const textureLoader = new THREE.TextureLoader()
-  // 使用占位贴图（项目 public/textures 中会提供真实贴图）
+  // 地球贴图：NASA BMNG「地形与水深」，来源见 LICENSES.md
   const earthTexture = textureLoader.load(
     '/textures/earth_atmos_4096.jpg',
     undefined,
@@ -379,6 +379,13 @@ const initEarth = () => {
       console.warn('地球贴图加载失败，使用纯色材质')
     },
   )
+  // 贴图存的是 sRGB 编码的 JPEG，**必须**声明成 sRGB 颜色空间。
+  // 漏掉这一句，three.js 会把 sRGB 数据当线性数据处理：整体发灰、对比度被压掉，
+  // 卫星影像看起来像蒙了一层雾——这是「贴图模糊」的主因，与分辨率无关。
+  earthTexture.colorSpace = THREE.SRGBColorSpace
+  // 各向异性过滤：画面边缘是掠射角，贴图沿视线方向被压缩，
+  // 没有它边缘会糊成一片。
+  earthTexture.anisotropy = renderer.capabilities.getMaxAnisotropy()
 
   const material = new THREE.MeshPhongMaterial({
     map: earthTexture,
