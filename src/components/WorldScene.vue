@@ -124,13 +124,14 @@ let lastSpinAt = 0
 let canvasRect = { left: 0, top: 0, width: 1, height: 1 }
 // 地球自转：每帧 0.0002 弧度，约 0.68°/s，与地球页一致
 let autoRotate = true
-let reducedMotionQuery = null
 const pickRaycaster = new THREE.Raycaster()
 const pickNdc = new THREE.Vector2()
-
-const onReducedMotionChange = (event) => {
-  autoRotate = !event.matches
-}
+/** 待拾取请求：指针事件只登记，实际求交合并到渲染循环里做（每帧至多一次） */
+let pendingPick = null
+/** 上一帧拾取命中的国家，点击判定直接用，不必再求交一次 */
+let pickedCountry = null
+/** 遥测读数的节流时间戳 */
+let lastTelemetryAt = 0
 
 const visibleCountries = computed(() => {
   const key = keyword.value.trim().toLowerCase()
@@ -264,12 +265,15 @@ const initThree = () => {
   earth = globe
 
   controls = new OrbitControls(camera, renderer.domElement)
+  // 与地球页同一套控制器参数：两个视角的手感必须一致
   controls.enableDamping = true
+  controls.dampingFactor = 0.05
+  controls.rotateSpeed = 0.5
+  controls.minDistance = 2.3
+  controls.maxDistance = 12
 
-  // 系统的「减少动态效果」：关掉自转，其余交互保留
-  reducedMotionQuery = window.matchMedia?.('(prefers-reduced-motion: reduce)')
-  autoRotate = !reducedMotionQuery?.matches
-  reducedMotionQuery?.addEventListener?.('change', onReducedMotionChange)
+  // 系统的「减少动态效果」只影响装饰性动画。
+  // 地球自转属于内容本身，不停——地球页也是这个口径，两个视图行为一致。
 
   updateCanvasRect()
   window.addEventListener('resize', onResize)
@@ -295,9 +299,8 @@ const onResize = () => {
 }
 
 /** 射线拾取：找出点到的国家 */
-const pickCountry = (event) => {
-  if (!countryGroup) return null
-  const ndc = pointerToNdc(event.clientX, event.clientY, canvasRect)
+const pickCountryAt = (ndc) => {
+  if (!countryGroup || !camera) return null
   pickRaycaster.setFromCamera(pickNdc.set(ndc.x, ndc.y), camera)
   const hits = pickRaycaster.intersectObjects(countryGroup.children, false)
   for (const hit of hits) {
@@ -315,8 +318,21 @@ const onMouseDown = (event) => {
 }
 
 const onMouseMove = (event) => {
-  const data = pickCountry(event)
-  if (renderer) renderer.domElement.style.cursor = data ? 'pointer' : 'grab'
+  // 只登记待拾取，实际求交合并到渲染循环里做（每帧至多一次）。
+  // 指针事件频率可能远高于帧率（高刷鼠标可达 1000Hz）。
+  const ndc = pointerToNdc(event.clientX, event.clientY, canvasRect)
+  pendingPick = { x: ndc.x, y: ndc.y }
+}
+
+/** 每帧至多做一次拾取 */
+const doPick = () => {
+  if (!pendingPick) return
+  const ndc = pendingPick
+  pendingPick = null
+  pickedCountry = pickCountryAt(ndc)
+  if (renderer) {
+    renderer.domElement.style.cursor = pickedCountry ? 'pointer' : 'grab'
+  }
 }
 
 const onMouseUp = (event) => {
@@ -325,7 +341,8 @@ const onMouseUp = (event) => {
     (event.clientX - mouseDownPosition.x) ** 2 + (event.clientY - mouseDownPosition.y) ** 2,
   )
   if (isClickGesture(duration, distance)) {
-    const data = pickCountry(event)
+    // 用这一帧已经求出的拾取结果，不用再求交一次
+    const data = pickedCountry
     if (data) {
       flyTo(data.center[0], data.center[1], 2.4, FLY_DURATION, () => {
         focused.value = data.name
@@ -447,6 +464,8 @@ const updateLabels = () => {
 const animate = () => {
   animationFrame = requestAnimationFrame(animate)
   if (controls) controls.update()
+  // 拾取：每帧至多一次，合并掉高频指针事件
+  doPick()
   // 地球自转（约 0.68°/s）
   //
   // 相机必须跟着转同样的角度：只转地球网格的话，地表会从相机下面溜走——
@@ -464,7 +483,12 @@ const animate = () => {
     lastSpinAt = 0
   }
   updateLabels()
-  updateTelemetry()
+  // 遥测读数：节流到 200ms 一次，避免每帧写 DOM（与地球页同一口径）
+  const now = performance.now()
+  if (now - lastTelemetryAt > 200) {
+    lastTelemetryAt = now
+    updateTelemetry()
+  }
   if (renderer && scene && camera) renderer.render(scene, camera)
 }
 
@@ -530,7 +554,6 @@ onUnmounted(() => {
   cancelAnimationFrame(animationFrame)
   cancelAnimationFrame(flightFrame)
   window.removeEventListener('resize', onResize)
-  reducedMotionQuery?.removeEventListener?.('change', onReducedMotionChange)
   if (renderer) {
     renderer.domElement.removeEventListener('mousedown', onMouseDown)
     renderer.domElement.removeEventListener('mousemove', onMouseMove)
