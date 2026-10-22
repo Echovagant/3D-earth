@@ -6,29 +6,143 @@
  * 收录边界（见设计规格 §三）：
  *   收 —— 教材出处 / 高考定位 / 前置知识 / 后续关联 / 知识骨架 / 要背 / 易错点 / 典型题型
  *   不收 —— 大白话版 / 核心内容 / 推导与计算 / 完整例题（成段正文，回链视频）
+ *
+ * 讲义正文里有两类「一次性加粗行」——它们是内容里的小标题，不是栏位边界：
+ *   **形成机制四步**、**核心结论**、**承前启后**……
+ * 所以块边界只认 BLOCK_LABELS 里的真栏位名，其余加粗行按内容项收进来。
  */
 
-/** 抽 `> **栏位**：值` */
-export function extractField(block, label) {
-  const re = new RegExp(`^> \\*\\*${label}\\*\\*：(.+)$`, 'm')
-  const m = re.exec(block)
-  return m ? m[1].trim() : ''
+/** 讲义里反复出现的块级栏位名。块边界只认这些名字。 */
+export const BLOCK_LABELS = [
+  '知识骨架',
+  '核心内容',
+  '大白话版',
+  '要背',
+  '易错点',
+  '推导与计算',
+  '典型题型',
+]
+
+/** 讲义里反复出现的头部栏位名。同一行可能挤多个栏位，只在这些名字处切分。 */
+export const FIELD_LABELS = ['教材出处', '高考定位', '前置知识', '后续关联']
+
+/** 行内栏位标记：`**名字**：` */
+const FIELD_MARKER_RE = /\*\*([^*\r\n]+)\*\*：/g
+/** 整行加粗：`**内容**` */
+const BOLD_LINE_RE = /^\*\*([^*]+)\*\*$/
+/** Markdown 标题 */
+const HEADING_RE = /^#{1,6} /
+/** 无序列表符号。后面必须有空白，才不会把 `**加粗**`、`---` 误当列表项 */
+const LIST_MARKER_RE = /^[-*+]\s+/
+/** 有序列表符号：`1. ` / `1、` */
+const ORDERED_MARKER_RE = /^\d+[.、]\s*/
+
+/** 是不是块边界：真栏位名，或 Markdown 标题 */
+function isBlockBoundary(line) {
+  const text = line.trim()
+  if (HEADING_RE.test(text)) return true
+  const m = BOLD_LINE_RE.exec(text)
+  if (!m) return false
+  const name = m[1]
+  return BLOCK_LABELS.some((label) => name === label || name === `${label}（续）`)
 }
 
-/** 抽 `**块名**` 之后、下一个块名或标题之前的内容，每行去掉列表符号 */
+/** 去掉行首列表符号 */
+function stripListMarker(text) {
+  return text.replace(LIST_MARKER_RE, '').replace(ORDERED_MARKER_RE, '').trim()
+}
+
+/** 前导缩进的列数，制表符按 4 列算 */
+function leadingWidth(raw) {
+  return /^[ \t]*/.exec(raw)[0].replace(/\t/g, '    ').length
+}
+
+/** 按缩进折算层级：每 2 列一级，一级给 2 个空格前缀 */
+function applyIndentLevels(items) {
+  return items.map((item) => '  '.repeat(Math.floor(item.width / 2)) + item.text)
+}
+
+/** 取第一段连续的 `> ` 行——小节头部的引用区 */
+function collectQuoteRun(lines) {
+  const start = lines.findIndex((l) => l.trim().startsWith('>'))
+  if (start < 0) return []
+  const run = []
+  for (let i = start; i < lines.length; i++) {
+    const text = lines[i].trim()
+    if (!text.startsWith('>')) break
+    run.push(text)
+  }
+  return run
+}
+
+/**
+ * 解析小节头部的引用区，返回「栏位名 → 值」。
+ *
+ * 讲义里的栏位写法有三种，都得认：
+ *   1. 一行一个栏位——`**教材出处**：值`
+ *   2. 一行挤两个栏位——`**教材出处**：值。**高考定位**：值`（栏位名可以在行内任意位置）
+ *   3. 栏位名为空、值在续行——`**高考定位**：` 后面跟若干 `> - …` 行
+ */
+function parseFields(block, extraLabel) {
+  const run = collectQuoteRun(block.split('\n'))
+  const splitNames = new Set([...FIELD_LABELS, extraLabel].filter(Boolean))
+  const fields = new Map()
+  let current = null
+  for (const quote of run) {
+    const content = quote.replace(/^>\s?/, '').trim()
+    if (!content) continue
+    const marks = [...content.matchAll(FIELD_MARKER_RE)].filter((m) => splitNames.has(m[1]))
+    if (marks.length && marks[0].index === 0) {
+      // 行首就是栏位标记：这一行可能挤多个栏位，按下一个标记切开
+      for (let i = 0; i < marks.length; i++) {
+        const from = marks[i].index + marks[i][0].length
+        const to = i + 1 < marks.length ? marks[i + 1].index : content.length
+        const name = marks[i][1]
+        const value = content.slice(from, to).trim()
+        fields.set(name, fields.has(name) ? `${fields.get(name)}\n${value}` : value)
+        current = name
+      }
+    } else if (current) {
+      // 续行：并入上一个栏位
+      const prev = fields.get(current) ?? ''
+      const piece = stripListMarker(content)
+      fields.set(current, prev ? `${prev}\n${piece}` : piece)
+    }
+  }
+  return fields
+}
+
+/**
+ * 抽栏位的值。
+ *
+ * 栏位名可以出现在行的任意位置；同行里下一个栏位之前的内容属于本栏位；
+ * 栏位值为空时，把后续 `> ` 续行接上来。
+ */
+export function extractField(block, label) {
+  return parseFields(block, label).get(label) ?? ''
+}
+
+/**
+ * 抽 `**块名**` 之后、下一个真栏位或标题之前的内容。
+ *
+ * 每行去掉列表符号；嵌套子项保留缩进层级（前缀空格，每级 2 个空格）。
+ */
 export function extractBlock(block, label) {
   const lines = block.split('\n')
   const start = lines.findIndex((l) => l.trim() === `**${label}**`)
   if (start < 0) return []
-  const out = []
+  const items = []
   for (let i = start + 1; i < lines.length; i++) {
-    const line = lines[i].trim()
-    if (/^\*\*[^*]+\*\*$/.test(line) || /^#{1,3} /.test(line)) break
+    const raw = lines[i]
+    const line = raw.trim()
+    if (isBlockBoundary(line)) break
     if (!line) continue
     if (line.startsWith('|')) continue // 表格行交给 extractTables
-    out.push(line.replace(/^[-*]\s*/, '').replace(/^\d+\.\s*/, '').trim())
+    const width = leadingWidth(raw)
+    const content = line.startsWith('>') ? line.replace(/^>\s?/, '') : line
+    items.push({ width, text: stripListMarker(content) })
   }
-  return out
+  return applyIndentLevels(items)
 }
 
 /** 抽块内的 markdown 表格 */
@@ -40,7 +154,7 @@ export function extractTables(block, label) {
   let current = null
   for (let i = start + 1; i < lines.length; i++) {
     const line = lines[i].trim()
-    if (/^\*\*[^*]+\*\*$/.test(line) || /^#{1,3} /.test(line)) break
+    if (isBlockBoundary(line)) break
     if (!line.startsWith('|')) {
       current = null
       continue

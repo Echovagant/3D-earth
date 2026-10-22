@@ -5,12 +5,14 @@
 // 它是「94 万字讲义 → 提纲级 JSON」这条管线的唯一入口，解析错了后面全错，所以单测要密。
 import { describe, it, expect } from 'vitest'
 import {
+  BLOCK_LABELS,
   extractField,
   extractBlock,
   extractTables,
   extractLessonRefs,
   extractChapterRefs,
   parseChapterRanges,
+  parseChapterTitles,
   parseLessons,
 } from '../../scripts/knowledge/parse-lessons.mjs'
 
@@ -47,6 +49,68 @@ const SAMPLE = `## 2. 地图与定位工具：经纬网·等高线·3S技术
 > **后续关联**：§2.21 陡崖的判读
 `
 
+// §15.2 的写法：一行里挤了「教材出处」和「高考定位」两个栏位。
+const INLINE_FIELDS = `### 15.2 世界地理的六要素框架 + 亚洲总览（p084 上半）
+
+> **教材出处**：p084【世界地理】1 东亚与日本（前半部分为亚洲总览）。**高考定位**：区域背景常识，不单独设题。
+> **前置知识**：§2 地图与定位工具（p005 经纬网的应用）
+> **后续关联**：§15.3 东亚与日本
+`
+
+// §15.1 的写法：栏位名为空，值在后续的 `> - ` 续行里。
+const EMPTY_VALUE_FIELDS = `### 15.1 本节怎么学：两套框架 + 三件工具
+
+> **教材出处**：本节是课程末尾自设的速览系列。
+> **高考定位**：
+> - **统一口径**：区域地理在高考中**主要充当背景材料**，直接考的少、间接用的多。
+> - **中国地理权重在上升**。
+> **前置知识**：§9 气候
+`
+
+// §6.3 的写法：知识骨架块里夹着「形成机制四步」「核心结论」这种一次性加粗小标题。
+const ONE_OFF_BOLD_HEADS = `### 6.3 热力环流的形成过程：温差 → 气压差 → 风
+
+> **教材出处**：人教版必修一 第二章第二节
+
+**知识骨架**
+
+**形成机制四步**
+
+1. **地面冷热不均** → 冷热源出现
+2. **空气密度差异** → 热处上升、冷处下沉
+
+**核心结论**
+
+- **热力环流产生的根本原因：地表冷热不均**
+
+**核心内容**
+
+1. 正文段落
+`
+
+// §15.2 的写法：知识骨架里有嵌套子项。
+const NESTED_ITEMS = `### 15.2 世界地理的六要素框架 + 亚洲总览（p084 上半）
+
+> **教材出处**：p084【世界地理】
+
+**知识骨架**
+
+- **亚洲总览**：
+  - 面积**世界最大**、人口**世界最多**。
+  - 地形总特征：**中间高、四周低**。
+`
+
+// 块里以 `> ` 开头的采集项，不该把 `>` 带进内容。
+const QUOTED_ITEM = `### 4.1 公转的地理意义
+
+> **教材出处**：人教版必修一
+
+**知识骨架**
+
+- 一条采集项
+> **补充**：一条引用
+`
+
 describe('extractField', () => {
   it('抽出栏位的值', () => {
     expect(extractField(SAMPLE, '教材出处')).toBe('人教版必修一 第一章')
@@ -55,6 +119,20 @@ describe('extractField', () => {
 
   it('栏位不存在时返回空串', () => {
     expect(extractField(SAMPLE, '老师强调')).toBe('')
+  })
+
+  it('同一行挤两个栏位时各归各位', () => {
+    expect(extractField(INLINE_FIELDS, '教材出处')).toBe(
+      'p084【世界地理】1 东亚与日本（前半部分为亚洲总览）。',
+    )
+    expect(extractField(INLINE_FIELDS, '高考定位')).toBe('区域背景常识，不单独设题。')
+  })
+
+  it('栏位值为空时把后续续行接上来', () => {
+    expect(extractField(EMPTY_VALUE_FIELDS, '高考定位')).toBe(
+      '**统一口径**：区域地理在高考中**主要充当背景材料**，直接考的少、间接用的多。\n**中国地理权重在上升**。',
+    )
+    expect(extractField(EMPTY_VALUE_FIELDS, '教材出处')).toBe('本节是课程末尾自设的速览系列。')
   })
 })
 
@@ -73,6 +151,28 @@ describe('extractBlock', () => {
   it('遇到下一个块标题就停', () => {
     const block = extractBlock(SAMPLE, '易错点')
     expect(block).toEqual(['把山谷判成山脊'])
+  })
+
+  it('一次性加粗小标题不当成栏位边界', () => {
+    expect(extractBlock(ONE_OFF_BOLD_HEADS, '知识骨架')).toEqual([
+      '**形成机制四步**',
+      '**地面冷热不均** → 冷热源出现',
+      '**空气密度差异** → 热处上升、冷处下沉',
+      '**核心结论**',
+      '**热力环流产生的根本原因：地表冷热不均**',
+    ])
+  })
+
+  it('嵌套子项保留缩进层级', () => {
+    expect(extractBlock(NESTED_ITEMS, '知识骨架')).toEqual([
+      '**亚洲总览**：',
+      '  面积**世界最大**、人口**世界最多**。',
+      '  地形总特征：**中间高、四周低**。',
+    ])
+  })
+
+  it('去掉块内采集项的行首引用符', () => {
+    expect(extractBlock(QUOTED_ITEM, '知识骨架')).toEqual(['一条采集项', '**补充**：一条引用'])
   })
 })
 
@@ -106,6 +206,30 @@ describe('parseChapterRanges', () => {
   it('抽依赖表里的章节到分P区间', () => {
     const md = '| 2 | 地图与定位工具 | p005–p012 | 7.0h | §1 | 术语基础 |\n'
     expect(parseChapterRanges(md)).toEqual({ 2: { from: 5, to: 12 } })
+  })
+})
+
+describe('parseChapterTitles', () => {
+  it('抽章名', () => {
+    const md = '## 2. 地图与定位工具：经纬网·等高线·3S技术\n\n## 3. 地球的自转\n'
+    expect(parseChapterTitles(md)).toEqual({
+      2: '地图与定位工具：经纬网·等高线·3S技术',
+      3: '地球的自转',
+    })
+  })
+})
+
+describe('BLOCK_LABELS', () => {
+  it('列出讲义里真实存在的栏位名', () => {
+    expect(BLOCK_LABELS).toEqual([
+      '知识骨架',
+      '核心内容',
+      '大白话版',
+      '要背',
+      '易错点',
+      '推导与计算',
+      '典型题型',
+    ])
   })
 })
 
