@@ -199,7 +199,7 @@ describe('知识工具层', () => {
       const file = url.split('/').pop()
       return { ok: true, json: async () => read(`public/data/knowledge/${file}`) }
     })
-    const { loadAllLessons } = await import('../utils/knowledge.js')
+    const { loadAllLessons } = await import('../utils/knowledge')
     const all = await loadAllLessons()
 
     expect(all).toHaveLength(36)
