@@ -93,23 +93,23 @@ describe('知识数据', () => {
   it('章级引用（§3 地球的自转 这种）也保留下来了', () => {
     // 章级引用比节级引用更粗（§9 气候 而不是 §9.3），但它是真实的前置/后续信息，
     // 丢了就等于学生看不到「这节接着 §3 地球的自转」。
-    let chapterRefs = 0
-    for (const l of lessons) {
-      for (const c of [...l.prereqChapters, ...l.nextChapters]) {
-        expect(String(c), `${l.id} 的章级引用不是章号`).toMatch(/^\d{1,2}$/)
-        chapterRefs++
-      }
+    const chapterRefs = lessons.flatMap((l) => [...l.prereqChapters, ...l.nextChapters])
+    for (const c of chapterRefs) {
+      expect(String(c), '章级引用不是章号').toMatch(/^\d{1,2}$/)
     }
-    expect(chapterRefs, '章级引用一条都没保留').toBeGreaterThan(0)
+    // 断言确切条数：讲义里 §2+§15 一共 73 条章级引用，少一条就是被过滤掉了
+    expect(chapterRefs.length, '章级引用被过滤掉了').toBe(73)
   })
 
-  it('保留跨阶段依赖引用', () => {
-    // 范围外的引用也必须留着：过滤掉会让「前置知识」显示成「无」，数据在说谎
-    const scoped = new Set([2, 15])
-    const crossStage = lessons
-      .flatMap((l) => [...l.prereq, ...l.next])
-      .filter((ref) => !scoped.has(Number(ref.split('.')[0])))
-    expect(crossStage.length, '跨阶段引用被过滤掉了').toBeGreaterThan(0)
+  it('依赖引用数量与源讲义一致（防止过滤规则悄悄回来）', () => {
+    // 范围外的引用也必须留着：过滤掉会让「前置知识」显示成「无」，数据在说谎。
+    // 只断言「大于 0」守不住——过滤掉 99% 的跨阶段引用照样能过，所以对确切条数。
+    const inScope = new Set([2, 15])
+    const sectionRefs = lessons.flatMap((l) => [...l.prereq, ...l.next])
+    const scoped = sectionRefs.filter((ref) => inScope.has(Number(ref.split('.')[0])))
+    const crossStage = sectionRefs.filter((ref) => !inScope.has(Number(ref.split('.')[0])))
+    expect(scoped.length, '范围内节级引用少了').toBe(110)
+    expect(crossStage.length, '跨阶段节级引用被过滤掉了').toBe(1)
   })
 
   it('人工映射表覆盖全部 36 节', () => {
@@ -118,8 +118,8 @@ describe('知识数据', () => {
       expect(summaries[l.id], `summaries.json 缺 ${l.id}`).toBeTruthy()
       expect(entities[l.id], `entities.json 缺 ${l.id}`).toBeTruthy()
     }
-    // 映射表不该有多余条目
-    for (const key of Object.keys(videoMap)) {
+    // 映射表不该有多余条目（以 `_` 开头的是说明性备注，不算条目）
+    for (const key of Object.keys(videoMap).filter((k) => !k.startsWith('_'))) {
       expect(lessons.some((l) => l.id === key), `video-map.json 多余条目 ${key}`).toBe(true)
     }
   })

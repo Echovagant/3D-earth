@@ -26,6 +26,11 @@ const BVID = 'BV1RN4y1f7Hn'
 const MAX_SHARD_BYTES = 150 * 1024
 /** 单字段长度上限——超过就是成段正文漏进来了 */
 const MAX_FIELD_CHARS = 220
+/** 自撰摘要长度上限 */
+const MAX_SUMMARY_CHARS = 60
+/** 视频分P 号的合法范围（系列共 158 集） */
+const MIN_PART = 1
+const MAX_PART = 158
 /** 本阶段只做这两章 */
 const SCOPED_CHAPTERS = [2, 15]
 
@@ -35,8 +40,16 @@ const readJson = async (p) => JSON.parse(await readFile(p, 'utf8'))
 
 const pLabel = (p) => `p${String(p).padStart(3, '0')}`
 
+/** 人工表里以 `_` 开头的键是说明性备注，不参与节级映射 */
+const lessonKeys = (table) => Object.keys(table).filter((k) => !k.startsWith('_'))
+
 async function main() {
   if (!existsSync(SRC)) {
+    // 源讲义在仓库外，CI 与别人机器上没有。只校验时跳过，但要说清楚跳过了。
+    if (CHECK_ONLY) {
+      console.log(`⚠ 找不到源讲义，跳过一致性校验：${SRC}\n  用 KNOWLEDGE_SRC 环境变量指定路径。`)
+      return
+    }
     throw new Error(`找不到源讲义：${SRC}\n用 KNOWLEDGE_SRC 环境变量指定路径。`)
   }
   const markdown = await readFile(SRC, 'utf8')
@@ -54,6 +67,34 @@ async function main() {
     if (!summaries[l.id]) problems.push(`${l.id} 缺 summaries`)
     if (!entities[l.id]) problems.push(`${l.id} 缺 entities`)
     if (!l.outline.length) problems.push(`${l.id} 的知识骨架是空的`)
+  }
+  // 人工表的取值要合法
+  for (const l of scoped) {
+    const p = videoMap[l.id]
+    if (typeof p !== 'number' || !Number.isInteger(p) || p < MIN_PART || p > MAX_PART) {
+      problems.push(`${l.id} 的分P 号 ${JSON.stringify(p)} 不在 ${MIN_PART}–${MAX_PART} 之间`)
+    }
+    const summary = String(summaries[l.id] ?? '')
+    if (summary.length > MAX_SUMMARY_CHARS) {
+      problems.push(`${l.id} 的摘要 ${summary.length} 字，超过 ${MAX_SUMMARY_CHARS} 字`)
+    }
+    const e = entities[l.id]
+    for (const field of ['provinces', 'countries', 'regions']) {
+      if (!Array.isArray(e?.[field])) {
+        problems.push(`${l.id} 的 entities.${field} 不是数组`)
+      }
+    }
+  }
+  // 人工表不该有多余条目
+  const scopedIds = new Set(scoped.map((l) => l.id))
+  for (const [name, table] of [
+    ['video-map.json', videoMap],
+    ['summaries.json', summaries],
+    ['entities.json', entities],
+  ]) {
+    for (const key of lessonKeys(table)) {
+      if (!scopedIds.has(key)) problems.push(`${name} 有多余条目 ${key}`)
+    }
   }
   if (problems.length) {
     throw new Error(`映射表不完整：\n  ${problems.slice(0, 20).join('\n  ')}`)
@@ -111,7 +152,8 @@ async function main() {
   }
 
   // 产物
-  await mkdir(OUT_DIR, { recursive: true })
+  // --check 只读不写：不建目录，免得「目录不存在」被悄悄补出来
+  if (!CHECK_ONLY) await mkdir(OUT_DIR, { recursive: true })
   const shards = []
   for (const chapterId of SCOPED_CHAPTERS) {
     const chapterLessons = lessons.filter((l) => l.chapter === chapterId)
@@ -122,13 +164,13 @@ async function main() {
       lessons: chapterLessons,
     }
     const text = `${JSON.stringify(payload, null, 2)}\n`
-    if (Buffer.byteLength(text) > MAX_SHARD_BYTES) {
-      throw new Error(`chapter-${chapterId}.json 超过 ${MAX_SHARD_BYTES / 1024} KB`)
-    }
     const file = path.join(OUT_DIR, `chapter-${String(chapterId).padStart(2, '0')}.json`)
+    if (Buffer.byteLength(text) > MAX_SHARD_BYTES) {
+      throw new Error(`${path.basename(file)} 超过 ${MAX_SHARD_BYTES / 1024} KB`)
+    }
     if (CHECK_ONLY) {
       const local = existsSync(file) ? await readFile(file, 'utf8') : ''
-      if (local !== text) throw new Error(`chapter-${chapterId}.json 与源不一致`)
+      if (local !== text) throw new Error(`${path.basename(file)} 与源不一致`)
     } else {
       await writeFile(file, text, 'utf8')
     }
