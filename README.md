@@ -39,7 +39,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshot-detail.jpeg" alt="省份详情页" width="620" />
+  <img src="docs/screenshot-detail.jpeg" alt="省份详情页" width="700" />
 </p>
 
 ## 技术亮点
@@ -71,7 +71,7 @@
 审图号是对**特定平面地图产品**的核准编号，绑定那张地图的内容与表现形式。本站把行政区划投到球面上、重新配色、加了标注与交互，是另一种表现形式，因此**不能沿用标准地图的审图号**，也不应被当作「经审核的标准地图」转发。需要审图号齐全的地图，请到[标准地图服务系统](http://bzdt.ch.mnr.gov.cn/)下载。
 
 <p align="center">
-  <img src="docs/screenshot-standard-map.jpeg" alt="标准地图与审图号清单" width="880" />
+  <img src="docs/screenshot-standard-map.jpeg" alt="标准地图与审图号清单" width="760" />
 </p>
 
 ### 收录口径
