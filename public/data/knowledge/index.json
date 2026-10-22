@@ -1,0 +1,157 @@
+{
+  "generatedAt": "2026-10-22",
+  "bvid": "BV1RN4y1f7Hn",
+  "chapters": [
+    {
+      "id": 1,
+      "title": "绪论与学习方法",
+      "lessonCount": 0,
+      "hasContent": false,
+      "range": {
+        "from": 1,
+        "to": 4
+      }
+    },
+    {
+      "id": 2,
+      "title": "地图与定位工具：经纬网·等高线·3S技术",
+      "lessonCount": 26,
+      "hasContent": true,
+      "range": {
+        "from": 5,
+        "to": 12
+      }
+    },
+    {
+      "id": 3,
+      "title": "地球的自转",
+      "lessonCount": 0,
+      "hasContent": false,
+      "range": {
+        "from": 13,
+        "to": 17
+      }
+    },
+    {
+      "id": 4,
+      "title": "地球的公转",
+      "lessonCount": 0,
+      "hasContent": false,
+      "range": {
+        "from": 18,
+        "to": 23
+      }
+    },
+    {
+      "id": 5,
+      "title": "大气的组成、受热过程与逆温",
+      "lessonCount": 0,
+      "hasContent": false,
+      "range": {
+        "from": 24,
+        "to": 26
+      }
+    },
+    {
+      "id": 6,
+      "title": "热力环流与风",
+      "lessonCount": 0,
+      "hasContent": false,
+      "range": {
+        "from": 27,
+        "to": 29
+      }
+    },
+    {
+      "id": 7,
+      "title": "大气环流：气压带风带与季风",
+      "lessonCount": 0,
+      "hasContent": false,
+      "range": {
+        "from": 30,
+        "to": 32
+      }
+    },
+    {
+      "id": 8,
+      "title": "气温与降水",
+      "lessonCount": 0,
+      "hasContent": false,
+      "range": {
+        "from": 33,
+        "to": 36
+      }
+    },
+    {
+      "id": 9,
+      "title": "气候",
+      "lessonCount": 0,
+      "hasContent": false,
+      "range": {
+        "from": 37,
+        "to": 38
+      }
+    },
+    {
+      "id": 10,
+      "title": "天气系统",
+      "lessonCount": 0,
+      "hasContent": false,
+      "range": {
+        "from": 39,
+        "to": 44
+      }
+    },
+    {
+      "id": 11,
+      "title": "水循环与海洋",
+      "lessonCount": 0,
+      "hasContent": false,
+      "range": {
+        "from": 45,
+        "to": 50
+      }
+    },
+    {
+      "id": 12,
+      "title": "地表形态与塑造地表的力量",
+      "lessonCount": 0,
+      "hasContent": false,
+      "range": {
+        "from": 51,
+        "to": 64
+      }
+    },
+    {
+      "id": 13,
+      "title": "植被·土壤·自然地理环境的差异性",
+      "lessonCount": 0,
+      "hasContent": false,
+      "range": {
+        "from": 65,
+        "to": 73
+      }
+    },
+    {
+      "id": 14,
+      "title": "人文地理：人口·聚落·交通·环境",
+      "lessonCount": 0,
+      "hasContent": false,
+      "range": {
+        "from": 74,
+        "to": 83
+      }
+    },
+    {
+      "id": 15,
+      "title": "区域地理速览：世界地理与中国地理",
+      "lessonCount": 10,
+      "hasContent": true,
+      "range": {
+        "from": 84,
+        "to": 91
+      }
+    }
+  ],
+  "totalLessons": 36
+}

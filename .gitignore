@@ -34,3 +34,7 @@ coverage
 
 # Vitest
 __screenshots__/
+
+# 课程讲义源文件（不进仓库，只有解析后的提纲级产物进仓库）
+_source/
+content/
