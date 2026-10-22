@@ -3,10 +3,23 @@
 //
 // 这份数据是「提纲级」的，不是正文——所以除了字段完整性，
 // 还要守两条线：① 不能有长段落漏进来；② 36 节的映射表必须完整。
-import { describe, it, expect } from 'vitest'
+//
+// 下面两组用例测的是数据之上的运行时工具层：
+// 检索（标题 / 要点 / 省份反查）与掌握度（纯函数 + 存储降级）。
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { readFileSync, existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
+import { lessonRefLabel, lessonsByProvince, searchLessons } from '../utils/knowledge.js'
+import {
+  MASTERY_KEY,
+  masteryStats,
+  parseMastery,
+  readMastery,
+  serializeMastery,
+  setMastery,
+  writeMastery,
+} from '../utils/mastery.js'
 
 const repoRoot = fileURLToPath(new URL('../../', import.meta.url))
 const read = (p) => JSON.parse(readFileSync(path.join(repoRoot, p), 'utf-8'))
@@ -137,5 +150,134 @@ describe('知识数据', () => {
       expect(existsSync(file)).toBe(true)
       expect(readFileSync(file).length / 1024).toBeLessThanOrEqual(150)
     }
+  })
+})
+
+describe('知识工具层', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('搜索能命中标题与要点', () => {
+    const hit = searchLessons(lessons, '等高线')
+    expect(hit.length).toBeGreaterThan(0)
+    expect(hit.some((l) => l.id === '2.19')).toBe(true)
+  })
+
+  it('搜索能命中要点字段（不在标题里的内容）', () => {
+    // 「江西属华东」只出现在 §15.8 的 mustKnow 里，标题与摘要都没有
+    const hit = searchLessons(lessons, '江西属华东')
+    expect(hit.map((l) => l.id)).toContain('15.8')
+  })
+
+  it('搜索大小写不敏感', () => {
+    // §2.26 标题里的「3S」用小写也能搜到
+    const hit = searchLessons(lessons, '3s')
+    expect(hit.map((l) => l.id)).toContain('2.26')
+  })
+
+  it('搜索无结果时返回空数组', () => {
+    expect(searchLessons(lessons, 'zzz不存在的关键词')).toEqual([])
+  })
+
+  it('按省反查能命中 §15.8（34 省全挂）', () => {
+    const hit = lessonsByProvince(lessons, '510000')
+    expect(hit.map((l) => l.id)).toContain('15.8')
+  })
+
+  it('按省反查未知省份时返回空数组', () => {
+    expect(lessonsByProvince(lessons, '990000')).toEqual([])
+  })
+
+  it('引用标签是「§编号 标题」', () => {
+    expect(lessonRefLabel('2.19', lessons)).toBe('§2.19 等高线地形图：定义、读图与地形判读')
+  })
+
+  it('引用标签找不到小节时只给编号', () => {
+    expect(lessonRefLabel('9.9', lessons)).toBe('§9.9')
+  })
+
+  it('loadAllLessons 只加载有内容的章，文件名两位补零', async () => {
+    // 换一份干净的模块实例，免得命中上一次调用留下的缓存
+    vi.resetModules()
+    const calls = []
+    vi.stubGlobal('fetch', async (url) => {
+      calls.push(url)
+      if (url === '/data/knowledge/index.json') return { ok: true, json: async () => index }
+      const file = url.split('/').pop()
+      return { ok: true, json: async () => read(`public/data/knowledge/${file}`) }
+    })
+    const { loadAllLessons } = await import('../utils/knowledge.js')
+    const all = await loadAllLessons()
+
+    expect(all).toHaveLength(36)
+    // 13 个「规划中」的章不该被请求：目录页靠 hasContent 字段决定显示什么
+    expect(calls).toEqual([
+      '/data/knowledge/index.json',
+      '/data/knowledge/chapter-02.json',
+      '/data/knowledge/chapter-15.json',
+    ])
+  })
+})
+
+describe('掌握度', () => {
+  beforeEach(() => {
+    // 内存存储是模块级的，先清空，免得用例之间互相影响
+    writeMastery({})
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('parse 能容忍坏数据', () => {
+    expect(parseMastery(null)).toEqual({})
+    expect(parseMastery('不是 json')).toEqual({})
+    expect(parseMastery('{"2.19":"known","2.20":"review"}')).toEqual({
+      '2.19': 'known',
+      '2.20': 'review',
+    })
+  })
+
+  it('parse 丢掉非法状态值', () => {
+    expect(parseMastery('{"2.19":"瞎写的"}')).toEqual({})
+  })
+
+  it('序列化后能原样解析回来', () => {
+    const state = { '2.19': 'known', '15.8': 'review' }
+    expect(parseMastery(serializeMastery(state))).toEqual(state)
+  })
+
+  it('统计正确', () => {
+    const s = masteryStats(['2.19', '2.20', '15.8'], { '2.19': 'known', '2.20': 'review' })
+    expect(s).toEqual({ known: 1, review: 1, total: 3, percent: 33 })
+  })
+
+  it('空集合的统计是 0%', () => {
+    expect(masteryStats([], {})).toEqual({ known: 0, review: 0, total: 0, percent: 0 })
+  })
+
+  it('没有 localStorage 时降级到内存存储', () => {
+    setMastery('2.19', 'known')
+    setMastery('15.8', 'review')
+    expect(readMastery()).toEqual({ '2.19': 'known', '15.8': 'review' })
+    // null 表示清除
+    setMastery('2.19', null)
+    expect(readMastery()).toEqual({ '15.8': 'review' })
+  })
+
+  it('localStorage 可用时读写落在 localStorage 里', () => {
+    const store = new Map()
+    vi.stubGlobal('localStorage', {
+      getItem: (k) => (store.has(k) ? store.get(k) : null),
+      setItem: (k, v) => store.set(k, String(v)),
+      removeItem: (k) => store.delete(k),
+    })
+    expect(MASTERY_KEY).toBe('earth.geo.mastered')
+    writeMastery({ '2.19': 'known' })
+    expect(store.get(MASTERY_KEY)).toBe('{"2.19":"known"}')
+    expect(readMastery()).toEqual({ '2.19': 'known' })
+    setMastery('2.19', 'review')
+    expect(readMastery()).toEqual({ '2.19': 'review' })
   })
 })
