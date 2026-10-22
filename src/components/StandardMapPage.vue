@@ -26,13 +26,19 @@
           <a href="http://bzdt.ch.mnr.gov.cn/" target="_blank" rel="noreferrer noopener"
             >标准地图服务系统</a
           >
-          公开的标准地图清单：名称、比例尺、审图号与审核年份，全部由
+          公开的标准地图清单：名称、比例尺、审图号、审核年份与分类，全部由
           <code>scripts/update-standard-maps.mjs</code> 从官方接口同步。
         </p>
         <p class="standard__lead">
           使用标准地图有两条硬要求：<strong>不得改动地图内容</strong>（国界线、
           南海诸岛、岛礁等），<strong>使用时须标注审图号</strong>。官方地图可免费下载，
           但本站只收录元数据，不打包、不再分发地图图片。
+        </p>
+        <p class="standard__lead">
+          <strong>审图号有效期为 2 年</strong>（《地图审核管理规定》第二十八条）。
+          下表按审核年份从新到旧排列，最新一批是
+          <strong class="standard__latest">{{ latestYear }} 年</strong
+          >审核的；使用前请到官方服务系统核对审图号是否仍然有效。
         </p>
       </section>
 
@@ -44,44 +50,75 @@
         </div>
         <template v-else>
           <div class="standard__filters">
-            <button
-              v-for="option in scaleOptions"
-              :key="option"
-              type="button"
-              class="standard__filter"
-              :class="{ 'is-active': option === activeScale }"
-              @click="activeScale = option"
-            >
-              {{ option }}
-            </button>
+            <label class="standard__field">
+              <span>分类</span>
+              <select v-model="activeCategory">
+                <option v-for="c in categoryOptions" :key="c" :value="c">{{ c }}</option>
+              </select>
+            </label>
+            <label class="standard__field">
+              <span>审核年份</span>
+              <select v-model="activeYear">
+                <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}</option>
+              </select>
+            </label>
+            <label class="standard__field">
+              <span>比例尺</span>
+              <select v-model="activeScale">
+                <option v-for="s in scaleOptions" :key="s" :value="s">{{ s }}</option>
+              </select>
+            </label>
+            <label class="standard__field standard__field--grow">
+              <span>搜索</span>
+              <input v-model="keyword" type="search" placeholder="按名称或审图号筛选" />
+            </label>
           </div>
+
           <div class="standard__table-wrap">
             <table class="standard__table">
               <thead>
                 <tr>
                   <th>名称</th>
                   <th>内容</th>
+                  <th>分类</th>
                   <th>比例尺</th>
                   <th>审图号</th>
                   <th>审核年份</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="map in visibleMaps" :key="map.id">
+                <tr v-for="map in shownMaps" :key="`${map.mapNumber}::${map.name}`">
                   <td>{{ map.name }}</td>
                   <td>{{ map.content }}</td>
+                  <td class="standard__cat">{{ map.category }}</td>
                   <td class="mono">{{ map.scale }}</td>
-                  <td class="mono standard__number">{{ map.mapNumber }}</td>
-                  <td class="mono">{{ map.mapYear }}</td>
+                  <td class="mono standard__number">{{ map.mapNumber || '—' }}</td>
+                  <td class="mono standard__year">{{ map.mapYear }}</td>
+                </tr>
+                <tr v-if="shownMaps.length === 0">
+                  <td colspan="6" class="standard__empty">没有符合条件的地图</td>
                 </tr>
               </tbody>
             </table>
           </div>
+
           <p class="standard__note">
-            共 {{ maps.length }} 张标准地图，当前显示 {{ visibleMaps.length }} 张。
-            完整清单与审图号见仓库里的
-            <code>public/data/standard-maps.json</code>；下载与使用请到官方服务系统。
+            共 {{ maps.length }} 张标准地图（最新审核年份 {{ latestYear }}），当前筛选出
+            {{ filteredMaps.length }} 张，已显示 {{ shownMaps.length }} 张。
+            <template v-if="withoutNumberCount > 0">
+              其中 {{ withoutNumberCount }} 张官方未公布审图号。
+            </template>
+            完整清单与审图号见仓库里的 <code>public/data/standard-maps.json</code>；下载与使用请到官方服务系统。
           </p>
+
+          <button
+            v-if="shownMaps.length < filteredMaps.length"
+            type="button"
+            class="standard__more"
+            @click="visibleCount += PAGE_SIZE"
+          >
+            显示更多（还有 {{ filteredMaps.length - shownMaps.length }} 张）
+          </button>
         </template>
       </HudPanel>
 
@@ -123,23 +160,55 @@ import HudPanel from './HudPanel.vue'
 const router = useRouter()
 
 const DATA_URL = '/data/standard-maps.json'
-const DEFAULT_SCALE = '全部'
+const ALL = '全部'
+const PAGE_SIZE = 100
 
 const maps = ref([])
 const loading = ref(true)
 const error = ref('')
-const activeScale = ref(DEFAULT_SCALE)
+const activeCategory = ref(ALL)
+const activeYear = ref(ALL)
+const activeScale = ref(ALL)
+const keyword = ref('')
+const visibleCount = ref(PAGE_SIZE)
 
-const scaleOptions = computed(() => {
-  const scales = [...new Set(maps.value.map((m) => m.scale))].sort((a, b) => a.localeCompare(b, 'zh'))
-  return [DEFAULT_SCALE, ...scales]
+const categoryOptions = computed(() => [
+  ALL,
+  ...[...new Set(maps.value.map((m) => m.category).filter(Boolean))].sort((a, b) =>
+    a.localeCompare(b, 'zh'),
+  ),
+])
+const yearOptions = computed(() => [
+  ALL,
+  ...[...new Set(maps.value.map((m) => m.mapYear).filter(Boolean))].sort((a, b) => b - a),
+])
+const scaleOptions = computed(() => [
+  ALL,
+  ...[...new Set(maps.value.map((m) => m.scale).filter(Boolean))].sort((a, b) =>
+    a.localeCompare(b, 'zh', { numeric: true }),
+  ),
+])
+
+const latestYear = computed(() =>
+  maps.value.length ? Math.max(...maps.value.map((m) => Number(m.mapYear) || 0)) : '',
+)
+const withoutNumberCount = computed(() => maps.value.filter((m) => !m.mapNumber).length)
+
+const filteredMaps = computed(() => {
+  const kw = keyword.value.trim().toLowerCase()
+  return maps.value.filter((m) => {
+    if (activeCategory.value !== ALL && m.category !== activeCategory.value) return false
+    if (activeYear.value !== ALL && m.mapYear !== activeYear.value) return false
+    if (activeScale.value !== ALL && m.scale !== activeScale.value) return false
+    if (kw) {
+      const hay = `${m.name} ${m.mapNumber} ${m.content} ${m.category}`.toLowerCase()
+      if (!hay.includes(kw)) return false
+    }
+    return true
+  })
 })
 
-const visibleMaps = computed(() =>
-  activeScale.value === DEFAULT_SCALE
-    ? maps.value
-    : maps.value.filter((m) => m.scale === activeScale.value),
-)
+const shownMaps = computed(() => filteredMaps.value.slice(0, visibleCount.value))
 
 const load = async () => {
   loading.value = true
@@ -191,6 +260,10 @@ onMounted(load)
   color: var(--accent);
 }
 
+.standard__latest {
+  color: var(--accent);
+}
+
 .standard__state {
   padding: var(--sp-4);
   font-size: var(--fs-label);
@@ -217,26 +290,40 @@ onMounted(load)
 .standard__filters {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--sp-2);
+  gap: var(--sp-3);
   margin-bottom: var(--sp-3);
 }
 
-.standard__filter {
-  padding: 4px 12px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--text-lo);
+.standard__field {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
   font-family: var(--font-mono);
   font-size: var(--fs-label);
-  cursor: pointer;
-  transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+  color: var(--text-lo);
 }
 
-.standard__filter:hover,
-.standard__filter.is-active {
-  color: var(--accent);
+.standard__field--grow {
+  flex: 1 1 180px;
+}
+
+.standard__field select,
+.standard__field input {
+  flex: 1;
+  min-width: 96px;
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--accent-dim);
+  color: var(--text-hi);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+}
+
+.standard__field select:focus,
+.standard__field input:focus {
   border-color: var(--line-strong);
+  outline: none;
 }
 
 .standard__table-wrap {
@@ -271,8 +358,22 @@ onMounted(load)
   border-bottom: none;
 }
 
+.standard__cat {
+  color: var(--text-lo);
+}
+
 .standard__number {
   color: var(--accent);
+}
+
+.standard__year {
+  color: var(--text-hi);
+}
+
+.standard__empty {
+  padding: var(--sp-4);
+  color: var(--text-lo);
+  text-align: center;
 }
 
 .standard__note {
@@ -280,6 +381,25 @@ onMounted(load)
   font-size: var(--fs-label);
   line-height: 1.8;
   color: var(--text-lo);
+}
+
+.standard__more {
+  margin-top: var(--sp-3);
+  width: 100%;
+  padding: 8px 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+}
+
+.standard__more:hover {
+  border-color: var(--line-strong);
+  background: var(--accent-dim);
 }
 
 code {

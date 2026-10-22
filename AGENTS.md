@@ -31,7 +31,7 @@
 | `src/__tests__/` | Vitest 用例 |
 | `scripts/update-geo.mjs` | 中国地理数据同步：省界与各省面积 |
 | `scripts/update-world.mjs` | 世界国界同步：拉取、校验、写入 |
-| `scripts/update-standard-maps.mjs` | 标准地图与审图号清单同步（表单 POST 检索接口） |
+| `scripts/update-standard-maps.mjs` | 标准地图与审图号清单同步（19 个分类，表单 POST 检索接口） |
 | `scripts/check-licenses.mjs` | 数据源体检：上游是否还可达、许可是否还与 `LICENSES.md` 登记的一致 |
 | `public/geojson/` | 地理数据源，**只读**（由上述脚本更新，不要手工改） |
 | `public/data/provinces/` | 省份详情页静态数据 |
@@ -61,7 +61,7 @@ npm run licenses:check # 体检数据源：上游可达性与许可是否仍与�
 
 CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `test:unit` + `build`。
 
-`npm run test:unit` 必须是绿的才算完成改动。当前有 289 个用例：
+`npm run test:unit` 必须是绿的才算完成改动。当前有 295 个用例：
 `src/__tests__/App.spec.js`（应用挂载）、
 `src/__tests__/geoDataProcessor.spec.js`（35 个要素的渲染范围覆盖、与参考实现逐顶点一致、海南/台湾/九段线定点断言）、
 `src/__tests__/provinceData.spec.js`（省份详情数据与 GeoJSON 的一致性契约：adcode/name/center 严格相等、字段结构完整、分区覆盖无重叠、配色不落兜底、面积与几何重算一致、两个面积口径不差数量级、人口合计与全国人口相差 3% 以内）、
@@ -70,7 +70,7 @@ CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `tes
 `src/__tests__/geoScripts.spec.js`（同步脚本的回归：`formatJson` 幂等、**数据源许可登记**）、
 `src/__tests__/worldData.spec.js`（世界国界：239 国、中文名与 ISO 代码、次区域与配色、球面质心不跨 180°）、
 `src/__tests__/globeMath.spec.js`（拾取归一化、缓动、绕 Y 轴旋转、球面质心）、
-`src/__tests__/standardMaps.spec.js`（标准地图清单：条目非空且都带审图号、审图号格式与年份一致、id 唯一、**不含任何指向官方地图图片的直链**）、
+`src/__tests__/standardMaps.spec.js`（标准地图清单：条目非空且都带审核年份、**条目数下限 2000 防抽样退化**、**最新年份 ≥ 2024 防同步退化**、国家审图号（GS）年份与审核年份一致、同名同号唯一、分类齐全、**不含任何指向官方地图图片的直链**）、
 `src/__tests__/router.spec.js`（路由表契约，含 `/licenses` 与 `/standard-map`）。
 
 ## 硬约束
@@ -86,8 +86,9 @@ CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `tes
 9. **球面标注的 sprite 位置是地球局部坐标**，相机在世界坐标。比较或投影前必须用 `earthLocalToWorld()` 转换——漏了会让标注全部不可见（opacity 恒为 0）。
 10. **three.js 的 `Color` 不认 `'0xRRGGBB'` 字符串**，只认数值或 `'#RRGGBB'`。传错类型不会报错，只是颜色静默变成默认灰。
 11. **审图号不能沿用到 3D 地球上。** 审图号是对特定**平面地图产品**的核准编号，绑定那张地图的内容与表现形式。本项目把行政区划投到球面、重新配色并加了交互，属于另一种表现形式，因此**不能**把标准地图的审图号标在自己的球面上，也不能把本站当作「经审核的标准地图」使用或转发。
-12. **只同步标准地图的元数据，不下载也不分发地图图片。** 标准地图服务系统的站点条款写明「未经许可不得复制、镜像」，把官方图片打包进公开仓库属于再分发。`public/data/standard-maps.json` 里只有名称、比例尺、审图号与审核年份；图片请引导用户到官方服务系统下载。
+12. **只同步标准地图的元数据，不下载也不分发地图图片。** 标准地图服务系统的站点条款写明「未经许可不得复制、镜像」，把官方图片打包进公开仓库属于再分发。`public/data/standard-maps.json` 里只有名称、比例尺、审图号、审核年份与分类；图片请引导用户到官方服务系统下载。
 13. **所有贴图都要显式声明 `colorSpace = SRGBColorSpace`。** JPEG 与 Canvas 存的都是 sRGB 编码的数据，three.js 默认按线性数据处理——漏掉这一句，画面会整体发灰、对比度被压掉。**这一条曾经被误判成「贴图分辨率不够」**：实测把 4096×2048 换成 8192×4096（NASA 有 21600×10800 的更高精原图，同区域高频能量是 5400 版的 2.67 倍），最终画面锐度只提升 0.2%；而改对色彩空间后，画面从一片灰雾变成能看清山脊的卫星影像。**贴图文件本身不做任何色彩补偿**，颜色由渲染端负责。
+14. **同步脚本要能覆盖上游的全部分类与全部分页。** 写死页数上限或只取部分分类，会**静默**少收一大批数据——标准地图清单曾因此从 2047 张掉到 133 张且不报错。`standardMaps.spec.js` 里有条目数下限与「最新年份 ≥ 2024」两条断言专门守这个。
 
 ## 地理数据同步
 
@@ -111,10 +112,28 @@ CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `tes
 
 `scripts/update-standard-maps.mjs` 从自然资源部主管的**标准地图服务系统**
 （`http://bzdt.ch.mnr.gov.cn/`）同步标准地图清单：检索接口 `sbsm/supermap/searchPicture.do`
-是**表单 POST**（`seachText` / `superclass` / `pageNum` 等字段），返回的名称、比例尺、
-**审图号**与审核年份写入 `public/data/standard-maps.json`（当前 133 张，全部带审图号）。
+是**表单 POST**（`seachText` / `superclass` / `pageNum` 等字段），返回
+`{ pageSize, currentPageNum, totalNum, result }`。
 
-脚本**只取元数据，不下载地图图片**——站点条款禁止未经许可的复制与镜像。
+- 分类列表从 `sbsm/supermap/getMapCategorys.do` 的 `message.superclass` 取（**19 个分类**），
+  取不到时用脚本内的兜底清单
+- 分页按 `totalNum` / `pageSize` 算页数，**翻到最后一页**——写死页数上限会静默少收一大批
+- 先按 `id` 去重，再按「审图号 + 名称」合并一次（上游偶有跨分类重复）
+- 产出写入 `public/data/standard-maps.json`（当前 2047 张，最新审核年份 2025），
+  **按审核年份倒序**排列
+
+脚本**只取元数据，不下载地图图片**——站点条款「网站保留所有权，未经许可不得复制、镜像」，
+图片属于官方，再分发不在授权范围内。官方自述「社会公众可以免费浏览、下载标准地图，
+直接使用标准地图时需要标注审图号」，本站比许可允许的更保守：只收录公开目录里的事实性元数据。
+
+**上游数据的两个坑**（写断言前要知道）：
+
+- 审图号格式五花八门：国家审图号统一是 `GS(年份)序号号`，地方审图号由各省级主管部门自编
+  （`赣s(2023)014`、`皖S（2023）002`、`豫S〔2019年〕050`、`浙甬S`、`济南S`…），
+  括号有全角、半角、`〔〕` 三种，个别还带「年」字
+- 少数地方图的审图号年份与平台的 `mapYear` 不一致（审图号记的是地方审核年份，
+  `mapYear` 记的是平台登记年份），共 9 条，全在「地方共享地图」分类里。
+  **国家审图号（GS 开头）零不一致**，断言要分层写
 
 npm 包要从 npmmirror 取 tarball 再解包（`node:zlib` 解 gzip，tar 头部手写解析）——
 npmmirror 的单文件接口对这几个包是 403，tarball 是唯一通道。`un-m49` 的入口是 JS 字面量，
