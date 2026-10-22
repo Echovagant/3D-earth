@@ -90,6 +90,19 @@ describe('知识数据', () => {
     expect(dangling, '引用了本阶段内不存在的小节').toEqual([])
   })
 
+  it('章级引用（§3 地球的自转 这种）也保留下来了', () => {
+    // 章级引用比节级引用更粗（§9 气候 而不是 §9.3），但它是真实的前置/后续信息，
+    // 丢了就等于学生看不到「这节接着 §3 地球的自转」。
+    let chapterRefs = 0
+    for (const l of lessons) {
+      for (const c of [...l.prereqChapters, ...l.nextChapters]) {
+        expect(String(c), `${l.id} 的章级引用不是章号`).toMatch(/^\d{1,2}$/)
+        chapterRefs++
+      }
+    }
+    expect(chapterRefs, '章级引用一条都没保留').toBeGreaterThan(0)
+  })
+
   it('保留跨阶段依赖引用', () => {
     // 范围外的引用也必须留着：过滤掉会让「前置知识」显示成「无」，数据在说谎
     const scoped = new Set([2, 15])

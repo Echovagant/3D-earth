@@ -61,6 +61,8 @@ async function main() {
 
   // prereq / next 写解析器给的完整列表：跨阶段引用（如 §2.1 → §1.2）也保留。
   // 尚未收录的节由前端渲染成纯文本标签，不在这里过滤——过滤会让「前置」显示成「无」。
+  // 章级引用（§3 地球的自转）是第三种形态，单独放在 prereqChapters / nextChapters 里，
+  // 同样完整保留——课程地图要靠它显示「这节接着 §3」。
   const lessons = scoped.map((l) => ({
     id: l.id,
     chapter: l.chapter,
@@ -75,7 +77,9 @@ async function main() {
     questionTypes: l.questionTypes,
     tables: l.tables,
     prereq: l.prereq,
+    prereqChapters: l.prereqChapters,
     next: l.next,
+    nextChapters: l.nextChapters,
     entities: entities[l.id],
   }))
 

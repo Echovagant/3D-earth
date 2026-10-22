@@ -43,11 +43,21 @@
       ],
       "tables": [],
       "prereq": [],
+      "prereqChapters": [
+        "9",
+        "11",
+        "12",
+        "7",
+        "2"
+      ],
       "next": [
         "15.2",
         "15.6",
         "15.7",
         "15.10"
+      ],
+      "nextChapters": [
+        "1"
       ],
       "entities": {
         "provinces": [],
@@ -130,11 +140,19 @@
         }
       ],
       "prereq": [],
+      "prereqChapters": [
+        "2",
+        "9",
+        "7"
+      ],
       "next": [
         "15.3",
         "15.4",
         "15.5",
         "15.6"
+      ],
+      "nextChapters": [
+        "1"
       ],
       "entities": {
         "provinces": [],
@@ -185,11 +203,20 @@
       ],
       "tables": [],
       "prereq": [],
+      "prereqChapters": [
+        "7",
+        "9",
+        "12",
+        "11"
+      ],
       "next": [
         "15.4",
         "15.5",
         "15.6",
         "15.7"
+      ],
+      "nextChapters": [
+        "1"
       ],
       "entities": {
         "provinces": [
@@ -249,10 +276,18 @@
       ],
       "tables": [],
       "prereq": [],
+      "prereqChapters": [
+        "9",
+        "12",
+        "11"
+      ],
       "next": [
         "15.5",
         "15.6",
         "15.7"
+      ],
+      "nextChapters": [
+        "1"
       ],
       "entities": {
         "provinces": [],
@@ -304,9 +339,17 @@
       ],
       "tables": [],
       "prereq": [],
+      "prereqChapters": [
+        "9",
+        "12",
+        "8"
+      ],
       "next": [
         "15.6",
         "15.7"
+      ],
+      "nextChapters": [
+        "1"
       ],
       "entities": {
         "provinces": [],
@@ -364,9 +407,18 @@
       ],
       "tables": [],
       "prereq": [],
+      "prereqChapters": [
+        "12",
+        "9",
+        "11",
+        "14"
+      ],
       "next": [
         "15.4",
         "15.7"
+      ],
+      "nextChapters": [
+        "1"
       ],
       "entities": {
         "provinces": [],
@@ -458,10 +510,19 @@
         }
       ],
       "prereq": [],
+      "prereqChapters": [
+        "2",
+        "14",
+        "9"
+      ],
       "next": [
         "15.8",
         "15.9",
         "15.10"
+      ],
+      "nextChapters": [
+        "1",
+        "14"
       ],
       "entities": {
         "provinces": [
@@ -562,9 +623,17 @@
         }
       ],
       "prereq": [],
+      "prereqChapters": [
+        "2",
+        "14"
+      ],
       "next": [
         "15.9",
         "15.10"
+      ],
+      "nextChapters": [
+        "1",
+        "12"
       ],
       "entities": {
         "provinces": [
@@ -657,8 +726,15 @@
         "15.7",
         "15.8"
       ],
+      "prereqChapters": [
+        "1"
+      ],
       "next": [
         "15.10"
+      ],
+      "nextChapters": [
+        "1",
+        "14"
       ],
       "entities": {
         "provinces": [
@@ -840,9 +916,19 @@
         }
       ],
       "prereq": [],
+      "prereqChapters": [
+        "2",
+        "12",
+        "10",
+        "8"
+      ],
       "next": [
         "15.7",
         "15.9"
+      ],
+      "nextChapters": [
+        "1",
+        "9"
       ],
       "entities": {
         "provinces": [],
