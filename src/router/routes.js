@@ -26,6 +26,32 @@ export const routes = [
     component: () => import('../components/WorldScene.vue'),
   },
   {
+    // 课程地图
+    path: '/course',
+    name: 'Course',
+    component: () => import('../components/CourseMapPage.vue'),
+  },
+  {
+    // 章节页
+    path: '/course/:chapterId',
+    name: 'Chapter',
+    component: () => import('../components/ChapterPage.vue'),
+    props: true,
+  },
+  {
+    // 知识点详情页
+    path: '/lesson/:lessonId',
+    name: 'Lesson',
+    component: () => import('../components/LessonPage.vue'),
+    props: true,
+  },
+  {
+    // 知识点搜索页
+    path: '/search',
+    name: 'Search',
+    component: () => import('../components/SearchPage.vue'),
+  },
+  {
     // 国家详情
     path: '/country/:iso3',
     name: 'Country',

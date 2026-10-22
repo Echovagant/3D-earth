@@ -1,0 +1,212 @@
+/**
+ * 教学层共享样式。
+ *
+ * 与深空 HUD 外壳区分开：这一层是「看书」的界面，要亮、清楚、字大。
+ * 颜色一律走这里定义的变量，组件里不写死具体色值。
+ */
+
+.learn-page {
+  --learn-bg: #f4f7fb;
+  --learn-panel: #ffffff;
+  --learn-ink: #16202e;
+  --learn-ink-soft: #4a5b70;
+  --learn-ink-faint: #7d8ea3;
+  --learn-line: #d8e2ee;
+  --learn-accent: #0b6fb8;
+  --learn-accent-soft: #e3f0fa;
+  --learn-warn: #b4530a;
+
+  min-height: 100%;
+  background: var(--learn-bg);
+  color: var(--learn-ink);
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.learn-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 24px;
+  background: var(--learn-panel);
+  border-bottom: 1px solid var(--learn-line);
+}
+
+.learn-top__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--learn-line);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--learn-ink-soft);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.learn-top__back:hover {
+  border-color: var(--learn-accent);
+  color: var(--learn-accent);
+}
+
+.learn-top__title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.learn-top__spacer {
+  flex: 1;
+}
+
+.learn-main {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.learn-h1 {
+  margin: 0 0 6px;
+  font-size: 26px;
+  line-height: 1.4;
+}
+
+.learn-lead {
+  margin: 0 0 20px;
+  color: var(--learn-ink-soft);
+  font-size: 14px;
+}
+
+.learn-panel {
+  margin-bottom: 20px;
+  padding: 18px 20px;
+  background: var(--learn-panel);
+  border: 1px solid var(--learn-line);
+  border-radius: 8px;
+}
+
+.learn-panel__title {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.learn-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 12px;
+}
+
+.learn-card {
+  display: block;
+  padding: 14px 16px;
+  border: 1px solid var(--learn-line);
+  border-radius: 8px;
+  background: var(--learn-panel);
+  color: inherit;
+  text-decoration: none;
+}
+
+.learn-card:hover {
+  border-color: var(--learn-accent);
+}
+
+.learn-card__no {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--learn-accent);
+}
+
+.learn-card__name {
+  margin: 4px 0 6px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.learn-card__meta {
+  font-size: 12px;
+  color: var(--learn-ink-faint);
+}
+
+.learn-card--empty {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.learn-card--empty:hover {
+  border-color: var(--learn-line);
+}
+
+.learn-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  margin: 0 6px 6px 0;
+  border-radius: 999px;
+  background: var(--learn-accent-soft);
+  color: var(--learn-accent);
+  font-size: 12px;
+}
+
+.learn-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.learn-item {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--learn-line);
+  /* 要点里的换行（续行 bullet）与缩进层级要原样显示 */
+  white-space: pre-wrap;
+}
+
+.learn-lead--block {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.learn-item:last-child {
+  border-bottom: none;
+}
+
+.learn-item__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--learn-ink);
+  text-decoration: none;
+}
+
+.learn-item__title:hover {
+  color: var(--learn-accent);
+}
+
+.learn-item__summary {
+  margin: 4px 0 0;
+  color: var(--learn-ink-soft);
+  font-size: 14px;
+}
+
+.learn-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--learn-line);
+  overflow: hidden;
+}
+
+.learn-bar__fill {
+  height: 100%;
+  background: var(--learn-accent);
+}
+
+.learn-error {
+  padding: 24px;
+  text-align: center;
+  color: var(--learn-warn);
+}
+
+.learn-empty {
+  padding: 20px;
+  text-align: center;
+  color: var(--learn-ink-faint);
+}

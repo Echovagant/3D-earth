@@ -34,6 +34,14 @@ describe('路由表', () => {
     expect(byName.Country.path).toBe('/country/:iso3')
   })
 
+  it('包含教学页面的路由', () => {
+    const paths = routes.map((r) => r.path)
+    expect(paths).toContain('/course')
+    expect(paths).toContain('/course/:chapterId')
+    expect(paths).toContain('/lesson/:lessonId')
+    expect(paths).toContain('/search')
+  })
+
   it('非法路径兜底重定向到首页', async () => {
     const router = makeRouter()
     await router.push('/no-such-page')
@@ -46,6 +54,10 @@ describe('路由表', () => {
     ['/province/440000', 'Province'],
     ['/world', 'World'],
     ['/country/CHN', 'Country'],
+    ['/course', 'Course'],
+    ['/course/2', 'Chapter'],
+    ['/lesson/2.19', 'Lesson'],
+    ['/search', 'Search'],
     ['/licenses', 'Licenses'],
     ['/standard-map', 'StandardMap'],
   ])('%s 命中 %s 路由', async (path, name) => {
