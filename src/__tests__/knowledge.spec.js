@@ -77,13 +77,26 @@ describe('知识数据', () => {
     expect(text).not.toMatch(/https?:\/\/[^"']*\.(jpg|jpeg|png|gif|webp)/i)
   })
 
-  it('依赖引用指向存在的节', () => {
+  it('依赖引用：指向本阶段章节的必须存在，跨阶段引用允许悬空', () => {
     const ids = new Set(lessons.map((l) => l.id))
-    for (const l of lessons) {
-      for (const ref of [...l.prereq, ...l.next]) {
-        expect(ids.has(ref), `${l.id} 引用了不存在的 ${ref}`).toBe(true)
-      }
-    }
+    const inScope = new Set([2, 15])
+    // 指向 §2/§15 的引用必须真的存在；指向其他章节的引用保留（前端渲染成纯文本），
+    // 不能过滤掉——过滤会让「前置」显示成「无」，数据在说谎。
+    // 先把违规的引用挑出来再断言：expect 写在 if 里会触发 vitest/no-conditional-expect。
+    const dangling = lessons
+      .flatMap((l) => [...l.prereq, ...l.next].map((ref) => ({ from: l.id, ref })))
+      .filter(({ ref }) => inScope.has(Number(ref.split('.')[0])))
+      .filter(({ ref }) => !ids.has(ref))
+    expect(dangling, '引用了本阶段内不存在的小节').toEqual([])
+  })
+
+  it('保留跨阶段依赖引用', () => {
+    // 范围外的引用也必须留着：过滤掉会让「前置知识」显示成「无」，数据在说谎
+    const scoped = new Set([2, 15])
+    const crossStage = lessons
+      .flatMap((l) => [...l.prereq, ...l.next])
+      .filter((ref) => !scoped.has(Number(ref.split('.')[0])))
+    expect(crossStage.length, '跨阶段引用被过滤掉了').toBeGreaterThan(0)
   })
 
   it('人工映射表覆盖全部 36 节', () => {

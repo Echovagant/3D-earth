@@ -59,10 +59,8 @@ async function main() {
     throw new Error(`映射表不完整：\n  ${problems.slice(0, 20).join('\n  ')}`)
   }
 
-  // 依赖引用只保留本次已收录的小节：指向尚未收录章节的引用在前端会变成悬空链接
-  const scopedIds = new Set(scoped.map((l) => l.id))
-  const inScope = (refs) => refs.filter((id) => scopedIds.has(id))
-
+  // prereq / next 写解析器给的完整列表：跨阶段引用（如 §2.1 → §1.2）也保留。
+  // 尚未收录的节由前端渲染成纯文本标签，不在这里过滤——过滤会让「前置」显示成「无」。
   const lessons = scoped.map((l) => ({
     id: l.id,
     chapter: l.chapter,
@@ -76,8 +74,8 @@ async function main() {
     pitfalls: l.pitfalls,
     questionTypes: l.questionTypes,
     tables: l.tables,
-    prereq: inScope(l.prereq),
-    next: inScope(l.next),
+    prereq: l.prereq,
+    next: l.next,
     entities: entities[l.id],
   }))
 

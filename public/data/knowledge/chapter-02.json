@@ -39,7 +39,9 @@
       ],
       "questionTypes": [],
       "tables": [],
-      "prereq": [],
+      "prereq": [
+        "1.2"
+      ],
       "next": [
         "2.2",
         "2.3",
