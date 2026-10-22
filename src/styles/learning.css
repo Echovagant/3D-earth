@@ -148,6 +148,13 @@
   font-size: 12px;
 }
 
+/* 指向尚未收录章节的依赖：只作提示，不可点 */
+.learn-tag--muted {
+  background: transparent;
+  color: var(--learn-ink-faint);
+  border: 1px dashed var(--learn-line);
+}
+
 .learn-list {
   margin: 0;
   padding: 0;
