@@ -16,10 +16,17 @@ let indexPromise = null
 /** 章节索引 */
 export function loadKnowledgeIndex() {
   if (!indexPromise) {
-    indexPromise = fetch(`${BASE}/index.json`).then(async (res) => {
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      return res.json()
-    })
+    indexPromise = fetch(`${BASE}/index.json`)
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        return res.json()
+      })
+      .catch((error) => {
+        // 失败的结果不能留在缓存里：页面上有「重试」按钮，
+        // 留着这个 reject 的话，重试拿到的还是同一个失败，只能刷新页面
+        indexPromise = null
+        throw error
+      })
   }
   return indexPromise
 }
@@ -29,11 +36,17 @@ export async function loadChapterLessons(chapterId) {
   const key = String(chapterId)
   if (chapterCache.has(key)) return chapterCache.get(key)
   const promise = fetch(`${BASE}/chapter-${key.padStart(2, '0')}.json`)
-    .then(async (res) => {
+    .then((res) => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       return res.json()
     })
     .then((payload) => payload.lessons ?? [])
+    .catch((error) => {
+      // 同上：失败的那一章要摘出缓存，重试才会真的重新拉这一章
+      // （已经成功的章还留在缓存里，直接复用）
+      chapterCache.delete(key)
+      throw error
+    })
   chapterCache.set(key, promise)
   return promise
 }
@@ -46,7 +59,11 @@ export async function loadAllLessons() {
   return lists.flat()
 }
 
-/** 搜索：标题、摘要、各类要点、实体名全字段匹配 */
+/**
+ * 搜索：标题、摘要、各类要点全字段匹配，另外带上实体标记。
+ *
+ * 实体标记里省份存的是 6 位 adcode（不是省名），国家与地区名当前数据里还是空的。
+ */
 export function searchLessons(lessons, keyword) {
   const kw = String(keyword ?? '').trim().toLowerCase()
   if (!kw) return []
@@ -58,6 +75,8 @@ export function searchLessons(lessons, keyword) {
       ...(l.mustKnow ?? []),
       ...(l.pitfalls ?? []),
       ...(l.questionTypes ?? []),
+      ...(l.entities?.provinces ?? []),
+      ...(l.entities?.countries ?? []),
       ...(l.entities?.regions ?? []),
     ]
       .join(' ')

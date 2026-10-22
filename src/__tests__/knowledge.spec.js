@@ -6,20 +6,12 @@
 //
 // 下面两组用例测的是数据之上的运行时工具层：
 // 检索（标题 / 要点 / 省份反查）与掌握度（纯函数 + 存储降级）。
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import { readFileSync, existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
-import { lessonRefLabel, lessonsByProvince, searchLessons } from '../utils/knowledge.js'
-import {
-  MASTERY_KEY,
-  masteryStats,
-  parseMastery,
-  readMastery,
-  serializeMastery,
-  setMastery,
-  writeMastery,
-} from '../utils/mastery.js'
+import { lessonRefLabel, lessonsByProvince, searchLessons } from '../utils/knowledge'
+import { MASTERY_KEY, masteryStats, parseMastery, serializeMastery } from '../utils/mastery'
 
 const repoRoot = fileURLToPath(new URL('../../', import.meta.url))
 const read = (p) => JSON.parse(readFileSync(path.join(repoRoot, p), 'utf-8'))
@@ -218,14 +210,67 @@ describe('知识工具层', () => {
       '/data/knowledge/chapter-15.json',
     ])
   })
+
+  it('搜索能命中省份 adcode', () => {
+    // 实体标记里省份存的是 6 位 adcode（不是省名）
+    const hit = searchLessons(lessons, '510000')
+    expect(hit.map((l) => l.id)).toContain('15.8')
+  })
+
+  it('同一章重复加载只请求一次', async () => {
+    vi.resetModules()
+    const calls = []
+    vi.stubGlobal('fetch', async (url) => {
+      calls.push(url)
+      return { ok: true, json: async () => read(`public/data/knowledge/${url.split('/').pop()}`) }
+    })
+    const { loadChapterLessons } = await import('../utils/knowledge')
+    const first = await loadChapterLessons(2)
+    const second = await loadChapterLessons(2)
+    expect(second).toBe(first)
+    expect(calls).toEqual(['/data/knowledge/chapter-02.json'])
+  })
+
+  it('章节取不到时抛 HTTP 状态码，重试会真的重新请求', async () => {
+    vi.resetModules()
+    const calls = []
+    let fail = true
+    vi.stubGlobal('fetch', async (url) => {
+      calls.push(url)
+      if (fail) return { ok: false, status: 404, json: async () => ({}) }
+      return { ok: true, json: async () => read(`public/data/knowledge/${url.split('/').pop()}`) }
+    })
+    const { loadChapterLessons } = await import('../utils/knowledge')
+    await expect(loadChapterLessons(2)).rejects.toThrow('HTTP 404')
+    fail = false
+    const recovered = await loadChapterLessons(2)
+    expect(recovered).toHaveLength(26)
+    // 失败的请求不能留在缓存里，否则页面上「重试」拿到的还是同一个失败
+    expect(calls).toEqual(['/data/knowledge/chapter-02.json', '/data/knowledge/chapter-02.json'])
+  })
+
+  it('索引取不到时抛 HTTP 状态码，重试会真的重新请求', async () => {
+    vi.resetModules()
+    const calls = []
+    let fail = true
+    vi.stubGlobal('fetch', async (url) => {
+      calls.push(url)
+      if (fail) return { ok: false, status: 500, json: async () => ({}) }
+      if (url === '/data/knowledge/index.json') return { ok: true, json: async () => index }
+      return { ok: true, json: async () => read(`public/data/knowledge/${url.split('/').pop()}`) }
+    })
+    const { loadKnowledgeIndex } = await import('../utils/knowledge')
+    await expect(loadKnowledgeIndex()).rejects.toThrow('HTTP 500')
+    fail = false
+    const recovered = await loadKnowledgeIndex()
+    expect(recovered.chapters).toHaveLength(15)
+    expect(calls).toEqual(['/data/knowledge/index.json', '/data/knowledge/index.json'])
+  })
 })
 
 describe('掌握度', () => {
-  beforeEach(() => {
-    // 内存存储是模块级的，先清空，免得用例之间互相影响
-    writeMastery({})
-  })
-
+  // 下面几组要碰存储路径的用例，都用一份干净的模块实例：
+  // 降级开关是模块级状态，串在一起会互相污染
   afterEach(() => {
     vi.unstubAllGlobals()
   })
@@ -257,7 +302,9 @@ describe('掌握度', () => {
     expect(masteryStats([], {})).toEqual({ known: 0, review: 0, total: 0, percent: 0 })
   })
 
-  it('没有 localStorage 时降级到内存存储', () => {
+  it('没有 localStorage 时降级到内存存储', async () => {
+    vi.resetModules()
+    const { readMastery, setMastery } = await import('../utils/mastery')
     setMastery('2.19', 'known')
     setMastery('15.8', 'review')
     expect(readMastery()).toEqual({ '2.19': 'known', '15.8': 'review' })
@@ -266,18 +313,74 @@ describe('掌握度', () => {
     expect(readMastery()).toEqual({ '15.8': 'review' })
   })
 
-  it('localStorage 可用时读写落在 localStorage 里', () => {
+  it('localStorage 可用时读写落在 localStorage 里', async () => {
+    vi.resetModules()
     const store = new Map()
     vi.stubGlobal('localStorage', {
       getItem: (k) => (store.has(k) ? store.get(k) : null),
       setItem: (k, v) => store.set(k, String(v)),
       removeItem: (k) => store.delete(k),
     })
+    const { readMastery, writeMastery, setMastery } = await import('../utils/mastery')
     expect(MASTERY_KEY).toBe('earth.geo.mastered')
     writeMastery({ '2.19': 'known' })
     expect(store.get(MASTERY_KEY)).toBe('{"2.19":"known"}')
     expect(readMastery()).toEqual({ '2.19': 'known' })
     setMastery('2.19', 'review')
     expect(readMastery()).toEqual({ '2.19': 'review' })
+  })
+
+  it('localStorage 读失败时降级到内存', async () => {
+    vi.resetModules()
+    let probes = 0
+    vi.stubGlobal('localStorage', {
+      getItem: () => {
+        probes++
+        throw new Error('读不了')
+      },
+      setItem: () => {},
+    })
+    const { readMastery, setMastery } = await import('../utils/mastery')
+    setMastery('2.19', 'known')
+    expect(readMastery()).toEqual({ '2.19': 'known' })
+    // 探针真的被调用过：走的是 catch 分支，不是「localStorage 不存在」的提前返回
+    expect(probes).toBeGreaterThan(0)
+  })
+
+  it('localStorage 写失败时降级到内存，写完读回来还是新值', async () => {
+    vi.resetModules()
+    let writes = 0
+    // 能读但写不进去：配额满 / 部分隐私模式
+    vi.stubGlobal('localStorage', {
+      getItem: () => '{"2.19":"known"}', // localStorage 里的陈旧旧值
+      setItem: () => {
+        writes++
+        throw new Error('QuotaExceededError')
+      },
+    })
+    const { readMastery, writeMastery, setMastery } = await import('../utils/mastery')
+    writeMastery({ '15.8': 'review' })
+    // 写失败后读回来的必须是新值，而不是 localStorage 里的陈旧旧值
+    expect(readMastery()).toEqual({ '15.8': 'review' })
+    // 读-改-写也不能把内存副本覆盖成陈旧状态
+    setMastery('15.9', 'known')
+    expect(readMastery()).toEqual({ '15.8': 'review', '15.9': 'known' })
+    // 确实尝试写过并抛了错（走的 catch 分支）
+    expect(writes).toBeGreaterThan(0)
+  })
+
+  it('setMastery 忽略非法状态值', async () => {
+    vi.resetModules()
+    const store = new Map()
+    vi.stubGlobal('localStorage', {
+      getItem: (k) => (store.has(k) ? store.get(k) : null),
+      setItem: (k, v) => store.set(k, String(v)),
+      removeItem: (k) => store.delete(k),
+    })
+    const { readMastery, setMastery } = await import('../utils/mastery')
+    setMastery('2.19', '瞎写的')
+    expect(readMastery()).toEqual({})
+    // 非法值根本不该落进存储里
+    expect(store.has(MASTERY_KEY)).toBe(false)
   })
 })
