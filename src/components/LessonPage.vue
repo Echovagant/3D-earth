@@ -28,7 +28,8 @@
               >本节视频：{{ lesson.video.label }} →</a
             >
             <span v-if="lesson.sourceLabel" class="learn-panel__meta">
-              教材：{{ lesson.sourceLabel }}
+              <!-- v-html：输入是仓库内的静态 JSON，不是用户输入；renderEmphasis 先转义后替换，输出只可能是 <strong> -->
+              教材：<span v-html="emph(lesson.sourceLabel)" />
             </span>
           </p>
         </section>
@@ -52,12 +53,14 @@
           <table v-for="(t, ti) in lesson.tables" :key="ti" class="learn-table">
             <thead>
               <tr>
-                <th v-for="(h, hi) in t.header" :key="hi">{{ h }}</th>
+                <!-- v-html：输入是仓库内的静态 JSON，不是用户输入；renderEmphasis 先转义后替换，输出只可能是 <strong> -->
+                <th v-for="(h, hi) in t.header" :key="hi" v-html="emph(h)" />
               </tr>
             </thead>
             <tbody>
               <tr v-for="(row, ri) in t.rows" :key="ri">
-                <td v-for="(c, ci) in row" :key="ci">{{ c }}</td>
+                <!-- v-html：输入是仓库内的静态 JSON，不是用户输入；renderEmphasis 先转义后替换，输出只可能是 <strong> -->
+                <td v-for="(c, ci) in row" :key="ci" v-html="emph(c)" />
               </tr>
             </tbody>
           </table>

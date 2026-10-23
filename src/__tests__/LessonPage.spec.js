@@ -148,4 +148,28 @@ describe('知识点详情页', () => {
     // 没有落到「取不到就打印代码」的兜底
     expect(labels.some((t) => /^\d{6}$/.test(t))).toBe(false)
   })
+
+  it('表格里的强调渲染成粗体，不露出字面量 **', async () => {
+    const { wrapper } = await mountLesson('2.14')
+    const cells = wrapper.findAll('.learn-table td')
+
+    expect(cells.length).toBeGreaterThan(0)
+    // 数据里确实有带 ** 的单元格（否则这条断言是空的）
+    const raw = lessonOf('2.14').tables[0].rows.flat().filter((c) => String(c).includes('**'))
+    expect(raw.length).toBeGreaterThan(0)
+
+    // 页面上不能出现字面量星号
+    expect(wrapper.find('.learn-table').text()).not.toContain('**')
+    // 强调确实变成了 <strong>
+    expect(wrapper.findAll('.learn-table strong').length).toBeGreaterThan(0)
+  })
+
+  it('教材出处里的强调渲染成粗体，不露出字面量 **', async () => {
+    const { wrapper } = await mountLesson('2.26')
+
+    expect(lessonOf('2.26').sourceLabel).toContain('**')
+    const meta = wrapper.find('.learn-panel__meta')
+    expect(meta.text()).not.toContain('**')
+    expect(meta.findAll('strong').length).toBeGreaterThan(0)
+  })
 })

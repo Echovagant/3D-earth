@@ -64,6 +64,10 @@ describe('知识数据', () => {
         ...l.mustKnow,
         ...l.pitfalls,
         ...l.questionTypes,
+        // 表格的每一格也要过闸门：漏了它，正文就能从表格进来
+        ...l.tables.flatMap((t) => [...t.header, ...t.rows.flat()]),
+        ...l.entities.provinces,
+        ...l.entities.countries,
         ...l.entities.regions,
       ]
       for (const s of strings) {
