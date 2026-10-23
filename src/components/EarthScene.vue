@@ -373,22 +373,22 @@ const initEarth = () => {
   // 创建地球材质和几何体
   const geometry = new THREE.SphereGeometry(2, 64, 64)
   const textureLoader = new THREE.TextureLoader()
+  const maxAnisotropy = renderer.capabilities.getMaxAnisotropy()
+
   // 地球贴图：NASA BMNG「地形与水深」，来源见 LICENSES.md
-  const earthTexture = textureLoader.load(
-    assetUrl('/textures/earth_atmos_4096.jpg'),
-    undefined,
-    undefined,
-    () => {
-      console.warn('地球贴图加载失败，使用纯色材质')
-    },
-  )
+  //
+  // 先用 512×256 的小图立刻把地球画出来，再在后台换 4096×2048 的高清图。
+  // 只等大图的话，首屏是一颗深色球体——看着像页面坏了，而不是像「还在加载」。
+  //
   // 贴图存的是 sRGB 编码的 JPEG，**必须**声明成 sRGB 颜色空间。
   // 漏掉这一句，three.js 会把 sRGB 数据当线性数据处理：整体发灰、对比度被压掉，
   // 卫星影像看起来像蒙了一层雾——这是「贴图模糊」的主因，与分辨率无关。
+  // **换成更高分辨率的图也必须同样声明**，否则画面会整体变暗。
+  const earthTexture = textureLoader.load(assetUrl('/textures/earth_atmos_512.jpg'))
   earthTexture.colorSpace = THREE.SRGBColorSpace
   // 各向异性过滤：画面边缘是掠射角，贴图沿视线方向被压缩，
   // 没有它边缘会糊成一片。
-  earthTexture.anisotropy = renderer.capabilities.getMaxAnisotropy()
+  earthTexture.anisotropy = maxAnisotropy
 
   const material = new THREE.MeshPhongMaterial({
     map: earthTexture,
@@ -398,6 +398,22 @@ const initEarth = () => {
 
   earth = new THREE.Mesh(geometry, material)
   scene.add(earth)
+
+  // 高清图在后台下载，到位后换上
+  textureLoader.load(
+    assetUrl('/textures/earth_atmos_4096.jpg'),
+    (hiRes) => {
+      hiRes.colorSpace = THREE.SRGBColorSpace
+      hiRes.anisotropy = maxAnisotropy
+      material.map = hiRes
+      material.needsUpdate = true
+      earthTexture.dispose()
+    },
+    undefined,
+    () => {
+      console.warn('高清地球贴图加载失败，保留小图')
+    },
+  )
 
   // 添加光照
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)

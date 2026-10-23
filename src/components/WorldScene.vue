@@ -253,24 +253,42 @@ const initThree = () => {
   sun.position.set(5, 2, 3)
   scene.add(sun)
 
-  // 与地球页同一张卫星贴图：两个视角是同一个产品，视觉语言必须一致
-  const earthTexture = new THREE.TextureLoader().load(assetUrl('/textures/earth_atmos_4096.jpg'))
+  // 与地球页同一张卫星贴图：两个视角是同一个产品，视觉语言必须一致。
+  // 同样先上 512×256 小图立刻出画面，高清图在后台换——见 EarthScene.vue 里的说明。
+  const textureLoader = new THREE.TextureLoader()
+  const maxAnisotropy = renderer.capabilities.getMaxAnisotropy()
+  const earthTexture = textureLoader.load(assetUrl('/textures/earth_atmos_512.jpg'))
   // 贴图是 sRGB 编码的 JPEG，必须声明成 sRGB 颜色空间，否则会被当成线性数据，
   // 整个球会发灰、对比度被压掉。详见 EarthScene.vue 里的同一处说明。
   earthTexture.colorSpace = THREE.SRGBColorSpace
-  earthTexture.anisotropy = renderer.capabilities.getMaxAnisotropy()
+  earthTexture.anisotropy = maxAnisotropy
 
-  const globe = new THREE.Mesh(
-    new THREE.SphereGeometry(2, 64, 64),
-    new THREE.MeshPhongMaterial({
-      map: earthTexture,
-      color: 0xffffff,
-      specular: new THREE.Color(0x333333),
-      shininess: 10,
-    }),
-  )
+  const globeMaterial = new THREE.MeshPhongMaterial({
+    map: earthTexture,
+    color: 0xffffff,
+    specular: new THREE.Color(0x333333),
+    shininess: 10,
+  })
+
+  const globe = new THREE.Mesh(new THREE.SphereGeometry(2, 64, 64), globeMaterial)
   scene.add(globe)
   earth = globe
+
+  // 高清图在后台下载，到位后换上
+  textureLoader.load(
+    assetUrl('/textures/earth_atmos_4096.jpg'),
+    (hiRes) => {
+      hiRes.colorSpace = THREE.SRGBColorSpace
+      hiRes.anisotropy = maxAnisotropy
+      globeMaterial.map = hiRes
+      globeMaterial.needsUpdate = true
+      earthTexture.dispose()
+    },
+    undefined,
+    () => {
+      console.warn('高清地球贴图加载失败，保留小图')
+    },
+  )
 
   controls = new OrbitControls(camera, renderer.domElement)
   // 与地球页同一套控制器参数：两个视角的手感必须一致
