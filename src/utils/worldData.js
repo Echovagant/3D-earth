@@ -8,11 +8,12 @@
  * 估计值，不如不展示——详情页展示的是从边界几何实算的面积。
  */
 import { featureCenter } from './globeMath'
+import { assetUrl } from './base'
 
 export { featureCenter }
 
 /** 世界国界数据文件地址 */
-export const WORLD_DATA_URL = '/geojson/world-countries.json'
+export const WORLD_DATA_URL = assetUrl('/geojson/world-countries.json')
 
 /** 加载世界国界 */
 export async function loadWorldCountries() {

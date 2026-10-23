@@ -92,6 +92,7 @@ import { easeInOutCubic, pointerToNdc } from '../utils/globeMath'
 import { isClickGesture } from '../utils/gesture'
 import { getProvinceColor, toHexString } from '../utils/provinceColors'
 import { featureAreaKm2 } from '../utils/areaData'
+import { assetUrl } from '../utils/base'
 import {
   LABEL_BASE_HEIGHT,
   cameraDirectionInEarthFrame,
@@ -373,7 +374,7 @@ const initEarth = () => {
   const textureLoader = new THREE.TextureLoader()
   // 地球贴图：NASA BMNG「地形与水深」，来源见 LICENSES.md
   const earthTexture = textureLoader.load(
-    '/textures/earth_atmos_4096.jpg',
+    assetUrl('/textures/earth_atmos_4096.jpg'),
     undefined,
     undefined,
     () => {
@@ -512,7 +513,7 @@ const initControls = () => {
 // 按当前视角取边界数据。
 // 省级边界随仓库分发，运行时不再请求第三方接口。
 const loadBoundaryData = async () => {
-  const response = await fetch('/geojson/china-provinces.json')
+  const response = await fetch(assetUrl('/geojson/china-provinces.json'))
   if (!response.ok) throw new Error(`HTTP ${response.status}`)
   return { geoJson: await response.json() }
 }
@@ -684,7 +685,7 @@ const updateProvinceLabels = () => {
 // china.json 本身是 MultiPolygon，能正确三角化的前提是顶点表按 polygon 重建。
 const initCountryBorder = async () => {
   try {
-    const response = await fetch('/geojson/china.json')
+    const response = await fetch(assetUrl('/geojson/china.json'))
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
     const geoJson = await response.json()
     // 加载期间组件可能已卸载：这时不能再往场景里加对象

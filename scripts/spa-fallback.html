@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3D-earth</title>
+    <script>
+      // GitHub Pages 没有服务端重写：直接访问深链（课程地图 / 知识点页 / 省份页）
+      // 会返回 404，因为这些路径在磁盘上没有对应的文件。
+      //
+      // 这里把真实路径记进 sessionStorage，再回到入口页。入口页在路由接管之前
+      // 会把地址栏改回去，所以首次导航直接落到那条深链上，不会先闪一下首页。
+      //
+      // __BASE__ 由 vite.config.js 在构建时替换成站点根路径，不要手改成固定值。
+      ;(function () {
+        try {
+          sessionStorage.setItem(
+            '3d-earth:redirect',
+            location.pathname + location.search + location.hash,
+          )
+        } catch (e) {
+          // 隐私模式下 sessionStorage 可能不可用：退回不带深链也能正常打开首页
+        }
+        location.replace('__BASE__')
+      })()
+    </script>
+  </head>
+  <body>
+    <p>正在打开 <a href="__BASE__">3D-earth</a>…</p>
+  </body>
+</html>

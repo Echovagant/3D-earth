@@ -5,6 +5,8 @@
  * 页面不再自己维护一份名字表：两份名单迟早漂移，漂移了就显示错的省名。
  */
 
+import { assetUrl } from './base'
+
 const BASE = '/data/provinces'
 
 /** adcode → 名称的缓存；同一个省只请求一次 */
@@ -19,7 +21,7 @@ const cache = new Map()
 export async function loadProvinceName(adcode) {
   const key = String(adcode)
   if (cache.has(key)) return cache.get(key)
-  const promise = fetch(`${BASE}/${key}.json`)
+  const promise = fetch(assetUrl(`${BASE}/${key}.json`))
     .then((res) => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       return res.json()

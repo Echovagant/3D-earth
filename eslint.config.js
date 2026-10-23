@@ -34,6 +34,17 @@ export default defineConfig([
     },
   },
 
+  {
+    // 构建设置也跑在 Node 环境：要用 process.env 读构建期变量（比如站点路径前缀）
+    name: 'app/vite-config',
+    files: ['vite.config.js'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
+
   js.configs.recommended,
   ...pluginVue.configs['flat/essential'],
   

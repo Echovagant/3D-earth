@@ -156,10 +156,11 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import HudPanel from './HudPanel.vue'
+import { assetUrl } from '../utils/base'
 
 const router = useRouter()
 
-const DATA_URL = '/data/standard-maps.json'
+const DATA_URL = assetUrl('/data/standard-maps.json')
 const ALL = '全部'
 const PAGE_SIZE = 100
 

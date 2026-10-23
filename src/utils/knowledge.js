@@ -8,6 +8,8 @@
  * 章节数据会缓存，课程地图与搜索会重复用到。
  */
 
+import { assetUrl } from './base'
+
 const BASE = '/data/knowledge'
 
 const chapterCache = new Map()
@@ -16,7 +18,7 @@ let indexPromise = null
 /** 章节索引 */
 export function loadKnowledgeIndex() {
   if (!indexPromise) {
-    indexPromise = fetch(`${BASE}/index.json`)
+    indexPromise = fetch(assetUrl(`${BASE}/index.json`))
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         return res.json()
@@ -35,7 +37,7 @@ export function loadKnowledgeIndex() {
 export async function loadChapterLessons(chapterId) {
   const key = String(chapterId)
   if (chapterCache.has(key)) return chapterCache.get(key)
-  const promise = fetch(`${BASE}/chapter-${key.padStart(2, '0')}.json`)
+  const promise = fetch(assetUrl(`${BASE}/chapter-${key.padStart(2, '0')}.json`))
     .then((res) => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       return res.json()

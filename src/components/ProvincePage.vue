@@ -113,6 +113,7 @@ import { useRoute, useRouter } from 'vue-router'
 import HudPanel from './HudPanel.vue'
 import { formatArea } from '../utils/areaData'
 import { loadAllLessons, lessonsByProvince } from '../utils/knowledge'
+import { assetUrl } from '../utils/base'
 
 const route = useRoute()
 const router = useRouter()
@@ -127,7 +128,7 @@ const load = async () => {
   loading.value = true
   error.value = ''
   try {
-    const res = await fetch(`/data/provinces/${route.params.adcode}.json`)
+    const res = await fetch(assetUrl(`/data/provinces/${route.params.adcode}.json`))
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     data.value = await res.json()
   } catch (e) {

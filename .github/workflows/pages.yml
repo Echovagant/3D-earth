@@ -1,0 +1,71 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: 构建
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 准备 Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: ESLint
+        run: npm run lint:check
+
+      - name: 单元测试
+        run: npm run test:unit
+
+      - name: 构建
+        # 站点部署在 /3D-earth/ 子路径下，构建时把前缀告诉 Vite。
+        # 本地开发与单元测试不带前缀，两边的差别由 import.meta.env.BASE_URL 吸收。
+        run: npm run build
+        env:
+          SITE_BASE: /3D-earth/
+
+      - name: 校验路径前缀与深链回退页
+        run: |
+          grep -q '/3D-earth/' dist/index.html || { echo '::error::dist/index.html 里没有站点前缀，资源会 404'; exit 1; }
+          grep -q '/3D-earth/' dist/404.html || { echo '::error::dist/404.html 里没有回退路径，深链会 404'; exit 1; }
+          test -f dist/404.html || { echo '::error::dist/404.html 没有生成'; exit 1; }
+
+      - name: 配置 Pages
+        uses: actions/configure-pages@v5
+
+      - name: 上传构建产物
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    name: 部署
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 部署到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
