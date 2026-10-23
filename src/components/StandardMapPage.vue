@@ -35,10 +35,24 @@
           但本站只收录元数据，不打包、不再分发地图图片。
         </p>
         <p class="standard__lead">
-          <strong>审图号有效期为 2 年</strong>（《地图审核管理规定》第二十八条）。
           下表按审核年份从新到旧排列，最新一批是
           <strong class="standard__latest">{{ latestYear }} 年</strong
-          >审核的；使用前请到官方服务系统核对审图号是否仍然有效。
+          >审核的；共 {{ maps.length }} 张，其中 {{ olderYearCount }} 张是 {{ oldestYear }}–{{
+            latestYear - 1
+          }}
+          年审核的。
+        </p>
+        <p class="standard__lead">
+          <strong>「审图号有效期两年」说的是互联网地图服务审图号</strong>——《地图审核管理规定》第二十八条
+          的原文是「互联网地图服务审图号有效期为两年。审图号到期，应当重新送审」，第三十二条的罚则同样只针对这一类，
+          <strong>不适用于标准地图产品</strong>。标准地图是自然资源部提供的公益性地图：该规定第六条第一项明确
+          「直接使用自然资源主管部门提供的具有审图号的公益性地图」不需要再送审；官方系统的口径是
+          「社会公众可以免费浏览、下载标准地图，直接使用标准地图时需要标注审图号」，
+          并至今仍在目录里提供 2016 年以来审核的地图与其审图号。
+        </p>
+        <p class="standard__lead">
+          本站只收录公开目录里的元数据，不下载也不分发地图图片，不涉及「使用地图」的授权问题。
+          <strong>要自己下载使用某张标准地图，请以官方系统当时给出的信息为准。</strong>
         </p>
       </section>
 
@@ -194,6 +208,14 @@ const latestYear = computed(() =>
   maps.value.length ? Math.max(...maps.value.map((m) => Number(m.mapYear) || 0)) : '',
 )
 const withoutNumberCount = computed(() => maps.value.filter((m) => !m.mapNumber).length)
+
+/** 最早与最新的审核年份，以及介于两者之间的条目数——清单的年份跨度不小 */
+const oldestYear = computed(() =>
+  maps.value.length ? Math.min(...maps.value.map((m) => Number(m.mapYear) || Infinity)) : '',
+)
+const olderYearCount = computed(
+  () => maps.value.filter((m) => Number(m.mapYear) < Number(latestYear.value)).length,
+)
 
 const filteredMaps = computed(() => {
   const kw = keyword.value.trim().toLowerCase()
