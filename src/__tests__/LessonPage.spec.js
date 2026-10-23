@@ -123,17 +123,29 @@ describe('知识点详情页', () => {
   })
 
   it('未收录的章级引用不是链接', async () => {
+    // §2.6 的前置/后续里有章级引用 §9——第 9 章还没收录，不能给会打不开的链接
+    const { wrapper } = await mountLesson('2.6')
+
+    expect(wrapper.find('a[href="/course/9"]').exists()).toBe(false)
+    const muted = wrapper.findAll('.learn-tag--muted')
+    const chapter9 = muted.find((n) => n.text().includes('§9'))
+    expect(chapter9).toBeTruthy()
+    expect(chapter9.element.tagName).toBe('SPAN')
+    expect(chapter9.attributes('title')).toBe('第 9 章尚未收录')
+
+    // 同一节里已经收录的 §3、§4 给的是能点的链接
+    expect(wrapper.find('a[href="/course/3"]').exists()).toBe(true)
+    expect(wrapper.find('a[href="/course/4"]').exists()).toBe(true)
+  })
+
+  it('未收录的小节级引用也是不可点的标签', async () => {
+    // §2.1 的前置是 §1.2，第 1 章还没收录
     const { wrapper } = await mountLesson('2.1')
 
-    // 第 3 章还没收录，不能给会打不开的链接
-    expect(wrapper.find('a[href="/course/3"]').exists()).toBe(false)
     const muted = wrapper.findAll('.learn-tag--muted')
-    const chapter3 = muted.find((n) => n.text().includes('§3'))
-    expect(chapter3).toBeTruthy()
-    expect(chapter3.element.tagName).toBe('SPAN')
-    expect(chapter3.attributes('title')).toBe('第 3 章尚未收录')
-    // 小节级引用 §1.2 同样没收录，也是标签
-    expect(muted.some((n) => n.text().includes('§1.2'))).toBe(true)
+    const s12 = muted.find((n) => n.text().includes('§1.2'))
+    expect(s12).toBeTruthy()
+    expect(s12.element.tagName).toBe('SPAN')
   })
 
   it('关联地区的省名来自省份数据文件，不是页面里写死的表', async () => {

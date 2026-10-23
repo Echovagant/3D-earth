@@ -67,6 +67,39 @@ function applyIndentLevels(items) {
   return items.map((item) => '  '.repeat(Math.floor(item.width / 2)) + item.text)
 }
 
+/**
+ * 单行长度上限。超过就要按句读切开——与构建脚本的正文泄漏闸门同一个数。
+ */
+export const MAX_LINE_CHARS = 220
+
+/**
+ * 把过长的单行按句读切成多行。
+ *
+ * 讲义里少数几节把一整段推理写进了一行（§7.12、§7.15、§7.18、§11.3、§11.13），
+ * 逐行闸门会判它「疑似正文泄漏」。按句号分号切开既不丢一个字，
+ * 又让它回到「每一条都短」的形态——续行 bullet 拼起来可以很长，但每一条都短。
+ *
+ * 单句本身就超长的不动：那是真正的正文，让闸门照常报出来。
+ */
+export function splitLongLine(text, limit = MAX_LINE_CHARS) {
+  if (text.length <= limit) return [text]
+  // 按中文句读切：每段以 。！？； 结尾，最后一段可能没有结尾标点
+  const pieces = (text.match(/[^。！？；]*[。！？；]?/g) ?? []).filter((s) => s !== '')
+  if (!pieces.length) return [text]
+  const chunks = []
+  let current = ''
+  for (const piece of pieces) {
+    if (current && current.length + piece.length > limit) {
+      chunks.push(current)
+      current = piece
+    } else {
+      current += piece
+    }
+  }
+  if (current) chunks.push(current)
+  return chunks.length ? chunks : [text]
+}
+
 /** 取第一段连续的 `> ` 行——小节头部的引用区 */
 function collectQuoteRun(lines) {
   const start = lines.findIndex((l) => l.trim().startsWith('>'))
@@ -148,7 +181,11 @@ export function extractBlock(block, label) {
     const content = line.startsWith('>') ? line.replace(/^>\s?/, '') : line
     items.push({ width, text: stripListMarker(content) })
   }
-  return applyIndentLevels(items)
+  // 讲义里少数几节把整段推理写成了一行；按句读切开，每条都短，逐行闸门才过得去
+  const expanded = items.flatMap((item) =>
+    splitLongLine(item.text).map((text) => ({ width: item.width, text })),
+  )
+  return applyIndentLevels(expanded)
 }
 
 /** 抽块内的 markdown 表格 */

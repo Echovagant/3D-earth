@@ -29,6 +29,9 @@ const chapterOf = (id) => index.chapters.find((c) => c.id === id)
 /** 实际请求过的 URL：用来断言「不该请求的数据分片确实没请求」 */
 const calls = []
 
+/** 索引里随便挑一个还没收录的章——收录范围变了这条也不会失效 */
+const planningChapter = index.chapters.find((c) => !c.hasContent)
+
 const makeRouter = () =>
   createRouter({
     history: createMemoryHistory(),
@@ -71,10 +74,11 @@ describe('章节页', () => {
   })
 
   it('还没收录的章显示规划中，并且不去请求该章的数据分片', async () => {
-    const { wrapper } = await mountChapter(7)
+    const { wrapper } = await mountChapter(planningChapter.id)
 
     expect(wrapper.text()).toContain('这一章还在规划中。')
-    expect(calls).not.toContain('/data/knowledge/chapter-07.json')
+    const shard = `/data/knowledge/chapter-${String(planningChapter.id).padStart(2, '0')}.json`
+    expect(calls).not.toContain(shard)
   })
 
   it('索引里没有的章号说「没有这一章」，不说「规划中」', async () => {

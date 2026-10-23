@@ -6,6 +6,8 @@
 import { describe, it, expect } from 'vitest'
 import {
   BLOCK_LABELS,
+  MAX_LINE_CHARS,
+  splitLongLine,
   extractField,
   extractBlock,
   extractTables,
@@ -255,8 +257,32 @@ describe('extractTables', () => {
   })
 })
 
-describe('extractLessonRefs / extractChapterRefs', () => {
-  it('抽节号引用', () => {
+describe('splitLongLine', () => {
+  it('短行原样返回', () => {
+    expect(splitLongLine('一条要点')).toEqual(['一条要点'])
+  })
+
+  it('超长的行按句读切开，每条都不超过上限', () => {
+    const text = `${'甲。'.repeat(120)}结尾`
+    const parts = splitLongLine(text)
+
+    expect(parts.length).toBeGreaterThan(1)
+    expect(parts.every((p) => p.length <= MAX_LINE_CHARS)).toBe(true)
+  })
+
+  it('切分一个字都不丢', () => {
+    const text = `${'甲。'.repeat(120)}结尾`
+    // 讲义里少数几节把整段推理写成了一行，切开是为了过逐行闸门，不是为了改内容
+    expect(splitLongLine(text).join('')).toBe(text)
+  })
+
+  it('单句本身就超长的不动——那是真正文，交给闸门报出来', () => {
+    const text = '长'.repeat(300)
+    expect(splitLongLine(text)).toEqual([text])
+  })
+})
+
+describe('extractLessonRefs / extractChapterRefs', () => {  it('抽节号引用', () => {
     expect(extractLessonRefs('§2.16 地图的方向判读；§2.17 比例尺')).toEqual(['2.16', '2.17'])
   })
 

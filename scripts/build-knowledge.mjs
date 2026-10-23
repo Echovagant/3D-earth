@@ -15,6 +15,7 @@ import { existsSync } from 'node:fs'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import path from 'node:path'
 import { parseLessons } from './knowledge/parse-lessons.mjs'
+import { loadKnowledgeTables } from './knowledge/tables.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const SRC =
@@ -31,12 +32,14 @@ const MAX_SUMMARY_CHARS = 60
 /** 视频分P 号的合法范围（系列共 158 集） */
 const MIN_PART = 1
 const MAX_PART = 158
-/** 本阶段只做这两章 */
-const SCOPED_CHAPTERS = [2, 15]
+/** 本阶段收录的章。§3/§4/§7/§11 是互动实验已经触及的机制章，补上后实验与提纲能互链 */
+const SCOPED_CHAPTERS = [2, 3, 4, 7, 11, 15]
 
 const CHECK_ONLY = process.argv.slice(2).includes('--check')
 
-const readJson = async (p) => JSON.parse(await readFile(p, 'utf8'))
+/**
+ * 人工表的读取与合并见 scripts/knowledge/tables.mjs（构建脚本与契约测试共用一套）。
+ */
 
 const pLabel = (p) => `p${String(p).padStart(3, '0')}`
 
@@ -55,9 +58,9 @@ async function main() {
   const markdown = await readFile(SRC, 'utf8')
   const { ranges, chapterTitles, lessons: all } = parseLessons(markdown)
 
-  const videoMap = await readJson(path.join(ROOT, 'scripts', 'knowledge', 'video-map.json'))
-  const summaries = await readJson(path.join(ROOT, 'scripts', 'knowledge', 'summaries.json'))
-  const entities = await readJson(path.join(ROOT, 'scripts', 'knowledge', 'entities.json'))
+  const { videoMap, summaries, entities } = await loadKnowledgeTables(
+    path.join(ROOT, 'scripts', 'knowledge'),
+  )
 
   const scoped = all.filter((l) => SCOPED_CHAPTERS.includes(l.chapter))
 
@@ -66,7 +69,10 @@ async function main() {
     if (!videoMap[l.id]) problems.push(`${l.id} 缺 video-map`)
     if (!summaries[l.id]) problems.push(`${l.id} 缺 summaries`)
     if (!entities[l.id]) problems.push(`${l.id} 缺 entities`)
-    if (!l.outline.length) problems.push(`${l.id} 的知识骨架是空的`)
+    // 骨架可以是要点列表，也可以是一张表——§7.9 的「知识骨架」在讲义里
+    // 就是南北半球风带对照表，解析器把表格行交给 extractTables，
+    // 要点列表就是空的。这种情况下表格就是骨架，两者都空才是缺内容。
+    if (!l.outline.length && !l.tables.length) problems.push(`${l.id} 的知识骨架是空的`)
   }
   // 人工表的取值要合法
   for (const l of scoped) {
@@ -88,9 +94,9 @@ async function main() {
   // 人工表不该有多余条目
   const scopedIds = new Set(scoped.map((l) => l.id))
   for (const [name, table] of [
-    ['video-map.json', videoMap],
-    ['summaries.json', summaries],
-    ['entities.json', entities],
+    ['分片表 video', videoMap],
+    ['分片表 summaries', summaries],
+    ['分片表 entities', entities],
   ]) {
     for (const key of lessonKeys(table)) {
       if (!scopedIds.has(key)) problems.push(`${name} 有多余条目 ${key}`)

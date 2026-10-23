@@ -2,7 +2,7 @@
 // 知识数据的契约测试。
 //
 // 这份数据是「提纲级」的，不是正文——所以除了字段完整性，
-// 还要守两条线：① 不能有长段落漏进来；② 36 节的映射表必须完整。
+// 还要守两条线：① 不能有长段落漏进来；② 98 节的映射表必须完整。
 //
 // 下面两组用例测的是数据之上的运行时工具层：
 // 检索（标题 / 要点 / 省份反查）与掌握度（纯函数 + 存储降级）。
@@ -12,23 +12,31 @@ import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import { lessonRefLabel, lessonsByProvince, searchLessons } from '../utils/knowledge'
 import { MASTERY_KEY, masteryStats, parseMastery, serializeMastery } from '../utils/mastery'
+import { loadKnowledgeTables } from '../../scripts/knowledge/tables.mjs'
 
 const repoRoot = fileURLToPath(new URL('../../', import.meta.url))
 const read = (p) => JSON.parse(readFileSync(path.join(repoRoot, p), 'utf-8'))
 
 const index = read('public/data/knowledge/index.json')
-const videoMap = read('scripts/knowledge/video-map.json')
-const summaries = read('scripts/knowledge/summaries.json')
-const entities = read('scripts/knowledge/entities.json')
+// 人工表按章分片存放，与构建脚本读同一套
+const { videoMap, summaries, entities } = await loadKnowledgeTables(
+  path.join(repoRoot, 'scripts', 'knowledge'),
+)
 
-const chapters = [2, 15].map((c) => read(`public/data/knowledge/chapter-${String(c).padStart(2, '0')}.json`))
+const chapters = [2, 3, 4, 7, 11, 15].map((c) =>
+  read(`public/data/knowledge/chapter-${String(c).padStart(2, '0')}.json`),
+)
 const lessons = chapters.flatMap((c) => c.lessons)
-const SCOPED = ['02', '15']
+const SCOPED = ['02', '03', '04', '07', '11', '15']
 
 describe('知识数据', () => {
-  it('覆盖 §2 与 §15 的 36 个小节', () => {
-    expect(lessons).toHaveLength(36)
+  it('覆盖 §2/§3/§4/§7/§11/§15 的 98 个小节', () => {
+    expect(lessons).toHaveLength(98)
     expect(lessons.filter((l) => l.chapter === 2)).toHaveLength(26)
+    expect(lessons.filter((l) => l.chapter === 3)).toHaveLength(20)
+    expect(lessons.filter((l) => l.chapter === 4)).toHaveLength(6)
+    expect(lessons.filter((l) => l.chapter === 7)).toHaveLength(19)
+    expect(lessons.filter((l) => l.chapter === 11)).toHaveLength(17)
     expect(lessons.filter((l) => l.chapter === 15)).toHaveLength(10)
   })
 
@@ -45,10 +53,23 @@ describe('知识数据', () => {
     }
   })
 
-  it('骨架清单非空', () => {
+  it('骨架内容非空：要点列表或表格至少有一个', () => {
+    // §7.9 的「知识骨架」在讲义里就是一张表（南北半球风带对照），
+    // 解析器把表格行交给 extractTables，要点列表自然是空的——那时表格就是骨架。
     for (const l of lessons) {
-      expect(l.outline.length, `${l.id} 的知识骨架是空的`).toBeGreaterThan(0)
+      expect(
+        l.outline.length + l.tables.length,
+        `${l.id} 既没有骨架要点也没有骨架表格`,
+      ).toBeGreaterThan(0)
     }
+  })
+
+  it('§7.9 的骨架确实是表而不是要点', () => {
+    // 把这个例外钉死：哪天解析器改了表与要点的分工，这条会立刻红
+    const l = lessons.find((x) => x.id === '7.9')
+    expect(l.outline).toEqual([])
+    expect(l.tables).toHaveLength(1)
+    expect(l.tables[0].header).toEqual(['纬度带', '北半球', '南半球'])
   })
 
   it('不含成段正文：任何一行不超过 220 字符', () => {
@@ -88,8 +109,8 @@ describe('知识数据', () => {
 
   it('依赖引用：指向本阶段章节的必须存在，跨阶段引用允许悬空', () => {
     const ids = new Set(lessons.map((l) => l.id))
-    const inScope = new Set([2, 15])
-    // 指向 §2/§15 的引用必须真的存在；指向其他章节的引用保留（前端渲染成纯文本），
+    const inScope = new Set([2, 3, 4, 7, 11, 15])
+    // 指向范围内章节的引用必须真的存在；指向其他章节的引用保留（前端渲染成纯文本），
     // 不能过滤掉——过滤会让「前置」显示成「无」，数据在说谎。
     // 先把违规的引用挑出来再断言：expect 写在 if 里会触发 vitest/no-conditional-expect。
     const dangling = lessons
@@ -106,38 +127,38 @@ describe('知识数据', () => {
     for (const c of chapterRefs) {
       expect(String(c), '章级引用不是章号').toMatch(/^\d{1,2}$/)
     }
-    // 断言确切条数：讲义里 §2+§15 一共 73 条章级引用，少一条就是被过滤掉了
-    expect(chapterRefs.length, '章级引用被过滤掉了').toBe(73)
+    // 断言确切条数：讲义里这六章一共 213 条章级引用，少一条就是被过滤掉了
+    expect(chapterRefs.length, '章级引用被过滤掉了').toBe(213)
   })
 
   it('依赖引用数量与源讲义一致（防止过滤规则悄悄回来）', () => {
     // 范围外的引用也必须留着：过滤掉会让「前置知识」显示成「无」，数据在说谎。
     // 只断言「大于 0」守不住——过滤掉 99% 的跨阶段引用照样能过，所以对确切条数。
-    const inScope = new Set([2, 15])
+    const inScope = new Set([2, 3, 4, 7, 11, 15])
     const sectionRefs = lessons.flatMap((l) => [...l.prereq, ...l.next])
     const scoped = sectionRefs.filter((ref) => inScope.has(Number(ref.split('.')[0])))
     const crossStage = sectionRefs.filter((ref) => !inScope.has(Number(ref.split('.')[0])))
-    expect(scoped.length, '范围内节级引用少了').toBe(110)
-    expect(crossStage.length, '跨阶段节级引用被过滤掉了').toBe(1)
+    expect(scoped.length, '范围内节级引用少了').toBe(209)
+    expect(crossStage.length, '跨阶段节级引用被过滤掉了').toBe(9)
   })
 
-  it('人工映射表覆盖全部 36 节', () => {
+  it('人工映射表覆盖全部 98 节', () => {
     for (const l of lessons) {
-      expect(videoMap[l.id], `video-map.json 缺 ${l.id}`).toBeTypeOf('number')
-      expect(summaries[l.id], `summaries.json 缺 ${l.id}`).toBeTruthy()
-      expect(entities[l.id], `entities.json 缺 ${l.id}`).toBeTruthy()
+      expect(videoMap[l.id], `分片表 video 缺 ${l.id}`).toBeTypeOf('number')
+      expect(summaries[l.id], `分片表 summaries 缺 ${l.id}`).toBeTruthy()
+      expect(entities[l.id], `分片表 entities 缺 ${l.id}`).toBeTruthy()
     }
     // 映射表不该有多余条目（以 `_` 开头的是说明性备注，不算条目）
     for (const key of Object.keys(videoMap).filter((k) => !k.startsWith('_'))) {
-      expect(lessons.some((l) => l.id === key), `video-map.json 多余条目 ${key}`).toBe(true)
+      expect(lessons.some((l) => l.id === key), `分片表 video 多余条目 ${key}`).toBe(true)
     }
   })
 
   it('索引覆盖全部 15 章，并标出哪些有内容', () => {
     expect(index.chapters).toHaveLength(15)
     const withContent = index.chapters.filter((c) => c.hasContent)
-    expect(withContent.map((c) => c.id)).toEqual([2, 15])
-    expect(index.totalLessons).toBe(36)
+    expect(withContent.map((c) => c.id)).toEqual([2, 3, 4, 7, 11, 15])
+    expect(index.totalLessons).toBe(98)
   })
 
   it('单片 JSON 不超过 150 KB', () => {
@@ -206,11 +227,15 @@ describe('知识工具层', () => {
     const { loadAllLessons } = await import('../utils/knowledge')
     const all = await loadAllLessons()
 
-    expect(all).toHaveLength(36)
-    // 13 个「规划中」的章不该被请求：目录页靠 hasContent 字段决定显示什么
+    expect(all).toHaveLength(98)
+    // 9 个「规划中」的章不该被请求：目录页靠 hasContent 字段决定显示什么
     expect(calls).toEqual([
       '/data/knowledge/index.json',
       '/data/knowledge/chapter-02.json',
+      '/data/knowledge/chapter-03.json',
+      '/data/knowledge/chapter-04.json',
+      '/data/knowledge/chapter-07.json',
+      '/data/knowledge/chapter-11.json',
       '/data/knowledge/chapter-15.json',
     ])
   })

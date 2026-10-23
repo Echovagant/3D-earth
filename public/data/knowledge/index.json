@@ -25,8 +25,8 @@
     {
       "id": 3,
       "title": "地球的自转",
-      "lessonCount": 0,
-      "hasContent": false,
+      "lessonCount": 20,
+      "hasContent": true,
       "range": {
         "from": 13,
         "to": 17
@@ -35,8 +35,8 @@
     {
       "id": 4,
       "title": "地球的公转",
-      "lessonCount": 0,
-      "hasContent": false,
+      "lessonCount": 6,
+      "hasContent": true,
       "range": {
         "from": 18,
         "to": 23
@@ -65,8 +65,8 @@
     {
       "id": 7,
       "title": "大气环流：气压带风带与季风",
-      "lessonCount": 0,
-      "hasContent": false,
+      "lessonCount": 19,
+      "hasContent": true,
       "range": {
         "from": 30,
         "to": 32
@@ -105,8 +105,8 @@
     {
       "id": 11,
       "title": "水循环与海洋",
-      "lessonCount": 0,
-      "hasContent": false,
+      "lessonCount": 17,
+      "hasContent": true,
       "range": {
         "from": 45,
         "to": 50
@@ -153,5 +153,5 @@
       }
     }
   ],
-  "totalLessons": 36
+  "totalLessons": 98
 }
