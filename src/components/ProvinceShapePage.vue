@@ -17,6 +17,8 @@
       <SourceNote :source="TOOL_SOURCES['province-shape']" />
 
       <ProvinceShapeMemory />
+
+      <RelatedOutline tool="/tools/province-shape" />
     </main>
   </div>
 </template>
@@ -24,6 +26,7 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import SourceNote from './SourceNote.vue'
+import RelatedOutline from './RelatedOutline.vue'
 import { TOOL_SOURCES } from '../data/toolSources'
 import ProvinceShapeMemory from './ProvinceShapeMemory.vue'
 

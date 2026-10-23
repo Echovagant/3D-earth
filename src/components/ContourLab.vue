@@ -156,6 +156,8 @@
           </button>
         </div>
       </template>
+
+      <RelatedOutline tool="/tools/contour" />
     </main>
   </div>
 </template>
@@ -175,6 +177,7 @@
  */
 import { computed, onMounted, ref, watch } from 'vue'
 import SourceNote from './SourceNote.vue'
+import RelatedOutline from './RelatedOutline.vue'
 import { TOOL_SOURCES } from '../data/toolSources'
 
 import { renderEmphasis } from '../utils/richText'

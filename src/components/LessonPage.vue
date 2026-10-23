@@ -28,7 +28,7 @@
               >本节视频：{{ lesson.video.label }} →</a
             >
             <router-link v-if="tool" class="learn-tag" :to="tool.to">
-              动手练：{{ tool.name }}
+              {{ tool.kind === 'drill' ? '动手练' : '本章实验' }}：{{ tool.name }}
             </router-link>
             <span v-if="lesson.sourceLabel" class="learn-panel__meta">
               <!-- v-html：输入是仓库内的静态 JSON，不是用户输入；renderEmphasis 先转义后替换，输出只可能是 <strong> -->
@@ -178,6 +178,7 @@
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { loadAllLessons, lessonRefLabel, loadKnowledgeIndex } from '../utils/knowledge'
+import { LESSON_TOOLS } from '../data/toolLinks'
 import { readMastery, setMastery } from '../utils/mastery'
 import { renderEmphasis } from '../utils/richText'
 import { loadProvinceNames } from '../utils/provinceNames'
@@ -212,20 +213,9 @@ const videoUrl = computed(() =>
 /**
  * 知识点 ↔ 互动工具。
  *
- * 只给「动手练能显著加深理解」的节挂入口：等高线那几节靠判读练，
- * §15.8 / §15.9 靠形象与全表记。其余节不给链接——挂一堆入口只会让人以为是广告位。
+ * 映射表在 src/data/toolLinks.js：那里是唯一的真相源，
+ * 实验页的「相关提纲」区块也从同一份数据派生。
  */
-const LESSON_TOOLS = {
-  '2.19': { to: '/tools/contour', name: '等高线判读' },
-  '2.20': { to: '/tools/contour', name: '等高线判读' },
-  '2.21': { to: '/tools/contour', name: '等高线判读' },
-  '2.22': { to: '/tools/contour', name: '等高线判读' },
-  '2.23': { to: '/tools/contour', name: '等高线判读' },
-  '2.24': { to: '/tools/contour', name: '等高线判读' },
-  '2.25': { to: '/tools/contour', name: '等高线判读' },
-  '15.8': { to: '/tools/province-shape', name: '轮廓形象记忆' },
-  '15.9': { to: '/tools/province-abbrev', name: '省会简称全表' },
-}
 const tool = computed(() => LESSON_TOOLS[lesson.value?.id] ?? null)
 /** 前置与后续：节级引用与章级引用都算，否则只有章级引用的节会被整段藏掉 */
 const refs = computed(() => [

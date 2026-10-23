@@ -36,7 +36,9 @@
 | `src/components/TerminatorLab.vue` | 太阳高度角与晨昏线互动实验（路由 `/tools/terminator`） |
 | `src/components/PressureBeltLab.vue` | 气压带风带互动实验（路由 `/tools/pressure-belt`） |
 | `src/components/OceanCurrentLab.vue` | 洋流互动实验（路由 `/tools/ocean-current`） |
+| `src/components/RelatedOutline.vue` | 实验页的「相关提纲」区块：回链这个实验直接教的小节，取不到数据就整块不渲染 |
 | `src/data/` | 互动工具的静态数据与判据（纯 JS 导出，不发网络请求） |
+| `src/data/toolLinks.js` | 知识点 ↔ 互动实验的双向映射（唯一真相源）：知识点页的入口与实验页的回链都从它派生 |
 | `src/utils/geoDataProcessor.js` | GeoJSON → 球面 Mesh 的三角化、贴面与描边 |
 | `src/utils/globeMath.js` | 球面交互的纯函数：拾取归一化、飞行插值、球面质心（两个场景共用一份） |
 | `src/utils/provinceColors.js` | adcode → 颜色的稳定映射与地理分区 |
@@ -59,7 +61,7 @@
 | `scripts/build-province-index.mjs` | 省份数据 → 省份名称索引（`public/data/provinces/index.json`），带 `--check` |
 | `scripts/spa-fallback.html` | 深链回退页模板；构建时由 vite 插件替换 `__BASE__` 产出 `dist/404.html` |
 | `scripts/knowledge/parse-lessons.mjs` | 讲义 Markdown → 结构化知识点（纯函数） |
-| `scripts/knowledge/` | 人工维护的三张表：视频分P映射、自撰摘要、地理实体关联 |
+| `scripts/knowledge/` | 人工维护的知识表，**按章分片**：`chXX.json`（视频分P映射、自撰摘要、地理实体关联），由 `tables.mjs` 合并。分片而不是一张大表，是为了让人能并行补不同章节而不互相覆盖 |
 | `public/geojson/` | 地理数据源，**只读**（由上述脚本更新，不要手工改） |
 | `public/data/provinces/` | 省份详情页静态数据 |
 | `public/data/standard-maps.json` | 标准地图元数据与审图号清单（只列元数据，不含地图图片） |
@@ -95,7 +97,7 @@ CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `tes
 ⚠️ **测试在机器负载高时会假红**：vitest 默认单用例超时 5 秒，多个 agent 并行跑测试时
 导航类用例会撞上超时。判断失败前先在安静机器上单独重跑那个文件。
 
-`npm run test:unit` 必须是绿的才算完成改动。当前有 562 个用例：
+`npm run test:unit` 必须是绿的才算完成改动。当前有 589 个用例：
 `src/__tests__/App.spec.js`（应用挂载）、
 `src/__tests__/geoDataProcessor.spec.js`（35 个要素的渲染范围覆盖、与参考实现逐顶点一致、海南/台湾/九段线定点断言）、
 `src/__tests__/provinceData.spec.js`（省份详情数据与 GeoJSON 的一致性契约：adcode/name/center 严格相等、字段结构完整、分区覆盖无重叠、配色不落兜底、面积与几何重算一致、两个面积口径不差数量级、人口合计与全国人口相差 3% 以内）、
@@ -105,9 +107,10 @@ CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `tes
 `src/__tests__/worldData.spec.js`（世界国界：239 国、中文名与 ISO 代码、次区域与配色、球面质心不跨 180°）、
 `src/__tests__/globeMath.spec.js`（拾取归一化、缓动、绕 Y 轴旋转、球面质心）、
 `src/__tests__/standardMaps.spec.js`（标准地图清单：条目非空且都带审核年份、**条目数下限 2000 防抽样退化**、**最新年份 ≥ 2024 防同步退化**、国家审图号（GS）年份与审核年份一致、同名同号唯一、分类齐全、**只收录省级行政区以上的地图**、**不含任何指向官方地图图片的直链**）、
-`src/__tests__/knowledge.spec.js`（知识数据契约：36 节字段完整、逐行 220 闸门、依赖引用有效、映射表完整、分片体积上限）、
+`src/__tests__/knowledge.spec.js`（知识数据契约：98 节字段完整、逐行 220 闸门、依赖引用有效、映射表完整、分片体积上限）、
 `src/__tests__/knowledgeParser.spec.js`（讲义解析器：栏位切分、块边界、缩进层级）、
 `src/__tests__/toolSources.spec.js`（互动工具的来源标注：节号、教材出处、视频分P 与课程范围）、
+`src/__tests__/toolLinks.spec.js`（知识点 ↔ 互动实验的双向互链：映射表完整性、强弱划分与人工策展的 sections 一致、两个方向互为逆映射、路由真实存在、实验页的「相关提纲」渲染与容错）、
 `src/__tests__/router.spec.js`（路由表契约，含 `/licenses` 与 `/standard-map`）。
 
 ## 硬约束
@@ -133,6 +136,14 @@ CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `tes
 16. **同步脚本要能覆盖上游的全部分类与全部分页。** 写死页数上限或只取部分分类，会**静默**少收一大批数据——标准地图清单曾因此从 2045 张掉到 133 张且不报错。`standardMaps.spec.js` 里有条目数下限与「最新年份 ≥ 2024」两条断言专门守这个。
 16. **标准地图清单只收录省级行政区以上的地图。** 非省级行政区的条目不收；上游新增同类条目时会被自动挡掉。
 17. **知识数据只收提纲，不收正文。** `scripts/build-knowledge.mjs` 的 `MAX_FIELD_CHARS = 220` 是硬闸门：任何**一行**超过 220 字符都会被判定为正文泄漏并中止构建。判据是单行而不是整条拼接值——讲义的续行 bullet 用换行分隔，多条拼起来可以很长（§15.1 的高考定位 4 条共 366 字），但每一条都短；真正的正文是一整行长句。课程讲义源文件在仓库外（`_source/`），仓库里只有提纲级产物。
+18. **讲义里少数几节把整段推理写成了一行**（§7.12、§7.15、§7.18、§11.3、§11.13），逐行闸门会判它泄漏。解析器 `splitLongLine()` 按句号分号把它们切开，**一个字都不丢**——切完的每一条都能在讲义原文里逐字找到。改这个函数时要守住「切分无损」这条。
+19. **骨架可以是要点列表，也可以是一张表。** §7.9 的「知识骨架」在讲义里就是南北半球风带对照表，解析器把表格行交给 `extractTables`，要点列表自然是空的——这时表格就是骨架。构建闸门判的是「要点与表格不能同时为空」，不是「要点必须非空」。
+20. **实体标记是「检索别名」，不是「本节提到了这些地方」。** 判据是：搜这个词的人应不应该看到这一节。
+    - `provinces` 存 6 位 adcode；该节的现象在中国境内全域存在（等高线、线速度、地转偏向力、水循环、洋流）就挂全部 34 个，只涉及特定省区就只挂那几个，纯数学/纯全球格局就空。
+    - `countries` 必须逐字取自 `public/geojson/world-countries.json` 的 `properties.name`（239 个中文名）。「我国」就是中国，可挂；正文没点名、又只是地理推断的，不挂。
+    - `regions` 允许规范化正文说法（我国东部→东亚、澳大利亚大陆→大洋洲、纽芬兰→加拿大），但不能凭空造词。
+    - **空数组是正确答案**，不要为了填满而硬凑。
+21. **知识点与实验的互链只有一张表。** `src/data/toolLinks.js` 是唯一真相源，`TOOL_CHAPTERS` 与 `TOOL_DRILL_IDS` 都从它派生——不要在组件里另抄一份，也不要维护第二张反向表。`drill`（实验直接教这一节）与 `chapter`（只是同章）两级强度决定入口文案，改动时两个方向要一起看。
 
 ## 地理数据同步
 

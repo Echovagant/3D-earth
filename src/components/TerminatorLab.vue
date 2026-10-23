@@ -455,6 +455,8 @@
           </p>
         </section>
       </template>
+
+      <RelatedOutline tool="/tools/terminator" />
     </main>
   </div>
 </template>
@@ -462,6 +464,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import SourceNote from './SourceNote.vue'
+import RelatedOutline from './RelatedOutline.vue'
 import { TOOL_SOURCES } from '../data/toolSources'
 import { renderEmphasis } from '../utils/richText'
 import {

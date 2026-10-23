@@ -324,6 +324,8 @@
           </div>
         </template>
       </section>
+
+      <RelatedOutline tool="/tools/ocean-current" />
     </main>
   </div>
 </template>
@@ -343,6 +345,7 @@
  */
 import { computed, onMounted, ref, watch } from 'vue'
 import SourceNote from './SourceNote.vue'
+import RelatedOutline from './RelatedOutline.vue'
 import { TOOL_SOURCES } from '../data/toolSources'
 
 import { assetUrl } from '../utils/base'

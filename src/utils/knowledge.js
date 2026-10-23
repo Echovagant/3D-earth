@@ -62,6 +62,18 @@ export async function loadAllLessons() {
 }
 
 /**
+ * 清掉章节与索引的缓存。
+ *
+ * 缓存是模块级的——同一份数据整个会话只取一次，生产代码不该调它。
+ * 测试里换数据源时必须先清一次，否则会拿到上一轮用例留下的结果，
+ * 表现为「明明 stub 成请求失败，页面却还是渲染出来了」。
+ */
+export function clearKnowledgeCache() {
+  chapterCache.clear()
+  indexPromise = null
+}
+
+/**
  * 搜索：标题、摘要、各类要点全字段匹配，另外带上实体标记。
  *
  * 实体标记里省份存的是 6 位 adcode（不是省名），国家与地区名当前数据里还是空的。
