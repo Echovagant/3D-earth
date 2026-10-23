@@ -11,7 +11,9 @@ export default defineConfig([
     files: ['**/*.{js,mjs,jsx,vue}'],
   },
 
-  globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**']),
+  // .superpowers 是实施计划的工作区目录（被 git 忽略），但 ESLint 不读 .gitignore，
+  // 不排除的话，丢进去的临时脚本会把 lint 门禁弄红
+  globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**', '.superpowers/**']),
 
   {
     languageOptions: {

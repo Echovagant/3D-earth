@@ -78,21 +78,3 @@ const goBack = () => {
 
 onMounted(load)
 </script>
-
-<style scoped>
-.learn-input {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid var(--learn-line);
-  border-radius: 6px;
-  background: var(--learn-panel);
-  color: var(--learn-ink);
-  font-family: var(--font-ui);
-  font-size: 15px;
-}
-
-.learn-input:focus {
-  border-color: var(--learn-accent);
-  outline: none;
-}
-</style>

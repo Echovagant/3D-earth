@@ -16,7 +16,7 @@
         <button type="button" class="learn-top__back" @click="load">重试</button>
       </div>
       <div v-else-if="lessons.length === 0" class="learn-empty">
-        这一章还在规划中。
+        {{ emptyText }}
       </div>
       <template v-else>
         <section class="learn-panel">
@@ -43,7 +43,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { loadKnowledgeIndex, loadChapterLessons } from '../utils/knowledge'
 import { readMastery } from '../utils/mastery'
@@ -54,9 +54,14 @@ const router = useRouter()
 const chapterId = computed(() => route.params.chapterId)
 const lessons = ref([])
 const title = ref('')
+/** 索引里这一章的信息；null 表示索引里根本没有这一章 */
+const chapter = ref(null)
 const loading = ref(true)
 const error = ref('')
 const mastery = ref({})
+
+/** 「还没收录」与「没有这一章」是两回事，话术要分开 */
+const emptyText = computed(() => (chapter.value ? '这一章还在规划中。' : '没有这一章。'))
 
 const load = async () => {
   loading.value = true
@@ -64,9 +69,10 @@ const load = async () => {
   try {
     // 章节标题在课程索引里，小节在分片文件里；先看索引才知道这一章有没有内容
     const index = await loadKnowledgeIndex()
-    const chapter = (index.chapters ?? []).find((c) => c.id === Number(chapterId.value))
-    title.value = chapter?.title ?? ''
-    lessons.value = chapter?.hasContent
+    const found = (index.chapters ?? []).find((c) => c.id === Number(chapterId.value))
+    chapter.value = found ?? null
+    title.value = found?.title ?? ''
+    lessons.value = found?.hasContent
       ? await loadChapterLessons(Number(chapterId.value))
       : []
     mastery.value = readMastery()
@@ -83,4 +89,8 @@ const goBack = () => {
 }
 
 onMounted(load)
+
+// 路由只换章号时 vue-router 会复用同一个组件实例（不会重新挂载），
+// 不盯着 chapterId 的话，URL 已经变成第 15 章，列表还停在第 2 章
+watch(chapterId, load)
 </script>

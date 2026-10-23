@@ -12,7 +12,7 @@
     <main class="learn-main">
       <h1 class="learn-h1">课程地图</h1>
       <p class="learn-lead">
-        高中地理的 15 个板块。当前已有提纲的章节可以直接点开，其余标注为规划中。
+        高中地理的各个板块。当前已有提纲的章节可以直接点开，其余标注为规划中。
       </p>
 
       <div v-if="loading" class="learn-empty">读取课程索引…</div>
@@ -27,14 +27,14 @@
           <div class="learn-bar">
             <div class="learn-bar__fill" :style="{ width: `${stats.percent}%` }"></div>
           </div>
-          <p class="learn-card__meta" style="margin-top: 8px">
+          <p class="learn-card__meta learn-card__meta--spaced">
             已掌握 {{ stats.known }} 节 · 待复习 {{ stats.review }} 节 · 共 {{ stats.total }} 节
             （{{ stats.percent }}%）
           </p>
         </section>
 
         <section class="learn-panel">
-          <h2 class="learn-panel__title">15 个板块</h2>
+          <h2 class="learn-panel__title">{{ chapters.length }} 个板块</h2>
           <div class="learn-grid">
             <component
               :is="chapter.hasContent ? 'router-link' : 'div'"
