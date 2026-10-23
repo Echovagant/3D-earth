@@ -74,7 +74,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import HudPanel from './HudPanel.vue'
 import { featureAreaKm2, formatArea } from '../utils/areaData'
@@ -127,5 +127,9 @@ const load = async () => {
 const goBack = () => router.push('/world')
 
 onMounted(load)
+
+// 路由只换国家代码时 vue-router 会复用同一个组件实例（不会重新挂载），
+// 不盯着 iso3 的话，URL 已经变成另一个国家，页面还停在上一个国家的数据
+watch(iso3, load)
 </script>
 
