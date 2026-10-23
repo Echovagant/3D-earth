@@ -108,12 +108,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import HudPanel from './HudPanel.vue'
 import { formatArea } from '../utils/areaData'
 import { loadAllLessons, lessonsByProvince } from '../utils/knowledge'
 import { assetUrl } from '../utils/base'
+import { createRequestGuard } from '../utils/latestRequest'
 
 const route = useRoute()
 const router = useRouter()
@@ -124,27 +125,43 @@ const error = ref('')
 // 本省关联的知识点（按 entities.provinces 反查）
 const linkedLessons = ref([])
 
+// 换省是连续的两次请求：慢的那次后到时会把新省的数据覆盖成上一省。
+// 每次请求领一个序号，只有最新序号的响应才允许写状态。
+const provinceRequests = createRequestGuard()
+const lessonRequests = createRequestGuard()
+
 const load = async () => {
+  const token = provinceRequests.begin()
   loading.value = true
   error.value = ''
   try {
     const res = await fetch(assetUrl(`/data/provinces/${route.params.adcode}.json`))
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    data.value = await res.json()
+    const payload = await res.json()
+    // 序号已经过时：这是上一条数据的响应，直接丢掉
+    if (!provinceRequests.isCurrent(token)) return
+    data.value = payload
   } catch (e) {
+    if (!provinceRequests.isCurrent(token)) return
     error.value = `无法加载该省份的数据（${e.message}）`
   } finally {
-    loading.value = false
+    // 只有最新那次请求能收尾 loading：旧请求收尾会把新一轮的加载态提前关掉
+    if (provinceRequests.isCurrent(token)) loading.value = false
   }
 }
 
 const loadLessons = async () => {
+  const token = lessonRequests.begin()
+  // 记下这次是给哪个省取的关联知识点：响应回来时页面可能已经换省了
+  const adcode = route.params.adcode
   // 换省时先清空旧结果，否则切换过程中会短暂显示上一个省的关联知识点
   linkedLessons.value = []
   try {
     const lessons = await loadAllLessons()
-    linkedLessons.value = lessonsByProvince(lessons, route.params.adcode)
+    if (!lessonRequests.isCurrent(token)) return
+    linkedLessons.value = lessonsByProvince(lessons, adcode)
   } catch {
+    if (!lessonRequests.isCurrent(token)) return
     // 知识数据挂了就只是没有这个区块，不影响省份页本身
     linkedLessons.value = []
   }
@@ -158,6 +175,12 @@ const goBack = () => {
 onMounted(() => {
   load()
   loadLessons()
+})
+
+onBeforeUnmount(() => {
+  // 组件已经卸载：迟到的响应不能再写状态
+  provinceRequests.dispose()
+  lessonRequests.dispose()
 })
 
 // 路由只换省代码时 vue-router 会复用同一个组件实例（不会重新挂载），

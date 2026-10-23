@@ -27,6 +27,9 @@
               rel="noreferrer noopener"
               >本节视频：{{ lesson.video.label }} →</a
             >
+            <router-link v-if="tool" class="learn-tag" :to="tool.to">
+              动手练：{{ tool.name }}
+            </router-link>
             <span v-if="lesson.sourceLabel" class="learn-panel__meta">
               <!-- v-html：输入是仓库内的静态 JSON，不是用户输入；renderEmphasis 先转义后替换，输出只可能是 <strong> -->
               教材：<span v-html="emph(lesson.sourceLabel)" />
@@ -172,12 +175,13 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { loadAllLessons, lessonRefLabel, loadKnowledgeIndex } from '../utils/knowledge'
 import { readMastery, setMastery } from '../utils/mastery'
 import { renderEmphasis } from '../utils/richText'
 import { loadProvinceNames } from '../utils/provinceNames'
+import { createRequestGuard } from '../utils/latestRequest'
 
 const route = useRoute()
 const router = useRouter()
@@ -195,11 +199,34 @@ const state = ref('')
 
 const emph = (text) => renderEmphasis(text)
 
+// 换知识点是连续的两次请求：慢的那次后到时会把新一节的正文覆盖成上一节。
+// 每次请求领一个序号，只有最新序号的响应才允许写状态。
+const requests = createRequestGuard()
+
 const videoUrl = computed(() =>
   lesson.value
     ? `https://www.bilibili.com/video/${lesson.value.video.bvid}?p=${lesson.value.video.p}`
     : '',
 )
+
+/**
+ * 知识点 ↔ 互动工具。
+ *
+ * 只给「动手练能显著加深理解」的节挂入口：等高线那几节靠判读练，
+ * §15.8 / §15.9 靠形象与全表记。其余节不给链接——挂一堆入口只会让人以为是广告位。
+ */
+const LESSON_TOOLS = {
+  '2.19': { to: '/tools/contour', name: '等高线判读' },
+  '2.20': { to: '/tools/contour', name: '等高线判读' },
+  '2.21': { to: '/tools/contour', name: '等高线判读' },
+  '2.22': { to: '/tools/contour', name: '等高线判读' },
+  '2.23': { to: '/tools/contour', name: '等高线判读' },
+  '2.24': { to: '/tools/contour', name: '等高线判读' },
+  '2.25': { to: '/tools/contour', name: '等高线判读' },
+  '15.8': { to: '/tools/province-shape', name: '轮廓形象记忆' },
+  '15.9': { to: '/tools/province-abbrev', name: '省会简称全表' },
+}
+const tool = computed(() => LESSON_TOOLS[lesson.value?.id] ?? null)
 /** 前置与后续：节级引用与章级引用都算，否则只有章级引用的节会被整段藏掉 */
 const refs = computed(() => [
   ...(lesson.value?.prereq ?? []),
@@ -229,6 +256,7 @@ const chapterKnown = (id) => chapterOf(id)?.hasContent === true
 const provinceName = (adcode) => provinceNames.value[String(adcode)] ?? adcode
 
 const load = async () => {
+  const token = requests.begin()
   // 记下这次要加载的是哪一节：等数据回来时再确认页面没已经切到别的节
   const targetId = lessonId.value
   loading.value = true
@@ -239,6 +267,8 @@ const load = async () => {
   provinceNames.value = {}
   try {
     const [lessons, index] = await Promise.all([loadAllLessons(), loadKnowledgeIndex()])
+    // 序号已经过时：这是上一节的响应，直接丢掉，不能覆盖新一节的正文
+    if (!requests.isCurrent(token)) return
     allLessons.value = lessons
     chapters.value = index.chapters ?? []
     const found = lessons.find((l) => l.id === targetId) ?? null
@@ -246,15 +276,17 @@ const load = async () => {
     lesson.value = found
     state.value = readMastery()[found.id] ?? ''
   } catch (e) {
+    if (!requests.isCurrent(token)) return
     error.value = `无法加载该知识点（${e.message}）`
     return
   } finally {
-    loading.value = false
+    // 只有最新那次请求能收尾 loading：旧请求收尾会把新一轮的加载态提前关掉
+    if (requests.isCurrent(token)) loading.value = false
   }
 
   // 省名单独补：正文不用等这几十个小文件，取不到就退回代码
   const names = await loadProvinceNames(lesson.value?.entities?.provinces ?? [])
-  if (lesson.value?.id === targetId) provinceNames.value = names
+  if (requests.isCurrent(token)) provinceNames.value = names
 }
 
 const mark = (value) => {
@@ -276,6 +308,11 @@ const goBack = () => {
 }
 
 onMounted(load)
+
+onBeforeUnmount(() => {
+  // 组件已经卸载：迟到的响应不能再写状态
+  requests.dispose()
+})
 
 // 路由只换知识点号时 vue-router 会复用同一个组件实例（不会重新挂载），
 // 不盯着 lessonId 的话，URL 已经变成 §2.20，正文还停在 §2.19，

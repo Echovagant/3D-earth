@@ -74,10 +74,11 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import HudPanel from './HudPanel.vue'
 import { featureAreaKm2, formatArea } from '../utils/areaData'
+import { createRequestGuard } from '../utils/latestRequest'
 import {
   loadWorldCountries,
   countryId,
@@ -98,13 +99,22 @@ const country = ref(null)
 const loading = ref(true)
 const error = ref('')
 
+// 换国家是连续的两次请求：慢的那次后到时会把新国家覆盖成上一个。
+// 每次请求领一个序号，只有最新序号的响应才允许写状态。
+const requests = createRequestGuard()
+
 const load = async () => {
+  const token = requests.begin()
+  // 记下这次要加载的是哪个国家：响应回来时页面可能已经切到别的国家了
+  const targetIso3 = iso3.value
   loading.value = true
   error.value = ''
   try {
     const geoJson = await loadWorldCountries()
-    const feature = geoJson.features.find((item) => countryId(item) === iso3.value)
+    const feature = geoJson.features.find((item) => countryId(item) === targetIso3)
     if (!feature) throw new Error('未找到该国家')
+    // 序号已经过时：这是上一个国家的响应，直接丢掉，不能覆盖新国家
+    if (!requests.isCurrent(token)) return
     country.value = {
       id: countryId(feature),
       name: countryName(feature),
@@ -118,15 +128,22 @@ const load = async () => {
       areaKm2: featureAreaKm2(feature),
     }
   } catch (e) {
+    if (!requests.isCurrent(token)) return
     error.value = `无法加载国家数据（${e.message}）`
   } finally {
-    loading.value = false
+    // 只有最新那次请求能收尾 loading：旧请求收尾会把新一轮的加载态提前关掉
+    if (requests.isCurrent(token)) loading.value = false
   }
 }
 
 const goBack = () => router.push('/world')
 
 onMounted(load)
+
+onBeforeUnmount(() => {
+  // 组件已经卸载：迟到的响应不能再写状态
+  requests.dispose()
+})
 
 // 路由只换国家代码时 vue-router 会复用同一个组件实例（不会重新挂载），
 // 不盯着 iso3 的话，URL 已经变成另一个国家，页面还停在上一个国家的数据
