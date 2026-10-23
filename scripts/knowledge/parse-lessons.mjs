@@ -34,6 +34,11 @@ const BOLD_LINE_RE = /^\*\*([^*]+)\*\*$/
 const HEADING_RE = /^#{1,6} /
 /** 无序列表符号。后面必须有空白，才不会把 `**加粗**`、`---` 误当列表项 */
 const LIST_MARKER_RE = /^[-*+]\s+/
+/**
+ * Markdown 水平分隔线：`---` / `***` / `___`（3 个以上同一种符号）。
+ * 必须整行只有符号才算——讲义正文里可能有含 `---` 的正常内容。
+ */
+const THEMATIC_BREAK_RE = /^(-{3,}|\*{3,}|_{3,})$/
 /** 有序列表符号：`1. ` / `1、` */
 const ORDERED_MARKER_RE = /^\d+[.、]\s*/
 
@@ -137,6 +142,7 @@ export function extractBlock(block, label) {
     const line = raw.trim()
     if (isBlockBoundary(line)) break
     if (!line) continue
+    if (THEMATIC_BREAK_RE.test(line)) continue // 水平分隔线不是内容
     if (line.startsWith('|')) continue // 表格行交给 extractTables
     const width = leadingWidth(raw)
     const content = line.startsWith('>') ? line.replace(/^>\s?/, '') : line
