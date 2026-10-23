@@ -38,6 +38,12 @@ jobs:
       - name: 拉取标准地图与审图号清单
         run: node scripts/update-standard-maps.mjs
 
+      # 源讲义不在仓库里，周更任务拿不到它，所以这一步失败不挡流水线——
+      # 它是给本地与手动触发用的信号，不是硬门禁。
+      - name: 校验知识数据与源讲义一致
+        run: npm run knowledge:check
+        continue-on-error: true
+
       # 上游可能下线、改名或改了许可条款。同步脚本只管拉数据，
       # 察觉不到「条款变了」——这一步专门盯这个。
       - name: 体检数据源（可达性与许可）

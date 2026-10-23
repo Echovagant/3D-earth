@@ -228,7 +228,7 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 /**
  * 拉取上游文本，带重试。
  *
- * 本机解析域名走的是 Clash 的本地 DNS 代理，上游一抖，连国内域名也会间歇性
+ * 本机解析域名走的是 Clash 的本地 DNS 代理，上游一抖，连同一个域名也会间歇性
  * ENOTFOUND。单次成功说明不了问题，所以这里对失败做退避重试，
  * 每次重试前先主动解析一次域名，把 DNS 缓存预热起来。
  */

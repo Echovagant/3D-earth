@@ -32,6 +32,21 @@
       </section>
 
       <section class="licenses__block">
+        <h2>课程内容与版权</h2>
+        <ul class="licenses__list">
+          <li>
+            本站是<strong>个人学习用途</strong>的学习辅助工具，不提供在线课程，也不售卖任何内容。
+            站内「课程地图」与知识点提纲，是对一套公开教学视频的<strong>索引与结构化整理</strong>：
+            收录的是章节结构、要点清单与易错提示等提纲性内容，完整讲解请跳转原视频观看。
+          </li>
+          <li>
+            视频版权归原作者及原平台所有，本站仅提供跳转链接。站内所有地图相关数据均来自
+            <code>LICENSES.md</code>（仓库根目录）登记的开放许可来源或官方公开接口。
+          </li>
+        </ul>
+      </section>
+
+      <section class="licenses__block">
         <h2>地理数据</h2>
         <div class="licenses__table-wrap">
           <table class="licenses__table">
@@ -173,7 +188,7 @@
         <h2>数据更新</h2>
         <ul class="licenses__list">
           <li><code>scripts/update-geo.mjs</code> —— 中国省界与各省面积（DataV）。</li>
-          <li><code>scripts/update-world.mjs</code> —— 世界国界（npm 国内镜像 npmmirror）。</li>
+          <li><code>scripts/update-world.mjs</code> —— 世界国界（npm 镜像源 npmmirror）。</li>
           <li><code>scripts/update-standard-maps.mjs</code> —— 标准地图与审图号清单（标准地图服务系统）。</li>
           <li><code>scripts/check-licenses.mjs</code> —— 逐个体检上游可达性与许可字段。</li>
         </ul>

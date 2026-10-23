@@ -37,3 +37,9 @@ jobs:
 
       - name: 生产构建
         run: npm run build
+
+      # 源讲义在仓库外，CI 机器上没有 _source/ 时 knowledge:check 会打印警告并 exit 0，
+      # 所以这里是「有源才检查」；真正的漂移防线在有源讲义的本地机器上（npm run check 会带上）。
+      - name: 校验知识数据与源讲义一致
+        run: npm run knowledge:check
+        continue-on-error: true

@@ -14,13 +14,14 @@ describe('数据源与许可', () => {
   it('同步脚本不使用来源不明或限制用途的数据集', () => {
     // geojson.cn 的台湾数据集是付费离线包，免费接口只是预览，
     // 且站内声明「仅供学习研究使用」——不适合作为公开仓库再分发的数据来源。
-    // jsDelivr / unpkg 是境外 CDN，同样不用。
+    // jsDelivr / unpkg 不在允许清单里，同样不用。
     const forbidden = ['cdn.jsdelivr.net', 'unpkg.com', 'geojson.cn']
     const scripts = [
       'update-geo.mjs',
       'update-world.mjs',
       'update-standard-maps.mjs',
       'check-licenses.mjs',
+      'build-knowledge.mjs',
     ]
     for (const name of scripts) {
       const text = readFileSync(fileURLToPath(new URL(`../../scripts/${name}`, import.meta.url)), 'utf-8')
@@ -30,13 +31,13 @@ describe('数据源与许可', () => {
     }
   })
 
-  it('运行时代码只请求仓库内的静态文件与国内接口', () => {
+  it('运行时代码只请求仓库内的静态文件与已登记的开放接口', () => {
     const utils = fileURLToPath(new URL('src/utils/', repoRoot))
     for (const file of readdirSync(utils).filter((f) => f.endsWith('.js'))) {
       const text = readFileSync(`${utils}/${file}`, 'utf-8')
       const urls = [...text.matchAll(/https?:\/\/[^\s'"`)]+/g)].map((m) => m[0])
       for (const url of urls) {
-        expect(url, `${file} 请求了境外地址 ${url}`).not.toMatch(
+        expect(url, `${file} 请求了未登记的外部地址 ${url}`).not.toMatch(
           /githubusercontent|github\.com|jsdelivr|unpkg\.com/i,
         )
       }

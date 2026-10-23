@@ -27,7 +27,17 @@
 
 ---
 
-## 二、地理数据（`public/geojson/`）
+## 二、课程内容与版权
+
+| 内容 | 来源 | 许可与义务 |
+|---|---|---|
+| 课程地图与知识点提纲（章节结构、要点清单、易错点、前置/后续依赖、视频分P号） | 自一套公开教学视频的字幕整理而成 | **版权归原作者与原平台所有。** 本站只收录提纲性内容并提供跳转链接，不复制完整讲解正文，不提供课程下载；站点标注为个人学习用途 |
+
+完整讲解请在原视频平台观看。
+
+---
+
+## 三、地理数据（`public/geojson/`）
 
 | 文件 | 内容 | 来源 | 许可 |
 |---|---|---|---|
@@ -35,11 +45,11 @@
 | `china.json` | 中华人民共和国整体边界 | [DataV.GeoAtlas 行政区划边界](https://geo.datav.aliyun.com/areas_v3/bound/100000.json) | 上游公开接口数据，随仓库分发 |
 | `world-countries.json` | 239 个国家/地区边界，含中文名、ISO 3166-1 代码与地区划分 | 几何与中文名：[`@surbowl/world-geo-json-zh`](https://registry.npmmirror.com/@surbowl/world-geo-json-zh)；大洲与次区域：联合国 M49 地区划分（[`un-m49`](https://registry.npmmirror.com/un-m49)） | **Unlicense**（公有领域）+ **MIT** |
 
-两个 npm 包都从 npmmirror（阿里云的 npm 国内镜像）取 tarball：npmmirror 的单文件接口对它们是 403，tarball 是唯一通道。`un-m49` 的入口是 JS 字面量，脚本用正则逐字段解析，**不执行远端代码**。
+两个 npm 包都从 npmmirror（npm 镜像源）取 tarball：npmmirror 的单文件接口对它们是 403，tarball 是唯一通道。`un-m49` 的入口是 JS 字面量，脚本用正则逐字段解析，**不执行远端代码**。
 
 ---
 
-## 三、素材
+## 四、素材
 
 | 文件 | 内容 | 来源 | 许可 |
 |---|---|---|---|
@@ -52,7 +62,7 @@
 
 ---
 
-## 四、统计数字（`public/data/provinces/`）
+## 五、统计数字（`public/data/provinces/`）
 
 | 字段 | 来源 | 说明 |
 |---|---|---|
@@ -63,7 +73,7 @@
 
 ---
 
-## 五、标准地图与审图号（`public/data/standard-maps.json`）
+## 六、标准地图与审图号（`public/data/standard-maps.json`）
 
 | 内容 | 来源 | 说明 |
 |---|---|---|
@@ -100,12 +110,12 @@
 
 ---
 
-## 六、数据更新
+## 七、数据更新
 
 | 脚本 | 上游 | 调度 |
 |---|---|---|
 | `scripts/update-geo.mjs` | DataV.GeoAtlas | GitHub Actions 每周一 |
-| `scripts/update-world.mjs` | npm 国内镜像 npmmirror | 同上 |
+| `scripts/update-world.mjs` | npm 镜像源 npmmirror | 同上 |
 | `scripts/update-standard-maps.mjs` | 标准地图服务系统 | 同上 |
 | `scripts/check-licenses.mjs` | 逐个体检上游可达性与许可字段 | 同上 |
 

@@ -4,9 +4,9 @@
 
 # 3D-earth
 
-**基于 Three.js 的 3D 地球可视化**
+**基于 Three.js 的 3D 地球可视化 · 高中地理学习工具**
 
-中国 35 个省级行政区 · 全球 239 个国家/地区 · 标准地图审图号清单
+中国 35 个省级行政区 · 全球 239 个国家/地区 · 标准地图审图号清单 · 课程地图与知识点提纲
 
 [![CI](https://github.com/Echovagant/3D-earth/actions/workflows/ci.yml/badge.svg)](https://github.com/Echovagant/3D-earth/actions/workflows/ci.yml)
 [![stars](https://img.shields.io/github/stars/Echovagant/3D-earth?style=flat-square&label=stars&color=4fd8ff)](https://github.com/Echovagant/3D-earth/stargazers)
@@ -30,7 +30,9 @@
 | 🏷 球面省名 | 省名钉在球面上，屏幕空间自动去重叠，放大后小省逐个浮现 |
 | 📇 详情页 | 行政区划代码、中心坐标、球面实算面积、省情简介与标签 |
 | 🗒 审图号清单 | 2000+ 张官方标准地图的审图号同步到站，可查、可溯源 |
-| 🧪 有测试 | 296 个用例，CI 在每次 push 与 PR 上自动验证 |
+| 🗺️ 课程地图 | 15 个板块的知识点提纲，可查、可标记掌握情况，点回原视频 |
+| 🔍 知识点搜索 | 标题、要点、易错点全字段检索 |
+| 🧪 有测试 | 379 个用例，CI 在每次 push 与 PR 上自动验证 |
 
 ## 界面
 
@@ -40,6 +42,14 @@
 
 <p align="center">
   <img src="docs/screenshot-detail.jpeg" alt="省份详情页" width="700" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshot-course.jpeg" alt="课程地图" width="880" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshot-lesson.jpeg" alt="知识点详情页" width="700" />
 </p>
 
 ## 技术亮点
@@ -60,6 +70,7 @@
 | 世界国界（239 国/地区） | 几何与中文名：`@surbowl/world-geo-json-zh`；大洲与次区域：联合国 M49（`un-m49`） | **Unlicense**（公有领域）+ **MIT** |
 | 地球贴图 | NASA Blue Marble Next Generation「地形与水深」2004 年 7 月版，等比缩放至 4096×2048 | NASA 影像一般不受著作权保护，无需许可 |
 | 省份人口与简介 | 2023 年末公开统计口径，逐条标注来源 | 各来源归各自权利人 |
+| 课程知识点提纲 | 自课程视频字幕整理的提纲（名称、要点清单、易错点、依赖关系） | 版权归原作者所有，本站仅索引与跳转 |
 | 第三方库 | Vue / Vue Router / Three.js（MIT）、earcut（ISC） | 见 `package.json` |
 
 本项目是**纯静态前端**：没有后端、没有统计脚本、不使用 Cookie、不收集也不上传任何个人信息。
@@ -92,6 +103,7 @@
 - **面积**：由边界几何在球面上实算；**人口**：2023 年末常住人口，34 个省级单位合计与全国人口相差约 2%
 - **世界视角**：按 ISO 3166-1 收录 239 个国家/地区；**中国地图里的台湾省作为中国的一个省级行政区呈现**，不作为独立条目
 - **科索沃**：上游数据集没有为它单列国别，那块地并入塞尔维亚的轮廓——地图上看不出缺口，但国家列表里没有它
+- **课程内容**：目前只覆盖第 2 章（地图与定位工具）与第 15 章（区域地理），其余 13 章在课程地图里标为「规划中」
 
 ## 快速开始
 

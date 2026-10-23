@@ -5,7 +5,8 @@
  * 颜色一律走这里定义的变量，组件里不写死具体色值。
  */
 
-.learn-page {
+.learn-page,
+.site-foot {
   --learn-bg: #f4f7fb;
   --learn-panel: #ffffff;
   --learn-ink: #16202e;
@@ -15,12 +16,46 @@
   --learn-accent: #0b6fb8;
   --learn-accent-soft: #e3f0fa;
   --learn-warn: #b4530a;
+}
 
+.learn-page {
   min-height: 100%;
   background: var(--learn-bg);
   color: var(--learn-ink);
   font-size: 15px;
   line-height: 1.75;
+}
+
+/*
+ * 全局合规声明页脚：只在教学层页面出现。
+ * 亮色板，跟教学层一致——深色带会把整页的阅读节奏切断。
+ */
+.site-foot {
+  flex: none;
+  padding: 10px 16px;
+  background: var(--learn-panel);
+  border-top: 1px solid var(--learn-line);
+  color: var(--learn-ink-faint);
+  font-size: 12px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+/*
+ * 只在教学层加 flex 纵向布局，地球页/省份页的 #app 保持原样。
+ * .learn-page 原本有 min-height: 100%，在 flex 容器里它会撑满视口、
+ * 把页脚顶到屏幕外，所以这里用 min-height: 0 覆盖掉。
+ */
+#app.app--learn {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  height: auto;
+}
+
+#app.app--learn > .learn-page {
+  flex: 1 0 auto;
+  min-height: 0;
 }
 
 .learn-top {
@@ -152,6 +187,7 @@
   border-color: var(--learn-line);
 }
 
+/* 这个类也用在 router-link 上（渲染成 <a>），要去掉浏览器默认的下划线 */
 .learn-tag {
   display: inline-block;
   padding: 2px 8px;

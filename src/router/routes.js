@@ -30,6 +30,8 @@ export const routes = [
     path: '/course',
     name: 'Course',
     component: () => import('../components/CourseMapPage.vue'),
+    // 教学层页面：底部要挂全局合规声明
+    meta: { learnPage: true },
   },
   {
     // 章节页
@@ -37,6 +39,7 @@ export const routes = [
     name: 'Chapter',
     component: () => import('../components/ChapterPage.vue'),
     props: true,
+    meta: { learnPage: true },
   },
   {
     // 知识点详情页
@@ -44,12 +47,14 @@ export const routes = [
     name: 'Lesson',
     component: () => import('../components/LessonPage.vue'),
     props: true,
+    meta: { learnPage: true },
   },
   {
     // 知识点搜索页
     path: '/search',
     name: 'Search',
     component: () => import('../components/SearchPage.vue'),
+    meta: { learnPage: true },
   },
   {
     // 国家详情

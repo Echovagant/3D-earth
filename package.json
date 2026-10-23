@@ -24,6 +24,7 @@
     "standard:update": "node scripts/update-standard-maps.mjs",
     "standard:check": "node scripts/update-standard-maps.mjs --check",
     "knowledge:check": "node scripts/build-knowledge.mjs --check",
+    "knowledge:build": "node scripts/build-knowledge.mjs",
     "format": "prettier --write src/"
   },
   "overrides": {
