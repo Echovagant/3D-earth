@@ -38,6 +38,17 @@
               §{{ item.id }} {{ item.title }}
             </router-link>
             <p class="learn-item__summary">{{ item.summary }}</p>
+            <!-- 命中原因：按省名搜到的，把命中的省名列出来，让人看得懂这条为什么会出现 -->
+            <p v-if="provinceHits[item.id]?.length" class="learn-item__meta">
+              <span class="learn-panel__meta">关联省份：</span>
+              <router-link
+                v-for="p in provinceHits[item.id]"
+                :key="p.adcode"
+                class="learn-tag"
+                :to="`/province/${p.adcode}`"
+                >{{ p.name }}</router-link
+              >
+            </p>
           </li>
         </ul>
       </section>
@@ -48,22 +59,42 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { loadAllLessons, searchLessons } from '../utils/knowledge'
+import { loadAllLessons, searchLessons, matchedProvinces } from '../utils/knowledge'
+import { loadProvinceNames } from '../utils/provinceNames'
 
 const router = useRouter()
 
 const lessons = ref([])
+/** adcode → 省名：给「按省名搜索」用，取不到就退化成只按 adcode 匹配 */
+const provinceNames = ref({})
 const keyword = ref('')
 const loading = ref(true)
 const error = ref('')
 
-const results = computed(() => searchLessons(lessons.value, keyword.value))
+const results = computed(() =>
+  searchLessons(lessons.value, keyword.value, provinceNames.value),
+)
+
+/** 每个命中项里被搜索词命中的省份：结果里要能看出「为什么命中」 */
+const provinceHits = computed(() => {
+  const map = {}
+  for (const item of results.value) {
+    const hits = matchedProvinces(item, keyword.value, provinceNames.value)
+    if (hits.length) map[item.id] = hits
+  }
+  return map
+})
 
 const load = async () => {
   loading.value = true
   error.value = ''
   try {
     lessons.value = await loadAllLessons()
+    // 省名表只给搜索用。取不到时 loadProvinceNames 会退回显示代码，
+    // 搜索仍然按 adcode 匹配，不会因此报错
+    provinceNames.value = await loadProvinceNames(
+      lessons.value.flatMap((l) => l.entities?.provinces ?? []),
+    )
   } catch (e) {
     error.value = `无法加载知识点（${e.message}）`
   } finally {
@@ -78,3 +109,15 @@ const goBack = () => {
 
 onMounted(load)
 </script>
+
+<style scoped>
+/* 命中原因那一行：说明这条结果是按省名命中的 */
+.learn-item__meta {
+  margin: var(--sp-2) 0 0;
+}
+
+/* 行高已经留出来了，标签不用再带下边距 */
+.learn-item__meta .learn-tag {
+  margin-bottom: 0;
+}
+</style>

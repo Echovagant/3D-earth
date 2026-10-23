@@ -65,11 +65,23 @@ export async function loadAllLessons() {
  * 搜索：标题、摘要、各类要点全字段匹配，另外带上实体标记。
  *
  * 实体标记里省份存的是 6 位 adcode（不是省名），国家与地区名当前数据里还是空的。
+ *
+ * provinceNames 是可选的省名表（{ '510000': '四川省', ... }，来自省份索引）。
+ * 传了它，搜索词还会去匹配省名全称，于是「四川」能命中挂着该省的小节；
+ * 不传就只按 adcode 匹配，行为与从前完全一致。
+ *
+ * 省名只取全称，不取简称：「京」「沪」这类单字会误命中（北京、南京／上海、沪苏）。
+ *
+ * @param {object[]} lessons 知识点列表
+ * @param {string} keyword 搜索词
+ * @param {Record<string, string>} [provinceNames] adcode → 省名全称
  */
-export function searchLessons(lessons, keyword) {
+export function searchLessons(lessons, keyword, provinceNames = {}) {
   const kw = String(keyword ?? '').trim().toLowerCase()
   if (!kw) return []
+  const names = provinceNames ?? {}
   return lessons.filter((l) => {
+    const provinces = l.entities?.provinces ?? []
     const hay = [
       l.title,
       l.summary,
@@ -77,7 +89,9 @@ export function searchLessons(lessons, keyword) {
       ...(l.mustKnow ?? []),
       ...(l.pitfalls ?? []),
       ...(l.questionTypes ?? []),
-      ...(l.entities?.provinces ?? []),
+      ...provinces,
+      // 省名全称也算可匹配字段：搜「四川」要能命中挂着 510000 的小节
+      ...provinces.map((code) => names[String(code)] ?? '').filter(Boolean),
       ...(l.entities?.countries ?? []),
       ...(l.entities?.regions ?? []),
     ]
@@ -85,6 +99,29 @@ export function searchLessons(lessons, keyword) {
       .toLowerCase()
     return hay.includes(kw)
   })
+}
+
+/**
+ * 一节里被搜索词命中的省份：结果列表用它说明「为什么命中」。
+ *
+ * 命中条件是省名全称或 adcode 包含搜索词；省名取不到时退回显示 adcode。
+ * 与 searchLessons 用的是同一张省名表。
+ *
+ * @param {object} lesson 单个知识点
+ * @param {string} keyword 搜索词
+ * @param {Record<string, string>} [provinceNames] adcode → 省名全称
+ * @returns {{ adcode: string, name: string }[]} 命中的省份
+ */
+export function matchedProvinces(lesson, keyword, provinceNames = {}) {
+  const kw = String(keyword ?? '').trim().toLowerCase()
+  if (!kw) return []
+  const names = provinceNames ?? {}
+  return (lesson?.entities?.provinces ?? [])
+    .map((code) => {
+      const adcode = String(code)
+      return { adcode, name: names[adcode] ?? adcode }
+    })
+    .filter((p) => p.name.toLowerCase().includes(kw) || p.adcode.includes(kw))
 }
 
 /** 按省份 adcode 反查知识点 */
