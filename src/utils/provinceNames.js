@@ -1,5 +1,8 @@
 /**
- * 省份名称：按 adcode 从 public/data/provinces/<adcode>.json 里取。
+ * 省份名称：一次请求读整份索引，不再逐个省去请求。
+ *
+ * 索引由 scripts/build-province-index.mjs 从 public/data/provinces/*.json 汇总生成，
+ * 内容是 adcode → { name, abbreviation, capital }。
  *
  * 省份数据文件里本来就带 name（110000 → 北京市、150000 → 内蒙古自治区），
  * 页面不再自己维护一份名字表：两份名单迟早漂移，漂移了就显示错的省名。
@@ -7,32 +10,36 @@
 
 import { assetUrl } from './base'
 
-const BASE = '/data/provinces'
+const INDEX_URL = assetUrl('/data/provinces/index.json')
 
-/** adcode → 名称的缓存；同一个省只请求一次 */
-const cache = new Map()
+/** 索引只拉一次；失败的结果不留在缓存里，下次调用会真的重新拉一次 */
+let indexPromise = null
+
+function loadIndex() {
+  if (!indexPromise) {
+    indexPromise = fetch(INDEX_URL)
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        return res.json()
+      })
+      .then((payload) => payload.provinces ?? {})
+      .catch((error) => {
+        indexPromise = null
+        throw error
+      })
+  }
+  return indexPromise
+}
 
 /**
  * 取一个省份的名称。
  *
- * 失败会抛错（由调用方决定怎么兜底），并且失败的结果不进缓存，
- * 下次调用会真的重新拉一次。
+ * 失败会抛错（由调用方决定怎么兜底）。
  */
 export async function loadProvinceName(adcode) {
   const key = String(adcode)
-  if (cache.has(key)) return cache.get(key)
-  const promise = fetch(assetUrl(`${BASE}/${key}.json`))
-    .then((res) => {
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      return res.json()
-    })
-    .then((data) => data.name ?? key)
-    .catch((error) => {
-      cache.delete(key)
-      throw error
-    })
-  cache.set(key, promise)
-  return promise
+  const index = await loadIndex()
+  return index[key]?.name ?? key
 }
 
 /**
@@ -43,8 +50,12 @@ export async function loadProvinceName(adcode) {
  */
 export async function loadProvinceNames(adcodes) {
   const codes = [...new Set((adcodes ?? []).map(String))]
-  const entries = await Promise.all(
-    codes.map(async (code) => [code, await loadProvinceName(code).catch(() => code)]),
-  )
-  return Object.fromEntries(entries)
+  if (!codes.length) return {}
+  let index = {}
+  try {
+    index = await loadIndex()
+  } catch {
+    // 索引取不到时整批退回代码，页面照常显示，只是名字暂时对不上
+  }
+  return Object.fromEntries(codes.map((code) => [code, index[code]?.name ?? code]))
 }

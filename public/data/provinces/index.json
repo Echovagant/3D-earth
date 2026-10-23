@@ -1,0 +1,175 @@
+{
+  "generatedAt": "2026-10-23",
+  "provinces": {
+    "110000": {
+      "name": "北京市",
+      "abbreviation": "京",
+      "capital": "北京市"
+    },
+    "120000": {
+      "name": "天津市",
+      "abbreviation": "津",
+      "capital": "天津市"
+    },
+    "130000": {
+      "name": "河北省",
+      "abbreviation": "冀",
+      "capital": "石家庄市"
+    },
+    "140000": {
+      "name": "山西省",
+      "abbreviation": "晋",
+      "capital": "太原市"
+    },
+    "150000": {
+      "name": "内蒙古自治区",
+      "abbreviation": "内蒙古",
+      "capital": "呼和浩特市"
+    },
+    "210000": {
+      "name": "辽宁省",
+      "abbreviation": "辽",
+      "capital": "沈阳市"
+    },
+    "220000": {
+      "name": "吉林省",
+      "abbreviation": "吉",
+      "capital": "长春市"
+    },
+    "230000": {
+      "name": "黑龙江省",
+      "abbreviation": "黑",
+      "capital": "哈尔滨市"
+    },
+    "310000": {
+      "name": "上海市",
+      "abbreviation": "沪",
+      "capital": "上海市"
+    },
+    "320000": {
+      "name": "江苏省",
+      "abbreviation": "苏",
+      "capital": "南京市"
+    },
+    "330000": {
+      "name": "浙江省",
+      "abbreviation": "浙",
+      "capital": "杭州市"
+    },
+    "340000": {
+      "name": "安徽省",
+      "abbreviation": "皖",
+      "capital": "合肥市"
+    },
+    "350000": {
+      "name": "福建省",
+      "abbreviation": "闽",
+      "capital": "福州市"
+    },
+    "360000": {
+      "name": "江西省",
+      "abbreviation": "赣",
+      "capital": "南昌市"
+    },
+    "370000": {
+      "name": "山东省",
+      "abbreviation": "鲁",
+      "capital": "济南市"
+    },
+    "410000": {
+      "name": "河南省",
+      "abbreviation": "豫",
+      "capital": "郑州市"
+    },
+    "420000": {
+      "name": "湖北省",
+      "abbreviation": "鄂",
+      "capital": "武汉市"
+    },
+    "430000": {
+      "name": "湖南省",
+      "abbreviation": "湘",
+      "capital": "长沙市"
+    },
+    "440000": {
+      "name": "广东省",
+      "abbreviation": "粤",
+      "capital": "广州市"
+    },
+    "450000": {
+      "name": "广西壮族自治区",
+      "abbreviation": "桂",
+      "capital": "南宁市"
+    },
+    "460000": {
+      "name": "海南省",
+      "abbreviation": "琼",
+      "capital": "海口市"
+    },
+    "500000": {
+      "name": "重庆市",
+      "abbreviation": "渝",
+      "capital": "重庆市"
+    },
+    "510000": {
+      "name": "四川省",
+      "abbreviation": "川",
+      "capital": "成都市"
+    },
+    "520000": {
+      "name": "贵州省",
+      "abbreviation": "贵",
+      "capital": "贵阳市"
+    },
+    "530000": {
+      "name": "云南省",
+      "abbreviation": "云",
+      "capital": "昆明市"
+    },
+    "540000": {
+      "name": "西藏自治区",
+      "abbreviation": "藏",
+      "capital": "拉萨市"
+    },
+    "610000": {
+      "name": "陕西省",
+      "abbreviation": "陕",
+      "capital": "西安市"
+    },
+    "620000": {
+      "name": "甘肃省",
+      "abbreviation": "甘",
+      "capital": "兰州市"
+    },
+    "630000": {
+      "name": "青海省",
+      "abbreviation": "青",
+      "capital": "西宁市"
+    },
+    "640000": {
+      "name": "宁夏回族自治区",
+      "abbreviation": "宁",
+      "capital": "银川市"
+    },
+    "650000": {
+      "name": "新疆维吾尔自治区",
+      "abbreviation": "新",
+      "capital": "乌鲁木齐市"
+    },
+    "710000": {
+      "name": "台湾省",
+      "abbreviation": "台",
+      "capital": "台北市"
+    },
+    "810000": {
+      "name": "香港特别行政区",
+      "abbreviation": "港",
+      "capital": "香港"
+    },
+    "820000": {
+      "name": "澳门特别行政区",
+      "abbreviation": "澳",
+      "capital": "澳门"
+    }
+  }
+}

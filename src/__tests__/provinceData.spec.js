@@ -16,8 +16,10 @@ const dataDirUrl = new URL('public/data/provinces/', repoRoot)
 const provinceFeatures = geo.features.filter((f) => /^\d{6}$/.test(String(f.properties.adcode)))
 const provinceAdcodes = provinceFeatures.map((f) => String(f.properties.adcode))
 
-const dataAdcodes = readdirSync(fileURLToPath(dataDirUrl))
-  .filter((f) => f.endsWith('.json'))
+const dataFiles = readdirSync(fileURLToPath(dataDirUrl)).filter((f) => f.endsWith('.json'))
+/** 6 位数字 adcode 的数据文件；index.json 是名称索引，不是某个省的数据文件 */
+const dataAdcodes = dataFiles
+  .filter((f) => /^\d{6}\.json$/.test(f))
   .map((f) => f.replace(/\.json$/, ''))
 
 // 逐个要素的用例。数据文件在测试体内惰性读取：若在模块加载期就全部读进来，
@@ -37,6 +39,33 @@ const cases = provinceAdcodes.map((adcode) => {
 describe('省份详情数据', () => {
   it('每个省级行政区恰好有一个数据文件，且没有多余文件', () => {
     expect([...dataAdcodes].sort()).toEqual([...provinceAdcodes].sort())
+  })
+
+  it('目录里除省份数据文件外只有名称索引', () => {
+    const extras = dataFiles.filter((f) => f !== 'index.json' && !/^\d{6}\.json$/.test(f))
+    expect(extras).toEqual([])
+  })
+
+  it('名称索引覆盖全部省份，且每项都有名称、简称与省会', () => {
+    const index = JSON.parse(readFileSync(fileURLToPath(new URL('index.json', dataDirUrl)), 'utf-8'))
+    expect(Object.keys(index.provinces).sort()).toEqual([...provinceAdcodes].sort())
+    for (const [adcode, entry] of Object.entries(index.provinces)) {
+      expect(entry.name, `${adcode} 缺名称`).toBeTruthy()
+      expect(entry.abbreviation, `${adcode} 缺简称`).toBeTruthy()
+      expect(entry.capital, `${adcode} 缺省会`).toBeTruthy()
+    }
+  })
+
+  it('名称索引里的名称与省份数据文件逐字一致', () => {
+    const index = JSON.parse(readFileSync(fileURLToPath(new URL('index.json', dataDirUrl)), 'utf-8'))
+    for (const adcode of provinceAdcodes) {
+      const data = JSON.parse(
+        readFileSync(fileURLToPath(new URL(`${adcode}.json`, dataDirUrl)), 'utf-8'),
+      )
+      expect(index.provinces[adcode].name).toBe(data.name)
+      expect(index.provinces[adcode].abbreviation).toBe(data.abbreviation)
+      expect(index.provinces[adcode].capital).toBe(data.capital)
+    }
   })
 
   it('不为九段线等非省级要素生成数据文件', () => {

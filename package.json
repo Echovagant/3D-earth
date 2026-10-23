@@ -15,7 +15,7 @@
     "test:unit:watch": "vitest",
     "lint": "eslint . --fix --cache",
     "lint:check": "eslint .",
-    "check": "npm run lint:check && npm run test:unit && npm run build && npm run knowledge:check",
+    "check": "npm run lint:check && npm run test:unit && npm run build && npm run knowledge:check && npm run province:check",
     "geo:update": "node scripts/update-geo.mjs",
     "geo:check": "node scripts/update-geo.mjs --check",
     "world:update": "node scripts/update-world.mjs",
@@ -25,6 +25,8 @@
     "standard:check": "node scripts/update-standard-maps.mjs --check",
     "knowledge:check": "node scripts/build-knowledge.mjs --check",
     "knowledge:build": "node scripts/build-knowledge.mjs",
+    "province:index": "node scripts/build-province-index.mjs",
+    "province:check": "node scripts/build-province-index.mjs --check",
     "format": "prettier --write src/"
   },
   "overrides": {
