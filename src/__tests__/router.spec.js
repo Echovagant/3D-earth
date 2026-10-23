@@ -42,6 +42,36 @@ describe('路由表', () => {
     expect(paths).toContain('/search')
   })
 
+  it('互动工具路由都挂在教学层——页脚与亮色排版要跟着走', () => {
+    const byPath = Object.fromEntries(routes.map((r) => [r.path, r]))
+    const toolPaths = [
+      '/tools',
+      '/tools/province-abbrev',
+      '/tools/province-shape',
+      '/tools/contour',
+      '/tools/terminator',
+      '/tools/pressure-belt',
+      '/tools/ocean-current',
+    ]
+    for (const path of toolPaths) {
+      expect(byPath[path], `${path} 应该有路由`).toBeTruthy()
+      expect(byPath[path].meta?.learnPage, `${path} 应该标记 learnPage`).toBe(true)
+    }
+  })
+
+  it('工具路由不会遮住带参数的路由', async () => {
+    // /tools/... 是静态路径，/province/:adcode 是参数路径：两者共存时不能互相吃掉
+    const router = makeRouter()
+    await router.push('/tools/contour')
+    await router.isReady()
+    expect(router.currentRoute.value.name).toBe('ContourLab')
+
+    const router2 = makeRouter()
+    await router2.push('/province/440000')
+    await router2.isReady()
+    expect(router2.currentRoute.value.name).toBe('Province')
+  })
+
   it('非法路径兜底重定向到首页', async () => {
     const router = makeRouter()
     await router.push('/no-such-page')
@@ -60,6 +90,13 @@ describe('路由表', () => {
     ['/search', 'Search'],
     ['/licenses', 'Licenses'],
     ['/standard-map', 'StandardMap'],
+    ['/tools', 'Tools'],
+    ['/tools/province-abbrev', 'ProvinceAbbrev'],
+    ['/tools/province-shape', 'ProvinceShape'],
+    ['/tools/contour', 'ContourLab'],
+    ['/tools/terminator', 'TerminatorLab'],
+    ['/tools/pressure-belt', 'PressureBeltLab'],
+    ['/tools/ocean-current', 'OceanCurrentLab'],
   ])('%s 命中 %s 路由', async (path, name) => {
     const router = makeRouter()
     await router.push(path)

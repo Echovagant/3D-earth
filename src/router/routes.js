@@ -76,6 +76,55 @@ export const routes = [
     component: () => import('../components/StandardMapPage.vue'),
   },
   {
+    // 互动工具总入口
+    path: '/tools',
+    name: 'Tools',
+    component: () => import('../components/ToolsIndexPage.vue'),
+    meta: { learnPage: true },
+  },
+  {
+    // 省会简称全表
+    path: '/tools/province-abbrev',
+    name: 'ProvinceAbbrev',
+    component: () => import('../components/ProvinceAbbrevPage.vue'),
+    meta: { learnPage: true },
+  },
+  {
+    // 省份轮廓形象记忆
+    path: '/tools/province-shape',
+    name: 'ProvinceShape',
+    component: () => import('../components/ProvinceShapePage.vue'),
+    meta: { learnPage: true },
+  },
+  {
+    // 等高线判读
+    path: '/tools/contour',
+    name: 'ContourLab',
+    component: () => import('../components/ContourLab.vue'),
+    meta: { learnPage: true },
+  },
+  {
+    // 太阳高度角与晨昏线
+    path: '/tools/terminator',
+    name: 'TerminatorLab',
+    component: () => import('../components/TerminatorLab.vue'),
+    meta: { learnPage: true },
+  },
+  {
+    // 气压带风带
+    path: '/tools/pressure-belt',
+    name: 'PressureBeltLab',
+    component: () => import('../components/PressureBeltLab.vue'),
+    meta: { learnPage: true },
+  },
+  {
+    // 洋流
+    path: '/tools/ocean-current',
+    name: 'OceanCurrentLab',
+    component: () => import('../components/OceanCurrentLab.vue'),
+    meta: { learnPage: true },
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/',
   },

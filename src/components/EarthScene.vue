@@ -44,6 +44,7 @@
         </button>
 
         <router-link class="hud__corner-link" to="/course">课程地图</router-link>
+        <router-link class="hud__corner-link" to="/tools">互动工具</router-link>
         <router-link class="hud__corner-link" to="/licenses">许可</router-link>
       </div>
 

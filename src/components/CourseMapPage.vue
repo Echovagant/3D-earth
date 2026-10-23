@@ -6,6 +6,7 @@
       </button>
       <span class="learn-top__title">课程地图</span>
       <span class="learn-top__spacer"></span>
+      <router-link class="learn-top__back" to="/tools">互动工具</router-link>
       <router-link class="learn-top__back" to="/search">搜索</router-link>
     </header>
 
