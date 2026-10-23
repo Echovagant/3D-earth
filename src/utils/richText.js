@@ -15,7 +15,9 @@ export function escapeHtml(text) {
 
 /**
  * 转义后把 `**文字**` 换成 `<strong>文字</strong>`。
- * 没有成对记号时原样返回（只转义）。
+ *
+ * 记号不成对时按字面文本渲染（只转义）：`**没闭合`、`****`、`**a**b**`
+ * 都不会被拆成半个标签。
  */
 export function renderEmphasis(text) {
   const escaped = escapeHtml(text)

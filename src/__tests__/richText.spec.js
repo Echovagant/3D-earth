@@ -56,6 +56,13 @@ describe('行内加粗渲染', () => {
     expect(renderEmphasis('普通文字')).toBe('普通文字')
   })
 
+  it('记号不成对时按字面文本渲染', () => {
+    // 两个记号挨在一起、中间没有内容：不成对，不该拆成标签
+    expect(renderEmphasis('****')).toBe('****')
+    // 开头成对、结尾落单：只渲染成对的那一段，落单的记号留作字面文本
+    expect(renderEmphasis('**a**b**')).toBe('<strong>a</strong>b**')
+  })
+
   it('空值不会抛异常', () => {
     expect(renderEmphasis(null)).toBe('')
     expect(renderEmphasis(undefined)).toBe('')

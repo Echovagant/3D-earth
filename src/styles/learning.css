@@ -131,8 +131,15 @@
   color: var(--learn-ink-faint);
 }
 
-/* 面板里的说明行：与上方内容留一点间距 */
-.learn-card__meta--spaced {
+/* 面板内的说明行：与卡片里的 meta 分开，卡片语义不适用于面板 */
+.learn-panel__meta {
+  font-size: 12px;
+  color: var(--learn-ink-faint);
+}
+
+/* 说明行与上方内容留一点间距 */
+.learn-card__meta--spaced,
+.learn-panel__meta--spaced {
   margin-top: 8px;
 }
 
@@ -240,4 +247,37 @@
 .learn-input:focus {
   border-color: var(--learn-accent);
   outline: none;
+}
+
+/* 知识点页的说明行：视频与教材出处 */
+.learn-meta-row {
+  margin: 0;
+}
+
+/* 前置与后续两行：行与行之间留一点间距 */
+.learn-refs-row {
+  margin: 0;
+}
+
+.learn-refs-row + .learn-refs-row {
+  margin-top: 6px;
+}
+
+/* 讲义里的表格 */
+.learn-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.learn-table th,
+.learn-table td {
+  padding: 6px 10px;
+  border: 1px solid var(--learn-line);
+  text-align: left;
+}
+
+.learn-table th {
+  background: var(--learn-accent-soft);
+  color: var(--learn-accent);
 }

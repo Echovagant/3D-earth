@@ -27,7 +27,7 @@
           <div class="learn-bar">
             <div class="learn-bar__fill" :style="{ width: `${stats.percent}%` }"></div>
           </div>
-          <p class="learn-card__meta learn-card__meta--spaced">
+          <p class="learn-panel__meta learn-panel__meta--spaced">
             已掌握 {{ stats.known }} 节 · 待复习 {{ stats.review }} 节 · 共 {{ stats.total }} 节
             （{{ stats.percent }}%）
           </p>
@@ -60,7 +60,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { loadKnowledgeIndex, loadAllLessons } from '../utils/knowledge'
+import { loadKnowledgeIndex } from '../utils/knowledge'
 import { readMastery, masteryStats } from '../utils/mastery'
 
 const router = useRouter()
@@ -68,10 +68,24 @@ const router = useRouter()
 const loading = ref(true)
 const error = ref('')
 const chapters = ref([])
-const lessonIds = ref([])
 const mastery = ref({})
 
-const stats = computed(() => masteryStats(lessonIds.value, mastery.value))
+/**
+ * 掌握进度不依赖全量正文：
+ * 总数用索引里有内容的章的 lessonCount 求和，已掌握/待复习从掌握度状态里数。
+ * 拉全量正文的话，任何一章的分片失败都会让整页落进错误态——
+ * 而这一页要的只是数量。
+ */
+const stats = computed(() => {
+  const counted = masteryStats(Object.keys(mastery.value), mastery.value)
+  const total = chapters.value.reduce((sum, c) => sum + (c.hasContent ? c.lessonCount : 0), 0)
+  return {
+    known: counted.known,
+    review: counted.review,
+    total,
+    percent: total === 0 ? 0 : Math.round((counted.known / total) * 100),
+  }
+})
 
 const load = async () => {
   loading.value = true
@@ -79,8 +93,6 @@ const load = async () => {
   try {
     const index = await loadKnowledgeIndex()
     chapters.value = index.chapters ?? []
-    const lessons = await loadAllLessons()
-    lessonIds.value = lessons.map((l) => l.id)
     mastery.value = readMastery()
   } catch (e) {
     error.value = `无法加载课程索引（${e.message}）`
