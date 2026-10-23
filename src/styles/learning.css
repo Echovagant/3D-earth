@@ -173,7 +173,6 @@
 }
 
 /* 说明行与上方内容留一点间距 */
-.learn-card__meta--spaced,
 .learn-panel__meta--spaced {
   margin-top: 8px;
 }
@@ -196,6 +195,13 @@
   background: var(--learn-accent-soft);
   color: var(--learn-accent);
   font-size: 12px;
+  /* 这个类也用在 router-link 上（渲染成 <a>），要去掉浏览器默认的下划线 */
+  text-decoration: none;
+}
+
+/* 悬停时才给下划线，保留链接的可点提示；<span> 形态不受影响 */
+a.learn-tag:hover {
+  text-decoration: underline;
 }
 
 /* 指向尚未收录章节的依赖：只作提示，不可点 */

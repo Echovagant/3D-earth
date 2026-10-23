@@ -77,13 +77,18 @@ const mastery = ref({})
  * 而这一页要的只是数量。
  */
 const stats = computed(() => {
-  const counted = masteryStats(Object.keys(mastery.value), mastery.value)
+  // 掌握度是 localStorage 里的自由键，可能混进范围外的小节 id
+  // （旧版本留下的、还没收录的章）。只统计已收录章的 id，
+  // 否则「已掌握 N 节」会超过「共 36 节」，进度条也会超过 100%。
+  const inScope = new Set(chapters.value.filter((c) => c.hasContent).map((c) => c.id))
+  const ids = Object.keys(mastery.value).filter((id) => inScope.has(Number(id.split('.')[0])))
+  const counted = masteryStats(ids, mastery.value)
   const total = chapters.value.reduce((sum, c) => sum + (c.hasContent ? c.lessonCount : 0), 0)
   return {
     known: counted.known,
     review: counted.review,
     total,
-    percent: total === 0 ? 0 : Math.round((counted.known / total) * 100),
+    percent: total === 0 ? 0 : Math.min(100, Math.round((counted.known / total) * 100)),
   }
 })
 
