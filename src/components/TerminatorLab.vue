@@ -15,6 +15,7 @@
         拖动滑块改观察点纬度 φ 与太阳直射点纬度
         δ，正午太阳高度角、昼长、晨昏线走向和切点会实时跟着变。
       </p>
+      <SourceNote :source="TOOL_SOURCES.terminator" />
 
       <div v-if="loading" class="learn-empty">准备实验数据…</div>
       <div v-else-if="error" class="learn-error">
@@ -460,6 +461,8 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import SourceNote from './SourceNote.vue'
+import { TOOL_SOURCES } from '../data/toolSources'
 import { renderEmphasis } from '../utils/richText'
 import {
   TROPIC_DEGREES,

@@ -16,6 +16,7 @@
       <p class="learn-lead">
         每题给一组等高线，用图上的线把地形读出来。答完会给出判据，不只告诉你答案对不对。
       </p>
+      <SourceNote :source="TOOL_SOURCES.contour" />
 
       <section class="learn-panel">
         <h2 class="learn-panel__title">答题进度</h2>
@@ -173,6 +174,8 @@
  * 从图上的几何算出来，组件只负责画图和收答案。
  */
 import { computed, onMounted, ref, watch } from 'vue'
+import SourceNote from './SourceNote.vue'
+import { TOOL_SOURCES } from '../data/toolSources'
 
 import { renderEmphasis } from '../utils/richText'
 import {

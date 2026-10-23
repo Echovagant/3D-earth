@@ -16,6 +16,7 @@
       <p class="learn-lead">
         点图上的带看它的成因、天气与气候；拖动滑块看整组气压带风带随季节南北移动；最后做反向练习，把描述和带对上号。
       </p>
+      <SourceNote :source="TOOL_SOURCES['pressure-belt']" />
 
       <div v-if="loading" class="learn-empty">载入气压带风带数据…</div>
       <div v-else-if="error" class="learn-error">
@@ -475,6 +476,8 @@
  * 事实数据与判据文案都在 src/data/pressureBeltLab.js，组件只负责画图和收答案。
  */
 import { computed, onMounted, ref, watch } from 'vue'
+import SourceNote from './SourceNote.vue'
+import { TOOL_SOURCES } from '../data/toolSources'
 
 import { renderEmphasis } from '../utils/richText'
 import {

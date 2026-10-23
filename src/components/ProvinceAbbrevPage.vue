@@ -14,6 +14,7 @@
       <p class="learn-lead">
         34 个省级行政区的简称与省会。简称是填图题和选择题里最常考的一层记忆。
       </p>
+      <SourceNote :source="TOOL_SOURCES['province-abbrev']" />
 
       <ProvinceAbbrevTable />
     </main>
@@ -22,6 +23,8 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
+import SourceNote from './SourceNote.vue'
+import { TOOL_SOURCES } from '../data/toolSources'
 import ProvinceAbbrevTable from './ProvinceAbbrevTable.vue'
 
 const router = useRouter()

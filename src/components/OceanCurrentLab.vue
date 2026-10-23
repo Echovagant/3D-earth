@@ -16,6 +16,7 @@
       <p class="learn-lead">
         点图上的洋流箭头读流向，再做几道判读题。答完会给出判据——不只告诉你对不对，还会说明为什么这样判。
       </p>
+      <SourceNote :source="TOOL_SOURCES['ocean-current']" />
 
       <!-- 视图与季节 -->
       <section class="learn-panel ocean-lab__controls">
@@ -341,6 +342,8 @@
  * 判据与数据都在 src/data/oceanCurrentLab.js，组件只负责画图和收答案。
  */
 import { computed, onMounted, ref, watch } from 'vue'
+import SourceNote from './SourceNote.vue'
+import { TOOL_SOURCES } from '../data/toolSources'
 
 import { assetUrl } from '../utils/base'
 import { renderEmphasis } from '../utils/richText'

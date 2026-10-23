@@ -14,6 +14,7 @@
       <p class="learn-lead">
         左边选省，右边是这一省的真实轮廓。轮廓是硬的，比"想象一下"好记。
       </p>
+      <SourceNote :source="TOOL_SOURCES['province-shape']" />
 
       <ProvinceShapeMemory />
     </main>
@@ -22,6 +23,8 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
+import SourceNote from './SourceNote.vue'
+import { TOOL_SOURCES } from '../data/toolSources'
 import ProvinceShapeMemory from './ProvinceShapeMemory.vue'
 
 const router = useRouter()
