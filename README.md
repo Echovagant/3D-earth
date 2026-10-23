@@ -6,9 +6,12 @@
 
 **基于 Three.js 的 3D 地球可视化 · 高中地理学习工具**
 
-中国 35 个省级行政区 · 全球 239 个国家/地区 · 标准地图审图号清单 · 课程地图与知识点提纲
+中国 35 个省级行政区 · 全球 239 个国家/地区 · 标准地图审图号清单 · 课程地图与知识点提纲 · 六个动手练的互动工具
+
+在线体验：<https://echovagant.github.io/3D-earth/>
 
 [![CI](https://github.com/Echovagant/3D-earth/actions/workflows/ci.yml/badge.svg)](https://github.com/Echovagant/3D-earth/actions/workflows/ci.yml)
+[![Pages](https://github.com/Echovagant/3D-earth/actions/workflows/pages.yml/badge.svg)](https://github.com/Echovagant/3D-earth/actions/workflows/pages.yml)
 [![stars](https://img.shields.io/github/stars/Echovagant/3D-earth?style=flat-square&label=stars&color=4fd8ff)](https://github.com/Echovagant/3D-earth/stargazers)
 [![forks](https://img.shields.io/github/forks/Echovagant/3D-earth?style=flat-square&label=forks&color=4fd8ff)](https://github.com/Echovagant/3D-earth/network/members)
 [![license](https://img.shields.io/github/license/Echovagant/3D-earth?style=flat-square&label=license&color=4fd8ff)](./LICENSE)
@@ -31,8 +34,10 @@
 | 📇 详情页 | 行政区划代码、中心坐标、球面实算面积、省情简介与标签 |
 | 🗒 审图号清单 | 2000+ 张官方标准地图的审图号同步到站，可查、可溯源 |
 | 📚 课程地图 | 15 个板块的知识点提纲，可查、可标记掌握情况，点回原视频 |
-| 🔍 知识点搜索 | 标题、要点、易错点全字段检索 |
-| 🧪 有测试 | 387 个用例，CI 在每次 push 与 PR 上自动验证 |
+| 🔍 知识点搜索 | 标题、要点、易错点全字段检索；**按省名也能搜**（搜「四川」直接命中相关小节） |
+| 🧮 动手练 | 6 个互动实验：等高线判读、太阳高度角与晨昏线、气压带风带、洋流、省会简称全表、轮廓形象记忆 |
+| 🗺 省 ↔ 知识点 | 点省能点到该省适用的知识点：§15 按行政区组织，§2 按地形类型关联（平原、黄土高原、青藏高原、四川盆地各有各的读图法） |
+| 🧪 有测试 | 500+ 个用例，CI 在每次 push 与 PR 上自动验证 |
 
 ## 界面
 
@@ -50,6 +55,24 @@
 
 <p align="center">
   <img src="docs/screenshot-lesson.jpeg" alt="知识点详情页" width="700" />
+</p>
+
+### 互动工具
+
+<p align="center">
+  <img src="docs/screenshot-tools.jpeg" alt="互动工具总入口" width="880" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshot-contour.jpeg" alt="等高线判读实验" width="880" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshot-ocean-current.jpeg" alt="洋流判读实验" width="880" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshot-province-shape.jpeg" alt="轮廓形象记忆" width="880" />
 </p>
 
 ## 技术亮点
