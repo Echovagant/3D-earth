@@ -43,6 +43,7 @@
           省名标注<span class="mono">{{ labelsVisible ? 'ON' : 'OFF' }}</span>
         </button>
 
+        <router-link class="hud__corner-link" to="/course">课程地图</router-link>
         <router-link class="hud__corner-link" to="/licenses">许可</router-link>
       </div>
 

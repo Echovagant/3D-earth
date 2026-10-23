@@ -81,6 +81,18 @@
         </li>
       </ul>
 
+      <!-- 本省关联的知识点 -->
+      <section v-if="linkedLessons.length" class="detail-page__intro">
+        <span class="detail-page__intro-label">关联知识点 / LESSONS</span>
+        <ul class="detail-page__tags">
+          <li v-for="lesson in linkedLessons" :key="lesson.id" class="detail-page__tag">
+            <router-link class="detail-page__tag-link" :to="`/lesson/${lesson.id}`">
+              §{{ lesson.id }} {{ lesson.title }}
+            </router-link>
+          </li>
+        </ul>
+      </section>
+
       <div class="detail-page__actions">
         <button type="button" class="detail-page__cta" @click="goBack">返回地球</button>
       </div>
@@ -96,10 +108,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import HudPanel from './HudPanel.vue'
 import { formatArea } from '../utils/areaData'
+import { loadAllLessons, lessonsByProvince } from '../utils/knowledge'
 
 const route = useRoute()
 const router = useRouter()
@@ -107,6 +120,8 @@ const router = useRouter()
 const data = ref(null)
 const loading = ref(true)
 const error = ref('')
+// 本省关联的知识点（按 entities.provinces 反查）
+const linkedLessons = ref([])
 
 const load = async () => {
   loading.value = true
@@ -122,11 +137,36 @@ const load = async () => {
   }
 }
 
+const loadLessons = async () => {
+  // 换省时先清空旧结果，否则切换过程中会短暂显示上一个省的关联知识点
+  linkedLessons.value = []
+  try {
+    const lessons = await loadAllLessons()
+    linkedLessons.value = lessonsByProvince(lessons, route.params.adcode)
+  } catch {
+    // 知识数据挂了就只是没有这个区块，不影响省份页本身
+    linkedLessons.value = []
+  }
+}
+
 const goBack = () => {
   // 返回地球页面
   router.push('/')
 }
 
-onMounted(load)
+onMounted(() => {
+  load()
+  loadLessons()
+})
+
+// 路由只换省代码时 vue-router 会复用同一个组件实例（不会重新挂载），
+// 不盯着 adcode 的话，URL 已经变成另一个省，页面还停在上一个省的数据
+watch(
+  () => route.params.adcode,
+  () => {
+    load()
+    loadLessons()
+  },
+)
 </script>
 

@@ -276,6 +276,16 @@
   box-shadow: var(--glow);
 }
 
+/* 关联知识点里的条目是链接：去掉 <a> 的默认下划线，颜色继承标签本身的 */
+.detail-page__tag-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.detail-page__tag-link:hover {
+  color: var(--accent);
+}
+
 .detail-page__actions {
   display: flex;
   justify-content: center;
