@@ -20,6 +20,15 @@ import {
   localHour,
   terminatorLat,
 } from '../data/terminatorGeometry'
+import {
+  arcPath,
+  arrowHead,
+  circlePath,
+  cylinderProjection,
+  leftHalfPath,
+  polarToXY,
+  rightHalfPath,
+} from '../data/svgParts'
 import TerminatorCircleDemo from '../components/demos/TerminatorCircleDemo.vue'
 
 const read = (p) => JSON.parse(readFileSync(p, 'utf-8'))
@@ -89,6 +98,47 @@ describe('晨昏线的几何', () => {
       const lat = terminatorLat(lon)
       expect(Math.abs(lat)).toBeLessThanOrEqual(cutLatitude(SOLSTICE_DECL) + 1e-9)
     }
+  })
+})
+
+describe('SVG 原语', () => {
+  it('左半与右半是互补的两块，弧的方向不能搞反', () => {
+    // 弧的 sweep-flag 决定走哪一侧：左半用 0，右半用 1。
+    // 曾经因为写反，昼半球被画到了下半球——单测测不出来，得靠数值验。
+    expect(leftHalfPath(360, 190, 118)).toBe('M 360 72 A 118 118 0 0 0 360 308 L 360 72 Z')
+    expect(rightHalfPath(360, 190, 118)).toBe('M 360 72 A 118 118 0 0 1 360 308 L 360 72 Z')
+  })
+
+  it('极坐标：0 度在正右方，逆时针为正', () => {
+    expect(polarToXY(100, 100, 50, 0)).toEqual({ x: 150, y: 100 })
+    expect(polarToXY(100, 100, 50, 90)).toEqual({ x: 100, y: 50 })
+    expect(polarToXY(100, 100, 50, 180)).toEqual({ x: 50, y: 100 })
+  })
+
+  it('圆弧的起止点落在对应的角度上', () => {
+    const path = arcPath(100, 100, 50, 0, 90)
+    expect(path).toContain('150.00 100.00')
+    expect(path).toContain('100.00 50.00')
+  })
+
+  it('箭头尖端落在给定的点上', () => {
+    const head = arrowHead(100, 200, 0, 12)
+    expect(head.startsWith('M 100.00 200.00')).toBe(true)
+  })
+
+  it('整圆画成一条路径——circle 元素没法只描一半，虚线的大圆要用它', () => {
+    expect(circlePath(100, 100, 50)).toBe(
+      'M 100 50 A 50 50 0 1 0 100 150 A 50 50 0 1 0 100 50',
+    )
+  })
+
+  it('圆柱投影：经度 -180 在左、180 在右，纬度 90 在上', () => {
+    const project = cylinderProjection({ left: 90, right: 690, top: 40, bottom: 330 })
+    expect(project.x(-180)).toBe(90)
+    expect(project.x(180)).toBe(690)
+    expect(project.y(90)).toBe(40)
+    expect(project.y(-90)).toBe(330)
+    expect(project.y(0)).toBe(185)
   })
 })
 

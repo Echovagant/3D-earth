@@ -337,3 +337,175 @@ a.learn-tag:hover {
   --learn-sun: #e8a33d;
   --learn-grid: #c6d4e4;
 }
+
+/* 演示图解：外壳与图元。所有演示共用，样式在共享层，组件内不重复定义 */
+.demo {
+  margin-top: var(--sp-2);
+}
+
+.demo__canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: var(--learn-panel);
+  border: 1px solid var(--learn-line);
+  border-radius: var(--radius-sm);
+}
+
+/* 视图切换：淡入淡出，别硬闪 */
+.demo__frame {
+  animation: demo-fade 0.32s ease-out;
+}
+
+@keyframes demo-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .demo__frame {
+    animation: none;
+  }
+}
+
+.demo__sun {
+  fill: var(--learn-sun);
+}
+
+.demo__ray path {
+  fill: none;
+  stroke: var(--learn-sun);
+  stroke-width: 2;
+  opacity: 0.75;
+}
+
+.demo__globe-day {
+  fill: var(--learn-day);
+  stroke: var(--learn-day-edge);
+  stroke-width: 1.5;
+}
+
+.demo__globe-night {
+  fill: var(--learn-night);
+  stroke: var(--learn-ink-soft);
+  stroke-width: 1.5;
+}
+
+/* 只画轮廓不画昼夜——那一步只说明「它是一条过球心的直线」 */
+.demo__globe-plain {
+  fill: var(--learn-day);
+  stroke: var(--learn-day-edge);
+  stroke-width: 1.5;
+}
+
+.demo__terminator {
+  fill: none;
+  stroke: var(--learn-accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.demo__spin {
+  fill: none;
+  stroke: var(--learn-accent);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.demo__spin-head {
+  fill: var(--learn-accent);
+}
+
+.demo__leader {
+  fill: none;
+  stroke: var(--learn-ink-faint);
+  stroke-width: 1.2;
+  stroke-dasharray: 3 3;
+}
+
+.demo__grid path {
+  fill: none;
+  stroke: var(--learn-grid);
+  stroke-width: 1;
+}
+
+.demo__curve {
+  fill: none;
+  stroke: var(--learn-accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.demo__cut {
+  fill: var(--learn-accent);
+}
+
+.demo__label {
+  font-size: 13px;
+  fill: var(--learn-ink-soft);
+}
+
+.demo__label--faint {
+  fill: var(--learn-ink-faint);
+  font-size: 12px;
+}
+
+.demo__label--mark {
+  fill: var(--learn-accent);
+  font-weight: 600;
+}
+
+.demo__caption-line {
+  font-size: 13px;
+  fill: var(--learn-ink-soft);
+}
+
+.demo__title {
+  margin: var(--sp-3) 0 0;
+  font-weight: 600;
+  color: var(--learn-ink);
+}
+
+.demo__text {
+  margin: var(--sp-1) 0 0;
+  color: var(--learn-ink-soft);
+  line-height: 1.8;
+}
+
+.demo__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin: var(--sp-3) 0 0;
+}
+
+.demo__dots {
+  display: inline-flex;
+  gap: 6px;
+  margin-left: var(--sp-2);
+}
+
+.demo__dot {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border: 1px solid var(--learn-line);
+  border-radius: 50%;
+  background: var(--learn-panel);
+  cursor: pointer;
+}
+
+.demo__dot--on {
+  background: var(--learn-accent);
+  border-color: var(--learn-accent);
+}
+
+.demo__count {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--learn-ink-faint);
+}
