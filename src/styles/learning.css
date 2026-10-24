@@ -323,3 +323,17 @@ a.learn-tag:hover {
   background: var(--learn-accent-soft);
   color: var(--learn-accent);
 }
+
+/*
+ * 图解用的语义色：白昼、夜半球、太阳、经纬网。
+ *
+ * 放在共享层而不是组件里——图解是自绘的示意图，颜色要跟整站的
+ * 亮色教学层一致，组件内不写死具体色值。
+ */
+.learn-page {
+  --learn-day: #fbeeca;
+  --learn-day-edge: #e8cf95;
+  --learn-night: #3b4c69;
+  --learn-sun: #e8a33d;
+  --learn-grid: #c6d4e4;
+}

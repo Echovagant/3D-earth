@@ -51,6 +51,8 @@
           </ul>
         </section>
 
+        <DemoBlock v-if="lesson.demos" :id="lesson.demos" />
+
         <section v-if="lesson.tables.length" class="learn-panel">
           <h2 class="learn-panel__title">表格</h2>
           <table v-for="(t, ti) in lesson.tables" :key="ti" class="learn-table">
@@ -179,6 +181,7 @@ import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { loadAllLessons, lessonRefLabel, loadKnowledgeIndex } from '../utils/knowledge'
 import { LESSON_TOOLS } from '../data/toolLinks'
+import DemoBlock from './DemoBlock.vue'
 import { readMastery, setMastery } from '../utils/mastery'
 import { renderEmphasis } from '../utils/richText'
 import { loadProvinceNames } from '../utils/provinceNames'

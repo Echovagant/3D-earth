@@ -1,0 +1,126 @@
+// @vitest-environment jsdom
+/**
+ * 演示动画（知识点页里的「图解」）的契约测试。
+ *
+ * 演示补的是「老师用文字描述一个场景、学生只能靠想象」的那一截，
+ * 所以这里守三件事：
+ *   ① 知识数据里挂的演示 id 都真实存在（写错 id 会静默不渲染）；
+ *   ② 晨昏线的几何是算出来的，数值必须对——切点与直射点互余、
+ *      与赤道的交点落在 6 时和 18 时；
+ *   ③ 组件本身能渲染、能逐步切换。
+ */
+import { describe, it, expect } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { mount, flushPromises } from '@vue/test-utils'
+
+import { DEMO_IDS, DEMO_LOADERS } from '../data/demos'
+import {
+  SOLSTICE_DECL,
+  cutLatitude,
+  localHour,
+  terminatorLat,
+} from '../data/terminatorGeometry'
+import TerminatorCircleDemo from '../components/demos/TerminatorCircleDemo.vue'
+
+const read = (p) => JSON.parse(readFileSync(p, 'utf-8'))
+
+describe('演示注册表', () => {
+  it('注册表非空，且每个 id 都对应一个组件', () => {
+    expect(DEMO_IDS.length).toBeGreaterThan(0)
+    for (const id of DEMO_IDS) {
+      expect(typeof DEMO_LOADERS[id], `${id} 没有组件`).toBe('function')
+    }
+  })
+
+  it('组件文件名去掉 Demo 后缀再转短横线，就是它的 id', () => {
+    // TerminatorCircleDemo → terminator-circle
+    expect(DEMO_IDS).toContain('terminator-circle')
+  })
+})
+
+describe('知识数据里的演示挂载', () => {
+  const lessons = [3, 4, 7, 11, 15].flatMap((c) =>
+    read(`public/data/knowledge/chapter-${String(c).padStart(2, '0')}.json`).lessons,
+  )
+
+  it('挂了的演示 id 都真实存在', () => {
+    const dangling = lessons
+      .filter((l) => l.demos)
+      .filter((l) => !DEMO_IDS.includes(l.demos))
+      .map((l) => `${l.id} → ${l.demos}`)
+    expect(dangling, '演示 id 写错了，页面上会静默不渲染').toEqual([])
+  })
+
+  it('§3.6 挂的是晨昏线这个演示', () => {
+    const lesson = lessons.find((l) => l.id === '3.6')
+    expect(lesson.demos).toBe('terminator-circle')
+  })
+
+  it('没有演示的节是 null，不是空串', () => {
+    const lesson = lessons.find((l) => l.id === '7.9')
+    expect(lesson.demos).toBeNull()
+  })
+})
+
+describe('晨昏线的几何', () => {
+  it('切点纬度与太阳直射点互余', () => {
+    expect(cutLatitude(SOLSTICE_DECL)).toBeCloseTo(66.5, 6)
+  })
+
+  it('太阳直射经线是 12 时，午夜经线是 0 时', () => {
+    expect(localHour(90)).toBeCloseTo(12, 6)
+    expect(localHour(-90)).toBeCloseTo(0, 6)
+  })
+
+  it('晨昏线与赤道的两个交点落在 6 时和 18 时', () => {
+    expect(localHour(0)).toBeCloseTo(6, 6)
+    expect(localHour(180)).toBeCloseTo(18, 6)
+    expect(terminatorLat(0)).toBeCloseTo(0, 6)
+    expect(terminatorLat(180)).toBeCloseTo(0, 6)
+  })
+
+  it('午夜经线上晨昏线到最高纬度（切点），正午经线上到最低纬度', () => {
+    expect(terminatorLat(-90)).toBeCloseTo(cutLatitude(SOLSTICE_DECL), 6)
+    expect(terminatorLat(90)).toBeCloseTo(-cutLatitude(SOLSTICE_DECL), 6)
+  })
+
+  it('晨昏线始终过球心所在的两个半球——任意经度上的纬度都在 ±90° 内', () => {
+    for (let lon = -180; lon <= 180; lon += 15) {
+      const lat = terminatorLat(lon)
+      expect(Math.abs(lat)).toBeLessThanOrEqual(cutLatitude(SOLSTICE_DECL) + 1e-9)
+    }
+  })
+})
+
+describe('§3.6 晨昏线演示', () => {
+  it('渲染出四步图解，标题跟着步骤走', async () => {
+    const wrapper = mount(TerminatorCircleDemo)
+    await flushPromises()
+
+    expect(wrapper.find('svg').exists()).toBe(true)
+    expect(wrapper.findAll('.demo__frame')).toHaveLength(4)
+    expect(wrapper.text()).toContain('一半亮，一半暗')
+    expect(wrapper.text()).toContain('1 / 4')
+  })
+
+  it('点「下一步」能往后走，点步骤圆点能直接跳', async () => {
+    const wrapper = mount(TerminatorCircleDemo)
+    await flushPromises()
+
+    const next = wrapper.findAll('.demo__controls button').find((b) => b.text() === '下一步')
+    await next.trigger('click')
+    expect(wrapper.text()).toContain('晨昏线是一条大圆')
+    expect(wrapper.text()).toContain('2 / 4')
+
+    const dots = wrapper.findAll('.demo__dot')
+    await dots[3].trigger('click')
+    expect(wrapper.text()).toContain('晨昏线与极圈的切点')
+    expect(wrapper.text()).toContain('4 / 4')
+  })
+
+  it('第一步在头一步时「上一步」是禁用的', () => {
+    const wrapper = mount(TerminatorCircleDemo)
+    const prev = wrapper.findAll('.demo__controls button').find((b) => b.text() === '上一步')
+    expect(prev.attributes('disabled')).toBeDefined()
+  })
+})

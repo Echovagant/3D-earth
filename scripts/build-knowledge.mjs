@@ -58,7 +58,7 @@ async function main() {
   const markdown = await readFile(SRC, 'utf8')
   const { ranges, chapterTitles, lessons: all } = parseLessons(markdown)
 
-  const { videoMap, summaries, entities } = await loadKnowledgeTables(
+  const { videoMap, summaries, entities, demos } = await loadKnowledgeTables(
     path.join(ROOT, 'scripts', 'knowledge'),
   )
 
@@ -128,6 +128,8 @@ async function main() {
     next: l.next,
     nextChapters: l.nextChapters,
     entities: entities[l.id],
+    // 演示动画的 id：这一节有图解才有，取不到就是 null
+    demos: demos[l.id] ?? null,
   }))
 
   // 守门：正文泄漏

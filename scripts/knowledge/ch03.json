@@ -373,7 +373,9 @@
         "820000"
       ],
       "countries": [],
-      "regions": ["南亚"]
+      "regions": [
+        "南亚"
+      ]
     },
     "3.11": {
       "provinces": [],
@@ -495,5 +497,8 @@
       "countries": [],
       "regions": []
     }
+  },
+  "demos": {
+    "3.6": "terminator-circle"
   }
 }

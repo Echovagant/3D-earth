@@ -37,6 +37,10 @@
 | `src/components/PressureBeltLab.vue` | 气压带风带互动实验（路由 `/tools/pressure-belt`） |
 | `src/components/OceanCurrentLab.vue` | 洋流互动实验（路由 `/tools/ocean-current`） |
 | `src/components/RelatedOutline.vue` | 实验页的「相关提纲」区块：回链这个实验直接教的小节，取不到数据就整块不渲染 |
+| `src/components/DemoBlock.vue` | 知识点页里的「图解」区块：按 id 取演示组件，取不到就整块不渲染 |
+| `src/components/demos/` | 演示动画的组件，一个演示一个文件（文件名去掉 Demo 后缀转短横线就是演示 id） |
+| `src/data/demos.js` | 演示注册表：把 `src/components/demos/` 下的组件按 id 登记 |
+| `src/data/terminatorGeometry.js` | 晨昏线的几何：晨昏线纬度、地方时、切点纬度（纯函数，演示只负责画） |
 | `src/data/` | 互动工具的静态数据与判据（纯 JS 导出，不发网络请求） |
 | `src/data/toolLinks.js` | 知识点 ↔ 互动实验的双向映射（唯一真相源）：知识点页的入口与实验页的回链都从它派生 |
 | `src/utils/geoDataProcessor.js` | GeoJSON → 球面 Mesh 的三角化、贴面与描边 |
@@ -111,6 +115,7 @@ CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `tes
 `src/__tests__/knowledgeParser.spec.js`（讲义解析器：栏位切分、块边界、缩进层级）、
 `src/__tests__/toolSources.spec.js`（互动工具的来源标注：节号、教材出处、视频分P 与课程范围）、
 `src/__tests__/toolLinks.spec.js`（知识点 ↔ 互动实验的双向互链：映射表完整性、强弱划分与人工策展的 sections 一致、两个方向互为逆映射、路由真实存在、实验页的「相关提纲」渲染与容错）、
+`src/__tests__/demo.spec.js`（演示动画：注册表与知识数据里的 id 对得上、**晨昏线的几何数值正确**（切点与直射点互余、与赤道交于 6 时和 18 时）、组件能渲染与逐步切换）、
 `src/__tests__/router.spec.js`（路由表契约，含 `/licenses` 与 `/standard-map`）。
 
 ## 硬约束
@@ -144,6 +149,12 @@ CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `tes
     - `regions` 允许规范化正文说法（我国东部→东亚、澳大利亚大陆→大洋洲、纽芬兰→加拿大），但不能凭空造词。
     - **空数组是正确答案**，不要为了填满而硬凑。
 21. **知识点与实验的互链只有一张表。** `src/data/toolLinks.js` 是唯一真相源，`TOOL_CHAPTERS` 与 `TOOL_DRILL_IDS` 都从它派生——不要在组件里另抄一份，也不要维护第二张反向表。`drill`（实验直接教这一节）与 `chapter`（只是同章）两级强度决定入口文案，改动时两个方向要一起看。
+22. **演示动画（知识点页的「图解」）与实验是两回事，不要互相替代。** 实验解决「你会不会做」，演示解决「你看，这样动一下你就懂了」。
+    - 演示只补老师**用文字描述了场景**的那一截（讲义里说「想象」「在图上」「卷一个筒」的地方），不是把正文搬上来。
+    - **图形全部自绘**——讲义本身没有图，版权无虞，但也意味着不能抄任何现成地图。
+    - **几何要算，不要手画。** 晨昏线按 `tanφ = −cotδ·cosH` 算，切点纬度 = 90° − 直射点纬度；公式在 `src/data/terminatorGeometry.js`，几何测试会验数。手绘的示意看着像、但角度是错的，图解会教错。
+    - 演示与它的解说文案**必须放在同一个组件里**：改了动画就要改文案，拆到两个文件迟早对不上。所以文案不进知识数据，知识数据里只记演示 id。
+    - 新增演示 = 新增 `src/components/demos/XxxDemo.vue` + 在人工表 `chXX.json` 里给对应小节写 `"demos": { "3.6": "xxx-demo" }`；`demo.spec.js` 会核对 id 真实存在。
 
 ## 地理数据同步
 

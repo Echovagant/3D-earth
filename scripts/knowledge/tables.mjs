@@ -2,7 +2,7 @@
  * 人工表的读取与合并。
  *
  * 人工表按章分片放在同目录下，每片一个文件：
- *   chXX.json → { note?, video: {...}, summaries: {...}, entities: {...} }
+ *   chXX.json → { note?, video: {...}, summaries: {...}, entities: {...}, demos: {...} }
  *
  * 分片而不是一张大表，是为了让人能并行补不同章节——多个人（或多个 agent）
  * 往同一张表里写就会互相覆盖。按章分片后每人只碰自己那一个文件。
@@ -43,6 +43,7 @@ export async function loadKnowledgeTables(dir) {
     videoMap: merge('video'),
     summaries: merge('summaries'),
     entities: merge('entities'),
+    demos: merge('demos'),
     files,
   }
 }
