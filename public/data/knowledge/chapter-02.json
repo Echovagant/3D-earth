@@ -113,7 +113,7 @@
         "countries": [],
         "regions": []
       },
-      "demos": null
+      "demos": "latitude-circles"
     },
     {
       "id": "2.3",
@@ -167,7 +167,7 @@
         "countries": [],
         "regions": []
       },
-      "demos": null
+      "demos": "meridian-circles"
     },
     {
       "id": "2.4",
@@ -217,7 +217,7 @@
         "countries": [],
         "regions": []
       },
-      "demos": null
+      "demos": "map-views"
     },
     {
       "id": "2.5",
@@ -270,7 +270,7 @@
         "countries": [],
         "regions": []
       },
-      "demos": null
+      "demos": "latitude-angle"
     },
     {
       "id": "2.6",
@@ -516,7 +516,7 @@
         "countries": [],
         "regions": []
       },
-      "demos": null
+      "demos": "longitude-hemisphere"
     },
     {
       "id": "2.10",
@@ -572,7 +572,7 @@
         "countries": [],
         "regions": []
       },
-      "demos": null
+      "demos": "meridian-pair"
     },
     {
       "id": "2.11",
@@ -765,7 +765,7 @@
         "countries": [],
         "regions": []
       },
-      "demos": null
+      "demos": "great-arc-direction"
     },
     {
       "id": "2.14",
@@ -1054,7 +1054,7 @@
         "countries": [],
         "regions": []
       },
-      "demos": null
+      "demos": "scale-bar"
     },
     {
       "id": "2.18",
@@ -1112,7 +1112,7 @@
         "countries": [],
         "regions": []
       },
-      "demos": null
+      "demos": "map-legend"
     },
     {
       "id": "2.19",

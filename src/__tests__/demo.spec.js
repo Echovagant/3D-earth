@@ -142,6 +142,39 @@ describe('SVG 原语', () => {
   })
 })
 
+describe('全部演示', () => {
+  it('每个演示都能挂载、画出画布、步骤能往前走', async () => {
+    // 逐个挂载注册表里的组件：任何一个演示渲染时抛错、或画不出画布，
+    // 都会在这里被抓住——比等到页面上白屏才发现强。
+    const problems = []
+    for (const [id, loader] of Object.entries(DEMO_LOADERS)) {
+      try {
+        const module = await loader()
+        const wrapper = mount(module.default)
+        await flushPromises()
+        if (!wrapper.find('.demo__canvas').exists()) problems.push(`${id}：没画出画布`)
+        if (!wrapper.find('.demo__controls').exists()) problems.push(`${id}：没有步骤控件`)
+        const title = wrapper.find('.demo__title').text()
+        if (!title.trim()) problems.push(`${id}：第一步没有标题`)
+        const next = wrapper.findAll('.demo__controls button').find((b) => b.text() === '下一步')
+        if (next && !next.attributes('disabled')) {
+          const before = wrapper.find('.demo__title').text()
+          await next.trigger('click')
+          if (wrapper.find('.demo__title').text() === before) problems.push(`${id}：点了下一步没换步`)
+        }
+      } catch (error) {
+        problems.push(`${id}：挂载时抛错 ${error.message}`)
+      }
+    }
+    expect(problems, '有演示渲染不正常').toEqual([])
+    // 30 个演示逐个挂载，默认 5 秒超时不够
+  }, 60000)
+
+  it('演示组件不少于 30 个（§3.6 那批 + 铺开的 29 节）', () => {
+    expect(DEMO_IDS.length).toBeGreaterThanOrEqual(30)
+  })
+})
+
 describe('§3.6 晨昏线演示', () => {
   it('渲染出四步图解，标题跟着步骤走', async () => {
     const wrapper = mount(TerminatorCircleDemo)

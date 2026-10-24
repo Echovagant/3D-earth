@@ -187,5 +187,11 @@
       "countries": [],
       "regions": []
     }
+  },
+  "demos": {
+    "4.1": "earth-orbit",
+    "4.2": "oblique-axis",
+    "4.3": "day-night-drawing",
+    "4.5": "sun-path"
   }
 }

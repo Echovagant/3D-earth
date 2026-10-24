@@ -1,0 +1,272 @@
+<template>
+  <DemoShell :steps="steps">
+    <template #default="{ step }">
+      <!-- ① 地球 + 太阳光 + 晨昏线 -->
+      <g v-show="step === 0" class="demo__frame">
+        <circle class="demo__sun" cx="58" cy="190" r="26" />
+        <g class="demo__ray">
+          <path v-for="y in [120, 155, 190, 225, 260]" :key="y" :d="`M 96 ${y} L 300 ${y}`" />
+        </g>
+        <circle class="demo__globe-night" cx="360" cy="190" r="118" />
+        <path class="demo__globe-day" :d="leftHalfPath(360, 190, 118)" />
+        <path class="demo__terminator" d="M 360 72 L 360 308" />
+        <text class="demo__label" x="58" y="238" text-anchor="middle">太阳</text>
+        <text class="demo__label" x="292" y="344" text-anchor="middle">昼半球</text>
+        <text class="demo__label" x="432" y="344" text-anchor="middle">夜半球</text>
+        <path class="demo__leader" d="M 366 96 L 470 78 L 536 78" />
+        <text class="demo__label demo__label--mark" x="542" y="82">晨昏线</text>
+
+        <!-- 正对太阳的那条经线 = 正午经线；背面那条 = 0 时 -->
+        <circle class="demo__cut" cx="242" cy="190" r="6" />
+        <path class="demo__leader" d="M 236 184 L 176 140 L 96 140" />
+        <text class="demo__label demo__label--mark" x="90" y="134">正午经线 · 12 时</text>
+        <circle class="demo__cut" cx="478" cy="190" r="6" />
+        <path class="demo__leader" d="M 484 196 L 530 250 L 582 250" />
+        <text class="demo__label demo__label--faint" x="700" y="254" text-anchor="end">
+          0 时经线（在背面）
+        </text>
+
+        <text class="demo__caption-line" x="360" y="372" text-anchor="middle">
+          地球不发光也不透明，太阳只照亮对着它的那一半——分界线就是晨昏线
+        </text>
+      </g>
+
+      <!-- ② 北极上方俯视：四个关键读数 -->
+      <g v-show="step === 1" class="demo__frame">
+        <path class="demo__globe-night" :d="nightHalf" />
+        <path class="demo__globe-day" :d="dayHalf" />
+        <path class="demo__terminator" :d="terminatorLine" />
+
+        <!-- 四条特殊经线 -->
+        <g class="demo__grid">
+          <path v-for="m in meridians" :key="m.label" :d="m.ray" />
+        </g>
+
+        <g v-for="m in meridians" :key="`t${m.label}`">
+          <text class="demo__label demo__label--mark" :x="m.x" :y="m.y" :text-anchor="m.anchor">
+            {{ m.label }}
+          </text>
+          <text class="demo__label demo__label--faint" :x="m.x" :y="m.noteY" :text-anchor="m.anchor">
+            {{ m.note }}
+          </text>
+        </g>
+
+        <text class="demo__caption-line" x="360" y="368" text-anchor="middle">
+          北极上方俯视（逆时针自转）：顺着自转方向，晨线→正午→昏线→0 时
+        </text>
+      </g>
+
+      <!-- ③ 几个地点的地方时：越往东读数越大 -->
+      <g v-show="step === 2" class="demo__frame">
+        <path class="demo__globe-night" :d="nightHalf" />
+        <path class="demo__globe-day" :d="dayHalf" />
+        <path class="demo__terminator" :d="terminatorLine" />
+
+        <g v-for="p in places" :key="p.label">
+          <circle class="demo__cut" :cx="p.x" :cy="p.y" r="5" />
+          <text class="demo__label demo__label--mark" :x="p.x" :y="p.y - 12" text-anchor="middle">
+            {{ p.label }}
+          </text>
+        </g>
+
+        <path class="demo__spin" :d="eastArc.path" />
+        <path class="demo__spin-head" :d="eastArc.head" />
+        <text class="demo__label demo__label--faint" x="300" y="338" text-anchor="middle">
+          往东（逆时针）→ 地方时读数越来越大
+        </text>
+
+        <text class="demo__caption-line" x="360" y="368" text-anchor="middle">
+          地方时只跟经度有关，与纬度无关；越靠东，读数越大
+        </text>
+      </g>
+
+      <!-- ④ 东先西后：不是早晚，是先后 -->
+      <g v-show="step === 3" class="demo__frame">
+        <g v-for="c in clocks" :key="c.label">
+          <circle class="demo__globe-plain" :cx="c.cx" :cy="c.cy" :r="c.r" />
+          <g class="demo__grid">
+            <path v-for="t in c.ticks" :key="t.id" :d="`M ${t.x1} ${t.y1} L ${t.x2} ${t.y2}`" />
+          </g>
+          <path class="demo__spin" :d="c.hourHand" />
+          <path class="demo__spin" :d="c.minuteHand" />
+          <circle class="demo__cut" :cx="c.cx" :cy="c.cy" r="3" />
+          <text class="demo__label demo__label--mark" :x="c.cx" :y="c.cy + c.r + 24" text-anchor="middle">
+            {{ c.label }}
+          </text>
+        </g>
+
+        <text class="demo__label demo__label--faint" x="245" y="96" text-anchor="middle">
+          同一时刻，两地的钟面就差这一小时
+        </text>
+
+        <text class="demo__label demo__label--mark" x="440" y="112">同一地点：先过 7 点，再过 8 点</text>
+        <path class="demo__curve" :d="timeline.path" />
+        <path class="demo__spin-head" :d="timeline.head" />
+        <g class="demo__grid">
+          <path v-for="t in timeline.ticks" :key="t.label" :d="t.path" />
+        </g>
+        <text
+          v-for="t in timeline.ticks"
+          :key="`tl${t.label}`"
+          class="demo__label demo__label--faint"
+          :x="t.x"
+          y="192"
+          text-anchor="middle"
+        >
+          {{ t.label }}
+        </text>
+
+        <text class="demo__label demo__label--mark" x="440" y="234">「先后」不是「早晚」</text>
+        <text class="demo__label demo__label--faint" x="440" y="256">
+          东边先到 8 点，西边才 7 点——东先西后
+        </text>
+        <text class="demo__label demo__label--faint" x="440" y="276">
+          同一地点的时间只会往前，不会倒退
+        </text>
+
+        <text class="demo__caption-line" x="360" y="352" text-anchor="middle">
+          地方时 = 某一地方相对太阳的位置：正午 12 时、昏线 18 时、晨线 6 时、背面 0 时
+        </text>
+      </g>
+    </template>
+  </DemoShell>
+</template>
+
+<script setup>
+/**
+ * §3.12 地方时：概念与「东先西后」。
+ *
+ * 讲义的关键：「地方时 = 某一地方相对太阳的位置」，正午经线 12 时、昏线 18 时、
+ * 晨线 6 时、背面的 0 时经线 0 时；两条铁律是不同经线时间不同、同一经线时间相同；
+ * 「东先西后」指的是**谁先到达下一天 / 谁先看到太阳**，不是生活里的「早晚」。
+ *
+ * 四步：
+ *   ① 地球 + 太阳光 + 晨昏线（正午经线与 0 时经线在哪）
+ *   ② 北极上方俯视：四个关键读数
+ *   ③ 几个地点的地方时：越往东读数越大
+ *   ④ 东先西后：钟面比较 + 同一地点必然先过 7 点再过 8 点
+ *
+ * 读数全部由 localHour 算出（terminatorGeometry.js），极点俯视的方位角与经度的
+ * 对应关系见 localTimeGeometry.js。
+ */
+import DemoShell from '../DemoShell.vue'
+import { arrowHead, leftHalfPath, polarToXY } from '../../data/svgParts'
+import { SUBSOLAR_LON } from '../../data/terminatorGeometry'
+import { clockHandAngles, hourAtAngle, normalizeDeg, specialMeridians } from '../../data/localTimeGeometry'
+
+const steps = [
+  {
+    id: 'globe',
+    title: '① 地方时 = 相对太阳的位置',
+    text: '地方时不是钟表上的时间，而是「某一地方相对太阳的位置」。太阳正对的那条经线是 12 时，太阳背对的那条（在球的背面）是 0 时；晨昏线把它们分开——晨线 6 时、昏线 18 时。',
+  },
+  {
+    id: 'key-readings',
+    title: '② 四个关键读数',
+    text: '从北极点上方俯视最容易读：正午经线在下面（12 时），逆时针转 90° 是昏线（18 时），再转 90° 是背面的 0 时经线（0 时），再转 90° 是晨线（6 时）。同一个瞬间，全世界的读数就是这样排开的。',
+  },
+  {
+    id: 'east-first',
+    title: '③ 越往东，读数越大',
+    text: '顺着自转方向（北极上方看是逆时针）就是往东，地方时读数一路变大：东边先过 8 点，西边才 7 点。地方时只用经度算，与纬度没有关系。',
+  },
+  {
+    id: 'order',
+    title: '④ 「东先西后」是先后，不是早晚',
+    text: '地理里的「先后」指谁先到达下一天、谁先看到太阳，不是生活里的「早晚」——东边的钟面读数大，是因为它先走到了下一个钟点。同一地点的时间只会往前：必然先过 7 点，再过 8 点。',
+  },
+]
+
+/** ②③ 极点俯视 */
+const view = { cx: 300, cy: 190, r: 108 }
+
+/** 昼半球（朝太阳的一侧，俯视时是下半球）、夜半球（上半球） */
+const dayHalf = `M ${view.cx - view.r} ${view.cy} A ${view.r} ${view.r} 0 0 0 ${view.cx + view.r} ${view.cy} Z`
+const nightHalf = `M ${view.cx + view.r} ${view.cy} A ${view.r} ${view.r} 0 0 0 ${view.cx - view.r} ${view.cy} Z`
+const terminatorLine = `M ${view.cx - view.r} ${view.cy} L ${view.cx + view.r} ${view.cy}`
+
+/** 四条特殊经线：正午经线在正下方，逆时针依次 18 时 → 0 时 → 6 时 */
+const NOON_ANGLE = 270
+const meridians = specialMeridians(SUBSOLAR_LON).map((m) => {
+  const angle = normalizeDeg(NOON_ANGLE + (m.lon - SUBSOLAR_LON))
+  const tip = polarToXY(view.cx, view.cy, view.r, angle)
+  const spot = {
+    0: { x: view.cx + view.r + 12, y: view.cy + 4, anchor: 'start', noteY: view.cy + 22 },
+    90: { x: view.cx, y: view.cy - view.r - 26, anchor: 'middle', noteY: view.cy - view.r - 10 },
+    180: { x: view.cx - view.r - 12, y: view.cy + 4, anchor: 'end', noteY: view.cy + 22 },
+    270: { x: view.cx, y: view.cy + view.r + 22, anchor: 'middle', noteY: view.cy + view.r + 38 },
+  }[angle]
+  return {
+    label: m.label,
+    note: m.note,
+    angle,
+    ...spot,
+    ray: `M ${view.cx} ${view.cy} L ${tip.x.toFixed(2)} ${tip.y.toFixed(2)}`,
+  }
+})
+
+/** ③ 三个地点：沿正午经线两侧往东摆，读数依次变大 */
+const places = [240, 270, 300].map((angle) => {
+  const p = polarToXY(view.cx, view.cy, view.r, angle)
+  return { angle, x: p.x, y: p.y, label: `${Math.round(hourAtAngle(angle, SUBSOLAR_LON))} 时` }
+})
+
+/** 往东的箭头：沿圆周逆时针 */
+const eastArc = (() => {
+  const from = 232
+  const to = 308
+  const radius = view.r + 22
+  const a = polarToXY(view.cx, view.cy, radius, from)
+  const b = polarToXY(view.cx, view.cy, radius, to)
+  return {
+    path: `M ${a.x.toFixed(2)} ${a.y.toFixed(2)} A ${radius} ${radius} 0 0 0 ${b.x.toFixed(2)} ${b.y.toFixed(2)}`,
+    head: arrowHead(b.x, b.y, to + 90, 13),
+  }
+})()
+
+/** ④ 两个钟面：同一时刻，东边 8 时、西边 7 时 */
+function buildClock(cx, cy, r, hour, label) {
+  const a = clockHandAngles(hour)
+  const hTip = polarToXY(cx, cy, r * 0.5, a.hour)
+  const mTip = polarToXY(cx, cy, r * 0.78, a.minute)
+  const ticks = [0, 90, 180, 270].map((deg) => {
+    const p1 = polarToXY(cx, cy, r * 0.86, deg)
+    const p2 = polarToXY(cx, cy, r * 0.96, deg)
+    return {
+      id: deg,
+      x1: p1.x.toFixed(2),
+      y1: p1.y.toFixed(2),
+      x2: p2.x.toFixed(2),
+      y2: p2.y.toFixed(2),
+    }
+  })
+  return {
+    cx,
+    cy,
+    r,
+    label,
+    hourHand: `M ${cx} ${cy} L ${hTip.x.toFixed(2)} ${hTip.y.toFixed(2)}`,
+    minuteHand: `M ${cx} ${cy} L ${mTip.x.toFixed(2)} ${mTip.y.toFixed(2)}`,
+    ticks,
+  }
+}
+
+const clocks = [
+  buildClock(160, 175, 52, 8, '东边 · 8 时'),
+  buildClock(340, 175, 52, 7, '西边 · 7 时'),
+]
+
+/** ④ 同一地点的时间轴：只能一路往前 */
+const timeline = (() => {
+  const x1 = 444
+  const x2 = 692
+  const y = 162
+  const ticks = [
+    { label: '6 时', x: 452 },
+    { label: '7 时', x: 532 },
+    { label: '8 时', x: 612 },
+    { label: '9 时', x: 686 },
+  ].map((t) => ({ ...t, path: `M ${t.x} ${y - 8} L ${t.x} ${y + 8}` }))
+  return { path: `M ${x1} ${y} L ${x2} ${y}`, head: arrowHead(x2, y, 0, 12), ticks }
+})()
+</script>

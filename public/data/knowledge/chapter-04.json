@@ -68,7 +68,7 @@
         "countries": [],
         "regions": []
       },
-      "demos": null
+      "demos": "earth-orbit"
     },
     {
       "id": "4.2",
@@ -126,7 +126,7 @@
         "countries": [],
         "regions": []
       },
-      "demos": null
+      "demos": "oblique-axis"
     },
     {
       "id": "4.3",
@@ -221,7 +221,7 @@
         "countries": [],
         "regions": []
       },
-      "demos": null
+      "demos": "day-night-drawing"
     },
     {
       "id": "4.4",
@@ -418,7 +418,7 @@
         "countries": [],
         "regions": []
       },
-      "demos": null
+      "demos": "sun-path"
     },
     {
       "id": "4.6",

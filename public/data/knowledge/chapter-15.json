@@ -934,7 +934,7 @@
         "countries": [],
         "regions": []
       },
-      "demos": null
+      "demos": "map-grid-mnemonic"
     }
   ]
 }

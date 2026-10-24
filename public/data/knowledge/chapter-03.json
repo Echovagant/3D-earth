@@ -60,7 +60,7 @@
         "countries": [],
         "regions": []
       },
-      "demos": null
+      "demos": "earth-spin-direction"
     },
     {
       "id": "3.2",
@@ -112,7 +112,7 @@
         "countries": [],
         "regions": []
       },
-      "demos": null
+      "demos": "sidereal-vs-solar-day"
     },
     {
       "id": "3.3",
@@ -299,7 +299,7 @@
         "countries": [],
         "regions": []
       },
-      "demos": null
+      "demos": "rotation-speed"
     },
     {
       "id": "3.5",
@@ -675,7 +675,7 @@
         "countries": [],
         "regions": []
       },
-      "demos": null
+      "demos": "coriolis-hand"
     },
     {
       "id": "3.9",
@@ -959,7 +959,7 @@
         "countries": [],
         "regions": []
       },
-      "demos": null
+      "demos": "local-time"
     },
     {
       "id": "3.13",
@@ -1012,7 +1012,7 @@
         "countries": [],
         "regions": []
       },
-      "demos": null
+      "demos": "local-time-steps"
     },
     {
       "id": "3.14",

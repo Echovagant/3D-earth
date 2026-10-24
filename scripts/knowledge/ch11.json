@@ -547,5 +547,12 @@
         "南美洲"
       ]
     }
+  },
+  "demos": {
+    "11.3": "water-cycle-impact",
+    "11.4": "infiltration-flood",
+    "11.6": "land-water-cycles",
+    "11.15": "air-sea-exchange",
+    "11.17": "walker-circulation"
   }
 }

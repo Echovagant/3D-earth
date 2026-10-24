@@ -499,6 +499,12 @@
     }
   },
   "demos": {
-    "3.6": "terminator-circle"
+    "3.1": "earth-spin-direction",
+    "3.2": "sidereal-vs-solar-day",
+    "3.4": "rotation-speed",
+    "3.6": "terminator-circle",
+    "3.8": "coriolis-hand",
+    "3.12": "local-time",
+    "3.13": "local-time-steps"
   }
 }

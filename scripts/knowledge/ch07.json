@@ -316,5 +316,11 @@
         "雅鲁藏布谷地"
       ]
     }
+  },
+  "demos": {
+    "7.1": "chapter-seven-plan",
+    "7.12": "pressure-centers",
+    "7.16": "tibetan-plateau",
+    "7.19": "answer-frame"
   }
 }
