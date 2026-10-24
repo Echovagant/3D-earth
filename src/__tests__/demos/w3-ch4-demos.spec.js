@@ -35,9 +35,12 @@ import {
   DECL,
   VIEW,
   cutLatitudes,
+  declinationReadout,
   parallelSegment as dnParallelSegment,
   polarCapPath,
+  polarDaySide,
   subsolarPoint,
+  tangentPoints,
   terminatorLine,
 } from '../../data/dayNightDrawingGeometry'
 import {
@@ -197,6 +200,44 @@ describe('§4.3 光照图四步画法的几何', () => {
     expect(cutLatitudes(DECL)[1]).toBeCloseTo(-66.5, 6)
   })
 
+  it('切点纬度按直射点纬度的绝对值算：直射点在南半球时切点仍是 ±66.5°', () => {
+    expect(cutLatitudes(23.5)[0]).toBeCloseTo(66.5, 6)
+    expect(cutLatitudes(23.5)[1]).toBeCloseTo(-66.5, 6)
+    expect(cutLatitudes(-23.5)[0]).toBeCloseTo(66.5, 6)
+    expect(cutLatitudes(-23.5)[1]).toBeCloseTo(-66.5, 6)
+    expect(cutLatitudes(0)[0]).toBeCloseTo(90, 6)
+    expect(cutLatitudes(0)[1]).toBeCloseTo(-90, 6)
+  })
+
+  it('极昼极夜归哪一侧随直射点的南北半球互换，赤道上不存在', () => {
+    expect(polarDaySide(23.5)).toBe(1)
+    expect(polarDaySide(-23.5)).toBe(-1)
+    expect(polarDaySide(0)).toBe(0)
+  })
+
+  it('切点永远落在晨昏线上，且在切点纬度上南北对称', () => {
+    for (const decl of [23.5, 12, 0, -12, -23.5]) {
+      const t = tangentPoints(VIEW, VIEW.r, decl, -1)
+      const problems = []
+      for (const p of [t.north.tangent, t.south.tangent]) {
+        if (Math.abs(p.x - VIEW.x) > 1e-6) problems.push(`δ=${decl}：切点没落在晨昏线上`)
+      }
+      if (t.north.segment.lat !== cutLatitudes(decl)[0]) {
+        problems.push(`δ=${decl}：切点纬度不是 90 − |δ|`)
+      }
+      if (t.north.tangent.y > t.south.tangent.y) problems.push(`δ=${decl}：北切点跑到了南边`)
+      expect(problems).toEqual([])
+    }
+  })
+
+  it('参数轴读数：二至、二分各说各的，其余按数值读', () => {
+    expect(declinationReadout(23.5)).toBe('23.5°N · 夏至日')
+    expect(declinationReadout(-23.5)).toBe('23.5°S · 冬至日')
+    expect(declinationReadout(0)).toBe('0° · 春分/秋分（昼夜等长）')
+    expect(declinationReadout(12.5)).toBe('12.5°N')
+    expect(declinationReadout(-12.5)).toBe('12.5°S')
+  })
+
   it('切点就是晨昏线的两个端点，且落在极圈上', () => {
     const onCircle = circle(VIEW, VIEW.r)
     for (const lat of cutLatitudes(DECL)) {
@@ -237,6 +278,54 @@ describe('§4.3 昼夜长短演示', () => {
     const wrapper = mount(DayNightDrawingDemo)
     const prev = wrapper.findAll('.demo__controls button').find((b) => b.text() === '上一步')
     expect(prev.attributes('disabled')).toBeDefined()
+  })
+
+  it('默认是夏至日：北极那侧极昼、南极那侧极夜', async () => {
+    const wrapper = mount(DayNightDrawingDemo)
+    await flushPromises()
+    const caps = wrapper.findAll('.demo-cap')
+    expect(caps).toHaveLength(2)
+    expect(caps[0].classes()).toContain('demo-cap--day')
+    expect(caps[1].classes()).toContain('demo-cap--night')
+  })
+
+  it('参数轴能把直射点拖到南半球：北极那块的明暗跟着互换', async () => {
+    const wrapper = mount(DayNightDrawingDemo)
+    await flushPromises()
+    const slider = wrapper.find('input[type="range"]')
+    expect(slider.exists()).toBe(true)
+
+    const problems = []
+    await slider.setValue('-23.5')
+    await flushPromises()
+    const winter = wrapper.findAll('.demo-cap')
+    if (winter.length !== 2) problems.push('冬至日没有画出极昼极夜范围')
+    if (!winter[0]?.classes().includes('demo-cap--night')) problems.push('冬至日北极那侧不是极夜')
+    if (!winter[1]?.classes().includes('demo-cap--day')) problems.push('冬至日南极那侧不是极昼')
+    if (!wrapper.text().includes('冬至日')) problems.push('读数没有变成冬至日')
+
+    await slider.setValue('0')
+    await flushPromises()
+    if (wrapper.findAll('.demo-cap').length !== 0) problems.push('直射点在赤道时不该画极昼极夜范围')
+    if (!wrapper.text().includes('昼夜等长')) problems.push('赤道时没有说昼夜等长')
+
+    expect(problems).toEqual([])
+  })
+
+  it('解说词跟着参数一起变', async () => {
+    const wrapper = mount(DayNightDrawingDemo)
+    await flushPromises()
+    await wrapper.findAll('.demo__seg')[3].trigger('click')
+    await flushPromises()
+    const summer = wrapper.find('.demo__text').text()
+    expect(summer).toContain('北圈内极昼')
+
+    const slider = wrapper.find('input[type="range"]')
+    await slider.setValue('-23.5')
+    await flushPromises()
+    const winter = wrapper.find('.demo__text').text()
+    expect(winter).toContain('北圈内极夜')
+    expect(winter).not.toBe(summer)
   })
 })
 

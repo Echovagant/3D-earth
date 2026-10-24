@@ -86,7 +86,7 @@ describe('§2.4 两种看法的演示', () => {
     const wrapper = mount(MapViewsDemo)
     await flushPromises()
 
-    const dots = wrapper.findAll('.demo__dot')
+    const dots = wrapper.findAll('.demo__seg')
     await dots[2].trigger('click')
     expect(wrapper.text()).toContain('两种看法，两种线')
     expect(wrapper.text()).toContain('3 / 3')

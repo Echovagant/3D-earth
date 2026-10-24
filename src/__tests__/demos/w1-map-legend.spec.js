@@ -41,7 +41,7 @@ describe('§2.18 图例和注记的演示', () => {
     const wrapper = mount(MapLegendDemo)
     await flushPromises()
 
-    const dots = wrapper.findAll('.demo__dot')
+    const dots = wrapper.findAll('.demo__seg')
     await dots[3].trigger('click')
     const text = wrapper.text()
     expect(text).toContain('先读图例和注记')

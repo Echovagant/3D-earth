@@ -14,6 +14,11 @@
  * 于是「正常年」与「厄尔尼诺」只需换 warmPoolX，方向自动反过来：
  * 暖水在西 → 近地面箭头指向西；暖水在东 → 近地面箭头指向东。
  * 两个方向相反（信风向西、暖水在西）永远绑在一起，不会画反。
+ *
+ * 环流不是三个割裂的定格状态：暖水堆位置可以取中线以外的任意值，
+ * 海面倾斜、低层气流长度都随它连续变化（见 seaTiltAmount）。
+ * 参数轴「东南信风强弱」经 warmPoolXFromTrade 映射到暖水堆位置，
+ * 于是拖动参数时整个环流是连续变形的，而不是在两个状态之间跳。
  */
 
 /** 剖面绘图区（画布坐标） */
@@ -43,6 +48,21 @@ export const WARM_POOL_X = {
   normal: 0.25,
   elnino: 0.7,
 }
+
+/** 中线：暖水堆与冷水源重合的位置——环流在这里停摆 */
+export const MIDLINE = 0.5
+
+/**
+ * 海面倾斜达到满幅所需的「暖水堆偏离中线的距离」。
+ *
+ * 取三个锚点状态里最小的那个（厄尔尼诺：|0.70 − 0.5| = 0.20）：
+ * 这样正常年、拉尼娜、厄尔尼诺三张定格的倾斜幅度与原来完全一样，
+ * 只有暖水堆靠近中线时海面才逐渐变平。
+ */
+export const TILT_FULL_SPREAD = 0.2
+
+/** 低层气流停摆的判定：暖水堆离中线这么近就算停 */
+export const STALL_EPS = 0.02
 
 /** 三个状态的文字说明 */
 export const STATE_META = {
@@ -89,6 +109,48 @@ export function directionAngle(x1, y1, x2, y2) {
 }
 
 /**
+ * 东南信风强弱（−1 … +1）→ 暖水堆位置。
+ *
+ * 正值 = 信风增强，暖水被推到更西边（拉尼娜）；负值 = 信风偏弱，
+ * 暖水回流到东边（厄尔尼诺）。两段线性，锚点：
+ *   0 → 正常年 0.25，+1 → 拉尼娜 0.14，−1 → 厄尔尼诺 0.70。
+ *
+ * 弱信风那一段的斜率要带上负号：信风越弱，暖水越往东走。
+ */
+export function warmPoolXFromTrade(trade) {
+  const t = clamp(trade, -1, 1)
+  if (t >= 0) return WARM_POOL_X.normal + (WARM_POOL_X.lanina - WARM_POOL_X.normal) * t
+  return WARM_POOL_X.normal + (WARM_POOL_X.elnino - WARM_POOL_X.normal) * -t
+}
+
+/**
+ * 海面倾斜的幅度系数：0 = 停摆（海面是平的），1 = 满幅。
+ *
+ * 幅度只看暖水堆离中线多远，离得越远倾斜越厉害。
+ * 用 smoothstep 而不是 min(1, x)：两端斜率都归零，
+ * 拖参数时海面是渐入渐出地变平、翻面，不会出现折角。
+ */
+export function seaTiltAmount(warmPoolX) {
+  const off = Math.abs(MIDLINE - clamp(warmPoolX, 0.02, 0.98))
+  const x = Math.min(1, off / TILT_FULL_SPREAD)
+  return x * x * (3 - 2 * x)
+}
+
+/**
+ * 近地面气流的走向。
+ *
+ * 'west' = 自东向西（东南信风），'east' = 自西向东（反向），'stall' = 停摆。
+ * 走向只由暖水堆位置决定：暖水在西 → 吹向西；暖水在东 → 吹向东。
+ * 「信风向西、暖水在西」这条不变式就锁在这里——
+ * 箭头方向要问几何要，别单独改箭头。
+ */
+export function surfaceFlowDirection(warmPoolX) {
+  const warm = clamp(warmPoolX, 0.02, 0.98)
+  if (Math.abs(warm - MIDLINE) <= STALL_EPS) return 'stall'
+  return warm < MIDLINE ? 'west' : 'east'
+}
+
+/**
  * 由暖水堆位置推出整个沃克环流。
  *
  * @param {number} warmPoolX 暖水堆的横向位置，0 = 最西，1 = 最东
@@ -106,10 +168,13 @@ export function walkerCirculation(warmPoolX, box = PLOT, opts = {}) {
   const warmX = left + warm * (right - left)
   const coldX = left + cold * (right - left)
 
-  // 暖水一侧海面高（画布 y 小），冷水一侧海面低
-  const tilt = warm < 0.5 ? 1 : -1
-  const seaWestY = seaLevel - tilt * seaTilt
-  const seaEastY = seaLevel + tilt * seaTilt
+  // 暖水一侧海面高（画布 y 小），冷水一侧海面低。
+  // 幅度随暖水堆离开中线的距离连续变化：中线上环流停摆、海面是平的，
+  // 越偏离中线越倾斜；两侧都是满幅，所以三个定格状态的倾斜与原来完全一样。
+  const tiltAmount = seaTiltAmount(warm)
+  const tilt = Math.sign(MIDLINE - warm) * tiltAmount * seaTilt
+  const seaWestY = seaLevel - tilt
+  const seaEastY = seaLevel + tilt
 
   /** 某一点处的海面高度（线性倾斜） */
   const seaY = (x) => seaWestY + ((x - left) / (right - left)) * (seaEastY - seaWestY)
@@ -134,6 +199,10 @@ export function walkerCirculation(warmPoolX, box = PLOT, opts = {}) {
     upperFlow: { fromX: warmX, toX: coldX },
     seaWestY,
     seaEastY,
+    /** 倾斜幅度系数 0…1（0 = 海面是平的） */
+    tiltAmount,
+    /** 带符号的倾斜量（画布像素，正 = 西边高） */
+    tilt,
     seaY,
     layerThickness,
   }

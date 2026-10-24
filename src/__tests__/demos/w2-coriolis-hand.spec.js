@@ -77,7 +77,7 @@ describe('§3.8 地转偏向力演示', () => {
   it('北半球写「用右手」，南半球写「用左手」，赤道不偏', async () => {
     const wrapper = mount(CoriolisHandDemo)
     await flushPromises()
-    const dots = wrapper.findAll('.demo__dot')
+    const dots = wrapper.findAll('.demo__seg')
     await dots[1].trigger('click')
     expect(wrapper.text()).toContain('北半球用右手')
     await dots[2].trigger('click')
@@ -88,7 +88,7 @@ describe('§3.8 地转偏向力演示', () => {
   it('最后一步给出公式与数左右的规矩', async () => {
     const wrapper = mount(CoriolisHandDemo)
     await flushPromises()
-    const dots = wrapper.findAll('.demo__dot')
+    const dots = wrapper.findAll('.demo__seg')
     await dots[3].trigger('click')
     expect(wrapper.text()).toContain('F = 2mvω·sinφ')
     expect(wrapper.text()).toContain('站在观测者位置')

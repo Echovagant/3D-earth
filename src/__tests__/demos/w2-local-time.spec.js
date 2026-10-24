@@ -87,7 +87,7 @@ describe('§3.12 地方时演示', () => {
   it('第二步把四个关键读数都标出来', async () => {
     const wrapper = mount(LocalTimeDemo)
     await flushPromises()
-    const dots = wrapper.findAll('.demo__dot')
+    const dots = wrapper.findAll('.demo__seg')
     await dots[1].trigger('click')
     expect(wrapper.text()).toContain('12 时')
     expect(wrapper.text()).toContain('正午经线')
@@ -99,7 +99,7 @@ describe('§3.12 地方时演示', () => {
   it('第四步给出东先西后的钟面对照', async () => {
     const wrapper = mount(LocalTimeDemo)
     await flushPromises()
-    const dots = wrapper.findAll('.demo__dot')
+    const dots = wrapper.findAll('.demo__seg')
     await dots[3].trigger('click')
     expect(wrapper.text()).toContain('东边 · 8 时')
     expect(wrapper.text()).toContain('西边 · 7 时')

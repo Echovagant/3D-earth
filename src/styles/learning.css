@@ -352,9 +352,18 @@ a.learn-tag:hover {
   border-radius: var(--radius-sm);
 }
 
-/* 视图切换：淡入淡出，别硬闪 */
+/* 视图切换：淡入 + 位移，方向跟着翻页方向走 */
 .demo__frame {
   animation: demo-fade 0.32s ease-out;
+}
+
+/* 往下一步：新的那步从右边滑进来；往回上一步：从左边 */
+.demo__canvas--forward .demo__frame {
+  animation-name: demo-slide-from-right;
+}
+
+.demo__canvas--back .demo__frame {
+  animation-name: demo-slide-from-left;
 }
 
 @keyframes demo-fade {
@@ -366,8 +375,32 @@ a.learn-tag:hover {
   }
 }
 
+@keyframes demo-slide-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes demo-slide-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .demo__frame {
+  .demo__frame,
+  .demo__canvas--forward .demo__frame,
+  .demo__canvas--back .demo__frame {
     animation: none;
   }
 }
@@ -483,29 +516,89 @@ a.learn-tag:hover {
   margin: var(--sp-3) 0 0;
 }
 
-.demo__dots {
-  display: inline-flex;
-  gap: 6px;
-  margin-left: var(--sp-2);
-}
-
-.demo__dot {
-  width: 10px;
-  height: 10px;
-  padding: 0;
-  border: 1px solid var(--learn-line);
-  border-radius: 50%;
-  background: var(--learn-panel);
-  cursor: pointer;
-}
-
-.demo__dot--on {
-  background: var(--learn-accent);
-  border-color: var(--learn-accent);
+/* 参数轴容器：演示没提供控件时这一块不渲染 */
+.demo__params {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
 }
 
 .demo__count {
   margin-left: auto;
   font-size: 12px;
   color: var(--learn-ink-faint);
+}
+
+/* 播放控制：播放中的按钮给个明显的状态 */
+.demo__play {
+  color: var(--learn-accent);
+  font-weight: 600;
+}
+
+.demo__loop.is-on {
+  background: var(--learn-accent-soft);
+  color: var(--learn-accent);
+}
+
+/* 时间轴：点一段跳到那一步 */
+.demo__timeline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 var(--sp-2);
+}
+
+.demo__seg {
+  width: 22px;
+  height: 6px;
+  padding: 0;
+  border: 1px solid var(--learn-line);
+  border-radius: 3px;
+  background: var(--learn-panel);
+  cursor: pointer;
+}
+
+.demo__seg.is-done {
+  background: var(--learn-accent-soft);
+}
+
+.demo__seg.is-on {
+  background: var(--learn-accent);
+  border-color: var(--learn-accent);
+}
+
+/* 参数轴：拖一下，图跟着重算 */
+.demo-slider {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin: var(--sp-3) 0 0;
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--learn-line);
+  border-radius: var(--radius-sm);
+  background: var(--learn-accent-soft);
+}
+
+.demo-slider__label {
+  flex: none;
+  font-size: 13px;
+  color: var(--learn-ink-soft);
+  white-space: nowrap;
+}
+
+.demo-slider__input {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--learn-accent);
+  cursor: pointer;
+}
+
+.demo-slider__value {
+  flex: none;
+  min-width: 7em;
+  text-align: right;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--learn-accent);
 }

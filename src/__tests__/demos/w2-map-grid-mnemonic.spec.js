@@ -127,7 +127,7 @@ describe('§15.10 中国地图速记演示', () => {
   it('第二步点亮南段的钉点', async () => {
     const wrapper = mount(MapGridMnemonicDemo)
     await flushPromises()
-    const dots = wrapper.findAll('.demo__dot')
+    const dots = wrapper.findAll('.demo__seg')
     await dots[1].trigger('click')
     expect(wrapper.text()).toContain('海口')
     expect(wrapper.text()).toContain('拉萨')
@@ -137,7 +137,7 @@ describe('§15.10 中国地图速记演示', () => {
   it('第三步点亮北段的钉点，第四步给出钉钉子的方法与四至', async () => {
     const wrapper = mount(MapGridMnemonicDemo)
     await flushPromises()
-    const dots = wrapper.findAll('.demo__dot')
+    const dots = wrapper.findAll('.demo__seg')
     await dots[2].trigger('click')
     expect(wrapper.text()).toContain('秦岭')
     expect(wrapper.text()).toContain('北京')

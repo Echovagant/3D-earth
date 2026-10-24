@@ -197,6 +197,46 @@ describe('全部演示', () => {
   it('演示组件不少于 30 个（§3.6 那批 + 铺开的 29 节）', () => {
     expect(DEMO_IDS.length).toBeGreaterThanOrEqual(30)
   })
+
+  it('拖动参数轴到两端，SVG 属性仍然合法、画布不会空掉', async () => {
+    // 参数轴一进来，几何就从常量变成了随参数重算的函数——
+    // 于是「某个参数取值让路径算成 NaN」这类 bug 有了新的入口。
+    // 浏览器里表现为整块图形消失，但单测也能抓住：属性里出现 NaN。
+    const problems = []
+    for (const [id, loader] of Object.entries(DEMO_LOADERS)) {
+      const module = await loader()
+      const wrapper = mount(module.default)
+      await flushPromises()
+      const slider = wrapper.find('.demo-slider input[type=range]')
+      if (!slider.exists()) continue
+
+      const base = wrapper.findAll('.demo__canvas *').length
+      const min = Number(slider.attributes('min'))
+      const max = Number(slider.attributes('max'))
+      for (const val of [min, (min + max) / 2, max]) {
+        await slider.setValue(String(val))
+        for (const el of wrapper.findAll('.demo__canvas *')) {
+          for (const [name, value] of Object.entries(el.attributes())) {
+            if (/NaN|undefined/.test(value)) {
+              problems.push(`${id}：滑块=${val} → <${el.tagName} ${name}="${value}">`)
+            }
+          }
+        }
+        const now = wrapper.findAll('.demo__canvas *').length
+        if (base > 0 && now === 0) problems.push(`${id}：滑块拖到 ${val} 后画布空了`)
+      }
+    }
+    expect(problems, '参数轴拖动后有演示画坏了').toEqual([])
+  }, 60000)
+
+  it('三个核心演示都挂了参数轴', async () => {
+    for (const id of ['terminator-circle', 'day-night-drawing', 'walker-circulation']) {
+      const module = await DEMO_LOADERS[id]()
+      const wrapper = mount(module.default)
+      await flushPromises()
+      expect(wrapper.find('.demo-slider input[type=range]').exists(), `${id} 没有参数轴`).toBe(true)
+    }
+  })
 })
 
 describe('§3.6 晨昏线演示', () => {
@@ -219,7 +259,7 @@ describe('§3.6 晨昏线演示', () => {
     expect(wrapper.text()).toContain('晨昏线是一条大圆')
     expect(wrapper.text()).toContain('2 / 4')
 
-    const dots = wrapper.findAll('.demo__dot')
+    const dots = wrapper.findAll('.demo__seg')
     await dots[3].trigger('click')
     expect(wrapper.text()).toContain('晨昏线与极圈的切点')
     expect(wrapper.text()).toContain('4 / 4')

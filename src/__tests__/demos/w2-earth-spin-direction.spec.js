@@ -79,7 +79,7 @@ describe('§3.1 自转方向演示', () => {
   it('点步骤圆点能跳到第四步', async () => {
     const wrapper = mount(EarthSpinDirectionDemo)
     await flushPromises()
-    const dots = wrapper.findAll('.demo__dot')
+    const dots = wrapper.findAll('.demo__seg')
     await dots[3].trigger('click')
     expect(wrapper.text()).toContain('北逆南顺')
     expect(wrapper.text()).toContain('4 / 4')

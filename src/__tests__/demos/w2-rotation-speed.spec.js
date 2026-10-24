@@ -77,7 +77,7 @@ describe('§3.4 自转线速度演示', () => {
   it('第二步把赤道与两极的线速度数值摆出来', async () => {
     const wrapper = mount(RotationSpeedDemo)
     await flushPromises()
-    const dots = wrapper.findAll('.demo__dot')
+    const dots = wrapper.findAll('.demo__seg')
     await dots[1].trigger('click')
     expect(wrapper.text()).toContain('赤道 1670')
     expect(wrapper.text()).toContain('北纬 30° 1447')
@@ -87,7 +87,7 @@ describe('§3.4 自转线速度演示', () => {
   it('第三步点明慢的是线速度不是角速度', async () => {
     const wrapper = mount(RotationSpeedDemo)
     await flushPromises()
-    const dots = wrapper.findAll('.demo__dot')
+    const dots = wrapper.findAll('.demo__seg')
     await dots[2].trigger('click')
     expect(wrapper.text()).toContain('角速度除极点外处处相同')
   })

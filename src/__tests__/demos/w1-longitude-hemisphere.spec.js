@@ -86,7 +86,7 @@ describe('§2.9 半球展开法的演示', () => {
     const wrapper = mount(LongitudeHemisphereDemo)
     await flushPromises()
 
-    const dots = wrapper.findAll('.demo__dot')
+    const dots = wrapper.findAll('.demo__seg')
     await dots[3].trigger('click')
     expect(wrapper.text()).toContain('通用法')
     expect(wrapper.text()).toContain('4 / 4')

@@ -92,7 +92,7 @@ describe('§2.2 纬线演示', () => {
     const wrapper = mount(LatitudeCirclesDemo)
     await flushPromises()
 
-    const dots = wrapper.findAll('.demo__dot')
+    const dots = wrapper.findAll('.demo__seg')
     await dots[3].trigger('click')
     expect(wrapper.text()).toContain('相邻纬线之间的间隔处处相等')
     expect(wrapper.text()).toContain('4 / 4')

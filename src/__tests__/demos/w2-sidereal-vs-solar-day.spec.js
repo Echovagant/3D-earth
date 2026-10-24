@@ -99,7 +99,7 @@ describe('§3.2 恒星日/太阳日演示', () => {
   it('最后一步把两个周期和差值摆出来', async () => {
     const wrapper = mount(SiderealVsSolarDayDemo)
     await flushPromises()
-    const dots = wrapper.findAll('.demo__dot')
+    const dots = wrapper.findAll('.demo__seg')
     await dots[3].trigger('click')
     expect(wrapper.text()).toContain('23 时 56 分 4 秒')
     expect(wrapper.text()).toContain('24 小时')

@@ -83,7 +83,7 @@ describe('§11.15 演示组件', () => {
     const wrapper = mount(AirSeaExchangeDemo)
     await flushPromises()
 
-    const dots = wrapper.findAll('.demo__dot')
+    const dots = wrapper.findAll('.demo__seg')
     await dots[1].trigger('click')
     expect(wrapper.text()).toContain('87.5%')
     expect(wrapper.text()).toContain('不用记')

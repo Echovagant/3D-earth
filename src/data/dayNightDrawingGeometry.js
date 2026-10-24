@@ -17,6 +17,9 @@
 /** 夏至日太阳直射北回归线的纬度 */
 export const DECL = 23.5
 
+/** 极圈纬度：固定的地理纬线，不随直射点纬度移动 */
+export const POLAR_CIRCLE = 90 - DECL
+
 /** 侧视图的球心与半径（画布坐标） */
 export const VIEW = { x: 360, y: 195, r: 118 }
 
@@ -77,10 +80,68 @@ export function subsolarAxisLine(center, radius) {
 }
 
 /**
- * 切点纬度：晨昏线与极圈相切的地方，与太阳直射点互余。
+ * 切点纬度：晨昏线与纬线相切的地方，与太阳直射点纬度的**绝对值**互余。
+ *
+ * 直射点跑到南半球时，切点仍然南北对称、纬度不变，所以必须取绝对值——
+ * 直接算 90 − δ 会得到 113.5° 这种根本不存在的纬度。
  */
 export function cutLatitudes(decl = DECL) {
-  return [90 - decl, -(90 - decl)]
+  const cut = 90 - Math.abs(decl)
+  return [cut, -cut]
+}
+
+/**
+ * 哪一侧是极昼：+1 北极侧、-1 南极侧、0 没有极昼极夜。
+ *
+ * 直射点在北半球 → 北极圈内极昼；直射点在南半球 → 南极圈内极昼；
+ * 直射点在赤道 → 晨昏线过两极，全球昼夜等长，不存在极昼极夜。
+ */
+export function polarDaySide(decl = DECL) {
+  if (Math.abs(decl) < 1e-9) return 0
+  return decl > 0 ? 1 : -1
+}
+
+/**
+ * 晨昏线与纬线相切的那两个点（切点）。
+ *
+ * 晨昏线在这个投影里恒是过球心的竖直线，它在纬度 ±(90 − |δ|) 上与对应的纬线圈相切，
+ * 那个纬线圈总有一端正好落在晨昏线上——那就是切点。
+ *
+ * @returns {{north: {tangent: object, outer: object, segment: object},
+ *            south: {tangent: object, outer: object, segment: object}}}
+ *   tangent 是落在晨昏线上的切点，outer 是同一纬线圈落在球面轮廓上的那一端。
+ */
+export function tangentPoints(center, radius, decl = DECL, lean = -1) {
+  const pick = (lat) => {
+    const segment = parallelSegment(center, radius, lat, decl, lean)
+    const fromOnTerminator =
+      Math.abs(segment.from.x - center.x) <= Math.abs(segment.to.x - center.x)
+    return {
+      tangent: fromOnTerminator ? segment.from : segment.to,
+      outer: fromOnTerminator ? segment.to : segment.from,
+      segment,
+    }
+  }
+  const [northLat, southLat] = cutLatitudes(decl)
+  return { north: pick(northLat), south: pick(southLat) }
+}
+
+/**
+ * 直射点纬度的短标签（画在图上用）。
+ */
+export function formatDeclination(decl = DECL) {
+  if (Math.abs(decl) < 0.01) return '0°（赤道）'
+  return `${Math.abs(decl).toFixed(1)}°${decl > 0 ? 'N' : 'S'}`
+}
+
+/**
+ * 参数轴读数：把直射点纬度说成人话（二至、二分、其余）。
+ */
+export function declinationReadout(decl = DECL) {
+  if (Math.abs(decl - DECL) < 0.01) return `${DECL}°N · 夏至日`
+  if (Math.abs(decl + DECL) < 0.01) return `${DECL}°S · 冬至日`
+  if (Math.abs(decl) < 0.01) return '0° · 春分/秋分（昼夜等长）'
+  return `${Math.abs(decl).toFixed(1)}°${decl > 0 ? 'N' : 'S'}`
 }
 
 const normalize = (deg) => ((deg % 360) + 360) % 360

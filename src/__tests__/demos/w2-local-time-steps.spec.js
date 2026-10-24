@@ -81,7 +81,7 @@ describe('§3.13 地方时计算演示', () => {
   it('第二步给出经度差 13°', async () => {
     const wrapper = mount(LocalTimeStepsDemo)
     await flushPromises()
-    const dots = wrapper.findAll('.demo__dot')
+    const dots = wrapper.findAll('.demo__seg')
     await dots[1].trigger('click')
     expect(wrapper.text()).toContain('经度差 = 120 − 107 = 13°')
   })
@@ -89,7 +89,7 @@ describe('§3.13 地方时计算演示', () => {
   it('第三步给出 52 分钟，第四步给出 11:42', async () => {
     const wrapper = mount(LocalTimeStepsDemo)
     await flushPromises()
-    const dots = wrapper.findAll('.demo__dot')
+    const dots = wrapper.findAll('.demo__seg')
     await dots[2].trigger('click')
     expect(wrapper.text()).toContain('13° × 4 分钟/度 = 52 分钟')
     await dots[3].trigger('click')

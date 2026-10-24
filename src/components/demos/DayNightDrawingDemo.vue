@@ -11,8 +11,18 @@
 
         <circle class="demo__globe-plain" :cx="view.x" :cy="view.y" :r="view.r" />
         <path class="demo-axis" :d="axisLine" />
-        <text class="demo__label demo__label--faint" x="286" y="84" text-anchor="end">北极点</text>
-        <text class="demo__label demo__label--faint" x="418" y="322">南极点</text>
+        <text
+          class="demo__label demo__label--faint"
+          :x="poleLabels.north.x"
+          :y="poleLabels.north.y"
+          :text-anchor="poleLabels.north.anchor"
+        >北极点</text>
+        <text
+          class="demo__label demo__label--faint"
+          :x="poleLabels.south.x"
+          :y="poleLabels.south.y"
+          :text-anchor="poleLabels.south.anchor"
+        >南极点</text>
 
         <path class="demo__leader" :d="subsolarLine" />
         <circle class="demo__cut" :cx="subsolar.x" :cy="subsolar.y" r="8" />
@@ -20,7 +30,7 @@
 
         <path class="demo__leader" d="M 236 186 L 202 148" />
         <text class="demo__label demo__label--mark" x="196" y="142" text-anchor="end">
-          ① 太阳直射点 23.5°N
+          ① 太阳直射点 {{ declShort }}
         </text>
         <text class="demo__label" x="312" y="270" text-anchor="middle">② 从直射点连到地心</text>
         <text class="demo__label demo__label--faint" x="372" y="186">地心</text>
@@ -90,8 +100,8 @@
 
         <circle class="demo__globe-night" :cx="view.x" :cy="view.y" :r="view.r" />
         <path class="demo__globe-day" :d="dayPath" />
-        <path class="demo-cap demo-cap--day" :d="northCap" />
-        <path class="demo-cap demo-cap--night" :d="southCap" />
+        <path v-if="hasPolarCaps" :class="northCapClass" :d="northCap" />
+        <path v-if="hasPolarCaps" :class="southCapClass" :d="southCap" />
         <path class="demo-axis" :d="axisLine" />
         <path class="demo__leader" :d="subsolarLine" />
         <circle class="demo__cut" :cx="subsolar.x" :cy="subsolar.y" r="8" />
@@ -104,23 +114,55 @@
         <circle class="demo__cut" :cx="cutSouth.x" :cy="cutSouth.y" r="6" />
 
         <text class="demo__label demo__label--mark" x="360" y="48" text-anchor="middle">
-          切点：晨昏线与极圈相切
+          {{ cutTitle }}
         </text>
         <path class="demo__leader" d="M 360 56 L 360 72" />
-        <text class="demo__label demo__label--mark" x="196" y="94">北极圈 66.5°N</text>
-        <text class="demo__label demo__label--faint" x="196" y="114">圈内：极昼</text>
-        <path class="demo__leader" d="M 268 100 L 280 108" />
-        <text class="demo__label demo__label--mark" x="566" y="284">南极圈 66.5°S</text>
-        <text class="demo__label demo__label--faint" x="566" y="304">圈内：极夜</text>
-        <path class="demo__leader" d="M 560 278 L 450 272" />
+        <text
+          class="demo__label demo__label--mark"
+          :x="northNote.line1.x"
+          :y="northNote.line1.y"
+          :text-anchor="northNote.line1.anchor"
+        >北极圈 66.5°N</text>
+        <text
+          class="demo__label demo__label--faint"
+          :x="northNote.line2.x"
+          :y="northNote.line2.y"
+          :text-anchor="northNote.line2.anchor"
+        >{{ northCapText }}</text>
+        <path class="demo__leader" :d="northNote.leader" />
+        <text
+          class="demo__label demo__label--mark"
+          :x="southNote.line1.x"
+          :y="southNote.line1.y"
+          :text-anchor="southNote.line1.anchor"
+        >南极圈 66.5°S</text>
+        <text
+          class="demo__label demo__label--faint"
+          :x="southNote.line2.x"
+          :y="southNote.line2.y"
+          :text-anchor="southNote.line2.anchor"
+        >{{ southCapText }}</text>
+        <path class="demo__leader" :d="southNote.leader" />
 
         <text class="demo__caption-line" x="360" y="348" text-anchor="middle">
-          切点纬度 = 90° − 直射点纬度 = 66.5°；极圈内才有极昼极夜
+          {{ bottomNote }}
         </text>
         <text class="demo__label demo__label--faint" x="360" y="368" text-anchor="middle">
           夏至日：北极圈内极昼、南极圈内极夜；冬至日正好相反
         </text>
       </g>
+    </template>
+
+    <!-- 参数轴：拖动直射点纬度，四步图形和解说一起重算 -->
+    <template #controls>
+      <DemoSlider
+        v-model="delta"
+        label="太阳直射点纬度 δ"
+        :min="-23.5"
+        :max="23.5"
+        :step="0.5"
+        :format="readout"
+      />
     </template>
   </DemoShell>
 </template>
@@ -132,30 +174,163 @@
  * 老师讲这节时会带着学生一起画：找直射点、连到地心、过球心作垂线、涂昼夜。
  * 手上画得出来，考场上就不会画错。这段就是把那四步摆在屏幕上。
  *
- * 画的是夏至日（太阳直射北回归线 23.5°N）的侧视光照图：
- * 太阳在左、光线水平、晨昏线是一条过球心的竖直直线。
+ * 画的是侧视光照图：太阳在左、光线水平、晨昏线是一条过球心的竖直直线。
  * 球体、纬线、切点位置全部按投影算出来，不是手画的示意。
+ *
+ * 参数轴拖的是太阳直射点纬度 δ。在这个侧视投影里，直射点恒在球的左轮廓上，
+ * 而它的纬度正好等于地轴的倾角——所以 δ 变了，地轴就跟着倾。
  */
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import DemoShell from '../DemoShell.vue'
+import DemoSlider from '../DemoSlider.vue'
 import { leftHalfPath } from '../../data/svgParts'
 import {
   DECL,
+  POLAR_CIRCLE,
   VIEW,
   axisVector,
   cutLatitudes,
+  declinationReadout,
+  formatDeclination,
   parallelSegment,
   polarCapPath,
+  polarDaySide,
   subsolarAxisLine,
   subsolarPoint,
+  tangentPoints,
   terminatorLine,
 } from '../../data/dayNightDrawingGeometry'
 
-const steps = [
+/** 太阳直射点纬度：默认夏至日（北回归线），拖动后随参数重算 */
+const delta = ref(DECL)
+
+const view = VIEW
+const subsolar = subsolarPoint(view, view.r)
+const subsolarLine = subsolarAxisLine(view, view.r)
+const terminator = terminatorLine(view, view.r)
+const dayPath = leftHalfPath(view.x, view.y, view.r)
+
+const readout = (value) => declinationReadout(value)
+
+/** 地轴：直射点在哪半球，北极就朝哪边倾 */
+const axisLine = computed(() => {
+  const a = axisVector(delta.value, -1)
+  const len = view.r + 34
+  return `M ${view.x - a.x * len} ${view.y - a.y * len} L ${view.x + a.x * len} ${view.y + a.y * len}`
+})
+
+/** 极点标注：跟着极点走，摆在球外那一侧，免得压在球面上 */
+const poleLabels = computed(() => {
+  const a = axisVector(delta.value, -1)
+  const north = { x: view.x + a.x * view.r, y: view.y + a.y * view.r }
+  const south = { x: view.x - a.x * view.r, y: view.y - a.y * view.r }
+  const place = (p, offsets) => {
+    const left = p.x < view.x
+    const [dx, dy] = left ? offsets.left : offsets.right
+    return { x: p.x + dx, y: p.y + dy, anchor: left ? 'end' : 'start' }
+  }
+  return {
+    north: place(north, { left: [-27, -3], right: [27, -3] }),
+    south: place(south, { left: [-11, 19], right: [11, 19] }),
+  }
+})
+
+/** 极圈纬线：固定的 66.5°，只是跟着地轴的倾角摆 */
+const northPolarLine = computed(() => {
+  const seg = parallelSegment(view, view.r, POLAR_CIRCLE, delta.value, -1)
+  return `M ${seg.from.x} ${seg.from.y} L ${seg.to.x} ${seg.to.y}`
+})
+const southPolarLine = computed(() => {
+  const seg = parallelSegment(view, view.r, -POLAR_CIRCLE, delta.value, -1)
+  return `M ${seg.from.x} ${seg.from.y} L ${seg.to.x} ${seg.to.y}`
+})
+
+/** 切点 = 晨昏线与纬线相切的那两个点 */
+const tangents = computed(() => tangentPoints(view, view.r, delta.value, -1))
+const cutNorth = computed(() => tangents.value.north.tangent)
+const cutSouth = computed(() => tangents.value.south.tangent)
+
+/** 极昼、极夜的范围：切点纬度以内的那一块 */
+const northCap = computed(() => polarCapPath(view, view.r, cutLatitudes(delta.value)[0], delta.value, -1))
+const southCap = computed(() => polarCapPath(view, view.r, cutLatitudes(delta.value)[1], delta.value, -1))
+
+/** 极昼极夜归哪一侧：直射点在北半球则北极侧极昼，在南半球则反过来 */
+const daySide = computed(() => polarDaySide(delta.value))
+/** 二至日：切点正好落在极圈上 */
+const isSolstice = computed(() => Math.abs(Math.abs(delta.value) - DECL) < 0.01)
+const hasPolarCaps = computed(() => daySide.value !== 0)
+const northCapClass = computed(() =>
+  daySide.value > 0 ? 'demo-cap demo-cap--day' : 'demo-cap demo-cap--night',
+)
+const southCapClass = computed(() =>
+  daySide.value < 0 ? 'demo-cap demo-cap--day' : 'demo-cap demo-cap--night',
+)
+
+/** 极昼极夜的标注：跟着那一块走，文字摆在球外那一侧 */
+const northNote = computed(() => {
+  const outer = tangents.value.north.outer
+  const left = outer.x < view.x
+  return {
+    line1: { x: left ? 196 : 650, y: 94, anchor: left ? 'start' : 'end' },
+    line2: { x: left ? 196 : 650, y: 114, anchor: left ? 'start' : 'end' },
+    leader: `M ${left ? 268 : 546} 100 L ${outer.x.toFixed(1)} ${outer.y.toFixed(1)}`,
+  }
+})
+const southNote = computed(() => {
+  const outer = tangents.value.south.outer
+  const right = outer.x > view.x
+  return {
+    line1: { x: right ? 566 : 196, y: 284, anchor: right ? 'start' : 'end' },
+    line2: { x: right ? 566 : 196, y: 304, anchor: right ? 'start' : 'end' },
+    leader: `M ${right ? 560 : 204} 278 L ${outer.x.toFixed(1)} ${outer.y.toFixed(1)}`,
+  }
+})
+
+/** 图上的文字 */
+const declShort = computed(() => formatDeclination(delta.value))
+const cutTitle = computed(() => {
+  if (!hasPolarCaps.value) return '晨昏线过南北两极：全球昼夜等长'
+  if (isSolstice.value) return '切点：晨昏线与极圈相切'
+  return `切点：晨昏线与 ${cutLatitudes(delta.value)[0]}° 纬线相切`
+})
+const northCapText = computed(() => {
+  if (!hasPolarCaps.value) return '无极昼极夜'
+  if (isSolstice.value) return daySide.value > 0 ? '圈内：极昼' : '圈内：极夜'
+  return `${daySide.value > 0 ? '极昼区' : '极夜区'}：${cutLatitudes(delta.value)[0]}° 以北`
+})
+const southCapText = computed(() => {
+  if (!hasPolarCaps.value) return '无极昼极夜'
+  if (isSolstice.value) return daySide.value > 0 ? '圈内：极夜' : '圈内：极昼'
+  return `${daySide.value > 0 ? '极夜区' : '极昼区'}：${Math.abs(cutLatitudes(delta.value)[1])}° 以南`
+})
+const bottomNote = computed(() => {
+  if (!hasPolarCaps.value) return '直射点在赤道：晨昏线过两极，全球昼夜等长'
+  return `切点纬度 = 90° − |直射点纬度| = ${cutLatitudes(delta.value)[0]}°`
+})
+
+/** 解说词跟着参数走，参数变了文案不能还说别的季节 */
+const subsolarSentence = computed(() => {
+  if (!hasPolarCaps.value) return '直射点正好在赤道上（春分或秋分，全球昼夜等长）'
+  if (isSolstice.value) {
+    return `直射点在${delta.value > 0 ? '北' : '南'}回归线 ${formatDeclination(delta.value)}（${delta.value > 0 ? '夏至日' : '冬至日'}）`
+  }
+  return `直射点在 ${formatDeclination(delta.value)}`
+})
+const cutSentence = computed(() => {
+  if (!hasPolarCaps.value) {
+    return '现在直射点在赤道，晨昏线过两极，此时全球昼夜等长、没有极昼极夜。'
+  }
+  const cut = cutLatitudes(delta.value)[0]
+  const where = isSolstice.value ? `${cut}° 的极圈上` : `${cut}° 的纬线上`
+  const side = daySide.value > 0 ? '北圈内极昼、南圈内极夜' : '北圈内极夜、南圈内极昼'
+  return `现在切点在 ${where}：晨昏线切到的那条纬线以内会出现极昼极夜——${side}。`
+})
+
+const steps = computed(() => [
   {
     id: 'subsolar',
     title: '① 找直射点，连到地心',
-    text: '做光照图第一步先找太阳直射点——这一步定全局。侧视图里太阳在左边、光线是平行的，直射点就落在球的左轮廓上：夏至日它在北回归线 23.5°N。第二步从直射点连一条线到地心，这条线就是太阳光线的方向。',
+    text: `做光照图第一步先找太阳直射点——这一步定全局。侧视图里太阳在左边、光线是平行的，直射点就落在球的左轮廓上：${subsolarSentence.value}。第二步从直射点连一条线到地心，这条线就是太阳光线的方向。`,
   },
   {
     id: 'perpendicular',
@@ -170,36 +345,9 @@ const steps = [
   {
     id: 'cuts',
     title: '④ 标出切点与极昼极夜范围',
-    text: '最后标两样：晨昏线与极圈相切的那两个点叫切点，切点纬度等于 90° 减直射点纬度，所以夏至日的切点正好在 66.5° 的极圈上。切点以北或以南，圈内会出现极昼极夜——夏至日北圈内极昼、南圈内极夜，冬至日正好相反。',
+    text: `最后标两样：晨昏线与纬线相切的那两个点叫切点，切点纬度等于 90° 减直射点纬度的绝对值。${cutSentence.value}`,
   },
-]
-
-const view = VIEW
-const subsolar = subsolarPoint(view, view.r)
-const subsolarLine = subsolarAxisLine(view, view.r)
-const terminator = terminatorLine(view, view.r)
-const dayPath = leftHalfPath(view.x, view.y, view.r)
-
-/** 地轴：夏至日北端朝向太阳（向左倾） */
-const axisLine = computed(() => {
-  const a = axisVector(DECL, -1)
-  const len = view.r + 34
-  return `M ${view.x - a.x * len} ${view.y - a.y * len} L ${view.x + a.x * len} ${view.y + a.y * len}`
-})
-
-/** 极圈与切点 */
-const northPolar = computed(() => parallelSegment(view, view.r, cutLatitudes(DECL)[0], DECL, -1))
-const southPolar = computed(() => parallelSegment(view, view.r, cutLatitudes(DECL)[1], DECL, -1))
-const northPolarLine = computed(() => `M ${northPolar.value.from.x} ${northPolar.value.from.y} L ${northPolar.value.to.x} ${northPolar.value.to.y}`)
-const southPolarLine = computed(() => `M ${southPolar.value.from.x} ${southPolar.value.from.y} L ${southPolar.value.to.x} ${southPolar.value.to.y}`)
-
-/** 切点 = 晨昏线与极圈的交点，在侧视投影里就是晨昏线的两个端点 */
-const cutNorth = computed(() => northPolar.value.to)
-const cutSouth = computed(() => southPolar.value.from)
-
-/** 极昼、极夜的范围 */
-const northCap = computed(() => polarCapPath(view, view.r, cutLatitudes(DECL)[0], DECL, -1))
-const southCap = computed(() => polarCapPath(view, view.r, cutLatitudes(DECL)[1], DECL, -1))
+])
 </script>
 
 <style scoped>
