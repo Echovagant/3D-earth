@@ -1,6 +1,6 @@
 # AGENTS.md
 
-给后续在本仓库执行任务的 AI agent / 协作者看的项目约定。
+给后续在这个仓库上干活的人看的项目约定：目录职责、命令、硬约束与代码约定。
 
 ## 项目是什么
 
@@ -86,7 +86,7 @@ npm run build          # 生产构建
 npm run geo:check      # 校验本地地理数据与上游是否一致（只读，不写文件）
 npm run geo:update     # 从 DataV 同步中国地理数据到 public/geojson/
 npm run world:check    # 校验世界国界与上游是否一致
-npm run world:update   # 从 npmmirror 同步世界国界
+npm run world:update   # 从 npm 官方源同步世界国界
 npm run standard:list    # 从标准地图服务系统抓取清单（只报数，用 --out 指定落盘位置）
 npm run licenses:check # 体检数据源：上游可达性与许可是否仍与登记一致
 npm run knowledge:build   # 从课程讲义重新生成知识数据（源讲义在仓库外）
@@ -98,10 +98,10 @@ npm run province:check    # 校验省份名称索引与省份数据一致
 CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `test:unit` + `build`，另有一步 `knowledge:check`（源讲义不在仓库里，没有源时它只打印警告并 exit 0）。
 站点部署在 `.github/workflows/pages.yml`：同样先跑 lint 与测试，再用 `SITE_BASE=/3D-earth/` 构建并部署到 GitHub Pages。
 
-⚠️ **测试在机器负载高时会假红**：vitest 默认单用例超时 5 秒，多个 agent 并行跑测试时
+⚠️ **测试在机器负载高时会假红**：vitest 默认单用例超时 5 秒，多个进程并行跑测试时
 导航类用例会撞上超时。判断失败前先在安静机器上单独重跑那个文件。
 
-`npm run test:unit` 必须是绿的才算完成改动。当前有 589 个用例：
+`npm run test:unit` 必须是绿的才算完成改动。当前有 887 个用例：
 `src/__tests__/App.spec.js`（应用挂载）、
 `src/__tests__/geoDataProcessor.spec.js`（35 个要素的渲染范围覆盖、与参考实现逐顶点一致、海南/台湾/九段线定点断言）、
 `src/__tests__/provinceData.spec.js`（省份详情数据与 GeoJSON 的一致性契约：adcode/name/center 严格相等、字段结构完整、分区覆盖无重叠、配色不落兜底、面积与几何重算一致、两个面积口径不差数量级、人口合计与全国人口相差 3% 以内）、
@@ -115,7 +115,8 @@ CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `tes
 `src/__tests__/knowledgeParser.spec.js`（讲义解析器：栏位切分、块边界、缩进层级）、
 `src/__tests__/toolSources.spec.js`（互动工具的来源标注：节号、教材出处、视频分P 与课程范围）、
 `src/__tests__/toolLinks.spec.js`（知识点 ↔ 互动实验的双向互链：映射表完整性、强弱划分与人工策展的 sections 一致、两个方向互为逆映射、路由真实存在、实验页的「相关提纲」渲染与容错）、
-`src/__tests__/demo.spec.js`（演示动画：注册表与知识数据里的 id 对得上、**晨昏线的几何数值正确**（切点与直射点互余、与赤道交于 6 时和 18 时）、**每个演示都能挂载并切步**）、
+`src/__tests__/demo.spec.js`（演示动画：注册表与知识数据里的 id 对得上、**晨昏线的几何数值正确**（切点与直射点互余、与赤道交于 6 时和 18 时）、**每个演示都能挂载并切步**、**SVG 属性合法**（没有 NaN/undefined、路径以 M 开头）、**拖动参数轴到两端图形仍然正确**）、
+`src/__tests__/demo-shell.spec.js`（演示外壳：播放/暂停、速度、循环、时间轴跳转、键盘翻步、「减少动态效果」时不自动播、参数轴的 label 与数值同步）、
 `src/__tests__/demos/`（每个演示自己的用例：几何纯函数的值 + 组件渲染），
 `src/__tests__/router.spec.js`（路由表契约，含 `/licenses` 与 `/standard-map`）。
 
@@ -167,7 +168,7 @@ CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `tes
 | `100000.json` | `public/geojson/china.json` |
 | —— | `public/data/provinces/<adcode>.json` 里的 `areaKm2`（由边界几何算出） |
 
-`scripts/update-world.mjs` 从 npm 镜像源（npmmirror）拉两个包并合并：
+`scripts/update-world.mjs` 从 npm 官方源拉两个包并合并：
 
 | 包 | 许可 | 提供 | 写入 |
 |---|---|---|---|
@@ -204,9 +205,9 @@ CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `tes
   `mapYear` 记的是平台登记年份），共 9 条，全在「地方共享地图」分类里。
   **国家审图号（GS 开头）零不一致**，断言要分层写
 
-npm 包要从 npmmirror 取 tarball 再解包（`node:zlib` 解 gzip，tar 头部手写解析）——
-npmmirror 的单文件接口对这几个包是 403，tarball 是唯一通道。`un-m49` 的入口是 JS 字面量，
-脚本用正则逐字段解析，**不执行远端代码**。
+npm 包从官方 registry 取 tarball 再解包（`node:zlib` 解 gzip，tar 头部手写解析）——
+只取需要的那个文件、锁定版本，不执行远端代码。`un-m49` 的入口是 JS 字面量，
+脚本用正则逐字段解析。
 
 写盘的是合并后的结果，因此数据没变时不产生 diff。
 
@@ -237,5 +238,5 @@ npmmirror 的单文件接口对这几个包是 403，tarball 是唯一通道。`
 - 上游几何覆盖不全：世界数据没有科索沃（两个上游都没有它的边界）。
 - 台湾省作为一个省级行政区呈现（中国视角），在全球视角里不作为独立国家条目出现。
 - 审图号不适用于 3D 地球：`/standard-map` 列的是官方标准地图的审图号，3D 球面是另一种表现形式，不能沿用。
-- 课程内容目前只覆盖第 2 章（地图与定位工具）与第 15 章（区域地理），其余 13 章在课程地图里标为「规划中」；「点省→知识点」目前每个省只关联到 2–3 节
-- `npm audit` 需切到官方 npm registry 执行（npmmirror 不实现 `/-/npm/v1/security/*` 接口），依赖漏洞需换官方源再审。
+- 课程内容目前覆盖第 2 章（地图与定位工具）、第 3 章（地球的自转）、第 4 章（地球的公转）、第 7 章（大气环流）、第 11 章（水循环与海洋）与第 15 章（区域地理速览），共 98 个小节；其余 9 章在课程地图里标为「规划中」
+- `npm audit` 需切到官方 npm registry 执行（公共镜像源不实现 `/-/npm/v1/security/*` 接口），依赖漏洞需换官方源再审。

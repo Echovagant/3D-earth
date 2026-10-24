@@ -200,7 +200,7 @@
         <h2>数据更新</h2>
         <ul class="licenses__list">
           <li><code>scripts/update-geo.mjs</code> —— 中国省界与各省面积（DataV）。</li>
-          <li><code>scripts/update-world.mjs</code> —— 世界国界（npm 镜像源 npmmirror）。</li>
+          <li><code>scripts/update-world.mjs</code> —— 世界国界（npm 官方源）。</li>
           <li><code>scripts/update-standard-maps.mjs</code> —— 标准地图与审图号清单（标准地图服务系统）。</li>
           <li><code>scripts/check-licenses.mjs</code> —— 逐个体检上游可达性与许可字段。</li>
         </ul>

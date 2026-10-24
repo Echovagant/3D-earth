@@ -6,7 +6,7 @@
  *   node scripts/update-world.mjs          拉取并写入有变化的文件
  *   node scripts/update-world.mjs --check  只校验本地数据与上游是否一致
  *
- * 数据源是 npm 上的两个包，走 npmmirror 镜像源下载：
+ * 数据源是 npm 上的两个包，走 npm 官方源下载：
  *
  * - **几何与中文名**：`@surbowl/world-geo-json-zh` —— 239 个国家/地区的
  *   GeoJSON，简体中文名 + ISO 3166-1 的 alpha-2 / alpha-3 / 数字码。
@@ -28,7 +28,7 @@ import path from 'node:path'
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
 /** npm 镜像源 */
-const REGISTRY = 'https://registry.npmmirror.com'
+const REGISTRY = 'https://registry.npmjs.org'
 
 /** 几何与中文名 */
 const GEOMETRY_PACKAGE = {
@@ -354,7 +354,7 @@ function validate(geo) {
 }
 
 async function main() {
-  console.log('拉取世界国界数据（npmmirror）…')
+  console.log('拉取世界国界数据（npm 官方源）…')
   const [geometryText, regionsText] = await Promise.all([
     fetchPackageFile(GEOMETRY_PACKAGE),
     fetchPackageFile(REGIONS_PACKAGE),

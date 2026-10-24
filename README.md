@@ -71,6 +71,12 @@
   <img src="docs/screenshot-demo-walker.jpeg" alt="知识点页内的分步动态图解" width="880" />
 </p>
 
+另一段是晨昏线。太阳直射点的纬度是可以拖的：拖到赤道，晨昏线就变成过南北两极的两条竖线，切点随之落到极点：
+
+<p align="center">
+  <img src="docs/screenshot-demo-terminator.jpeg" alt="带参数轴的晨昏线图解" width="880" />
+</p>
+
 <p align="center">
   <img src="docs/screenshot-contour.jpeg" alt="等高线判读实验" width="880" />
 </p>
@@ -106,6 +112,8 @@
 ## 数据来源与许可
 
 代码与第三方数据适用不同许可，**逐项来源、许可与义务见 [LICENSES.md](./LICENSES.md)**，站内也有同样一份：路由 `/licenses`。
+
+标准地图元数据来自自然资源部标准地图服务系统公开的清单（名称、比例尺、审图号、审核年份、分类），从官方接口抓取整理，覆盖 2000 余张。
 
 | 数据 | 来源 | 许可 |
 |---|---|---|

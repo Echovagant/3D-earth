@@ -43,9 +43,9 @@
 |---|---|---|---|
 | `china-provinces.json` | 34 个省级行政区 + 南海断续线要素 | [DataV.GeoAtlas 行政区划边界](https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json)（阿里云） | 上游公开接口数据，随仓库分发 |
 | `china.json` | 中华人民共和国整体边界 | [DataV.GeoAtlas 行政区划边界](https://geo.datav.aliyun.com/areas_v3/bound/100000.json) | 上游公开接口数据，随仓库分发 |
-| `world-countries.json` | 239 个国家/地区边界，含中文名、ISO 3166-1 代码与地区划分 | 几何与中文名：[`@surbowl/world-geo-json-zh`](https://registry.npmmirror.com/@surbowl/world-geo-json-zh)；大洲与次区域：联合国 M49 地区划分（[`un-m49`](https://registry.npmmirror.com/un-m49)） | **Unlicense**（公有领域）+ **MIT** |
+| `world-countries.json` | 239 个国家/地区边界，含中文名、ISO 3166-1 代码与地区划分 | 几何与中文名：[`@surbowl/world-geo-json-zh`](https://registry.npmjs.org/@surbowl/world-geo-json-zh)；大洲与次区域：联合国 M49 地区划分（[`un-m49`](https://registry.npmjs.org/un-m49)） | **Unlicense**（公有领域）+ **MIT** |
 
-两个 npm 包都从 npmmirror（npm 镜像源）取 tarball：npmmirror 的单文件接口对它们是 403，tarball 是唯一通道。`un-m49` 的入口是 JS 字面量，脚本用正则逐字段解析，**不执行远端代码**。
+两个 npm 包都从 npm 官方源取 tarball：只取需要的文件、锁定版本，不执行远端代码。`un-m49` 的入口是 JS 字面量，脚本用正则逐字段解析，**不执行远端代码**。
 
 ---
 
@@ -123,7 +123,7 @@
 | 脚本 | 上游 | 调度 |
 |---|---|---|
 | `scripts/update-geo.mjs` | DataV.GeoAtlas | GitHub Actions 每周一 |
-| `scripts/update-world.mjs` | npm 镜像源 npmmirror | 同上 |
+| `scripts/update-world.mjs` | npm 官方源 | 同上 |
 | `scripts/update-standard-maps.mjs` | 标准地图服务系统 | 同上 |
 | `scripts/check-licenses.mjs` | 逐个体检上游可达性与许可字段 | 同上 |
 

@@ -19,7 +19,7 @@ import path from 'node:path'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const QUIET = process.argv.slice(2).includes('--quiet')
-const REGISTRY = 'https://registry.npmmirror.com'
+const REGISTRY = 'https://registry.npmjs.org'
 
 /**
  * 全部在用的数据源。
