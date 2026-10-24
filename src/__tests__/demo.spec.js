@@ -170,6 +170,30 @@ describe('全部演示', () => {
     // 30 个演示逐个挂载，默认 5 秒超时不够
   }, 60000)
 
+  it('每个演示的 SVG 属性都是合法值：没有 NaN、没有 undefined、路径都以 M 开头', async () => {
+    // 这两类 bug 光靠「组件能挂载」测不出来：
+    //   ① 坐标算成了 NaN → 元素被浏览器丢弃，图上少了东西
+    //   ② 绑定漏了冒号 → 源码当字面量渲染（d="arrowHead(...)"）
+    // 两者都只在浏览器里才暴露，所以在这里做成断言，别再靠肉眼。
+    const problems = []
+    for (const [id, loader] of Object.entries(DEMO_LOADERS)) {
+      const module = await loader()
+      const wrapper = mount(module.default)
+      await flushPromises()
+      for (const el of wrapper.findAll('.demo__canvas *')) {
+        const attrs = el.attributes()
+        for (const [name, value] of Object.entries(attrs)) {
+          if (/NaN|undefined/.test(value)) {
+            problems.push(`${id}：<${el.tagName} ${name}="${value}">`)
+          }
+        }
+        const d = attrs.d
+        if (d && !/^[Mm]/.test(d)) problems.push(`${id}：路径属性不是 M 开头 → ${d.slice(0, 50)}`)
+      }
+    }
+    expect(problems, '有演示的 SVG 属性不合法').toEqual([])
+  }, 60000)
+
   it('演示组件不少于 30 个（§3.6 那批 + 铺开的 29 节）', () => {
     expect(DEMO_IDS.length).toBeGreaterThanOrEqual(30)
   })

@@ -98,7 +98,7 @@
         <text class="demo__label demo__label--faint" x="104" y="86" text-anchor="end">纬度</text>
         <text class="demo__label" x="104" y="106" text-anchor="end">23.5°N</text>
         <text class="demo__label" x="104" y="294" text-anchor="end">23.5°S</text>
-        <text class="demo__label demo__label--faint" x="plot.right" y="352" text-anchor="end">
+        <text class="demo__label demo__label--faint" :x="plot.right" y="352" text-anchor="end">
           时间 →
         </text>
         <text

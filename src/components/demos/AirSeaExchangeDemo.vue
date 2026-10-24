@@ -94,7 +94,7 @@
 
         <!-- 海洋 → 大气：热量 -->
         <path class="as-flow" d="M 150 220 L 150 110" />
-        <path class="as-head" d="arrowHead(150, 110, 90, 14)" />
+        <path class="as-head" :d="arrowHead(150, 110, 90, 14)" />
         <text class="demo__label demo__label--mark" x="168" y="140">
           海洋 → 大气：热量（热力因素）
         </text>
@@ -104,7 +104,7 @@
 
         <!-- 大气 → 海洋：动力 -->
         <path class="as-flow" d="M 470 110 L 470 226" />
-        <path class="as-head" d="arrowHead(470, 226, -90, 14)" />
+        <path class="as-head" :d="arrowHead(470, 226, -90, 14)" />
         <text class="demo__label demo__label--mark" x="488" y="140">
           大气 → 海洋：动力（风）
         </text>
@@ -114,7 +114,7 @@
 
         <!-- 表层风推着海水走 -->
         <path class="as-flow" d="M 570 250 L 400 250" />
-        <path class="as-head" d="arrowHead(400, 250, 180, 16)" />
+        <path class="as-head" :d="arrowHead(400, 250, 180, 16)" />
         <text class="demo__label demo__label--faint" x="485" y="278" text-anchor="middle">
           表层风 → 风海流
         </text>

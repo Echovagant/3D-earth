@@ -187,7 +187,7 @@ const latitudeLabels = computed(() =>
     { lat: 0, label: '赤道' },
     { lat: -66.5, label: '南极圈' },
     { lat: -90, label: '90°S' },
-  ].map((l) => ({ ...l, y: Number(project.y(l).toFixed(2)) })),
+  ].map((l) => ({ ...l, y: Number(project.y(l.lat).toFixed(2)) })),
 )
 
 /** 四条特殊经线：地方时 0 / 6 / 12 / 18 时 */

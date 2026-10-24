@@ -142,7 +142,7 @@
         <text class="demo__label" x="500" y="234" text-anchor="middle">下游河道</text>
 
         <path class="lw-flow" d="M 120 176 L 120 196" />
-        <path class="lw-head" d="arrowHead(120, 196, -90, 12)" />
+        <path class="lw-head" :d="arrowHead(120, 196, -90, 12)" />
         <text class="demo__label demo__label--faint" x="132" y="184">丰水期蓄水</text>
 
         <text class="demo__label" x="30" y="300">
