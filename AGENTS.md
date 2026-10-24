@@ -115,7 +115,8 @@ CI 定义在 `.github/workflows/ci.yml`：push 与 PR 都跑 `lint:check` + `tes
 `src/__tests__/knowledgeParser.spec.js`（讲义解析器：栏位切分、块边界、缩进层级）、
 `src/__tests__/toolSources.spec.js`（互动工具的来源标注：节号、教材出处、视频分P 与课程范围）、
 `src/__tests__/toolLinks.spec.js`（知识点 ↔ 互动实验的双向互链：映射表完整性、强弱划分与人工策展的 sections 一致、两个方向互为逆映射、路由真实存在、实验页的「相关提纲」渲染与容错）、
-`src/__tests__/demo.spec.js`（演示动画：注册表与知识数据里的 id 对得上、**晨昏线的几何数值正确**（切点与直射点互余、与赤道交于 6 时和 18 时）、组件能渲染与逐步切换）、
+`src/__tests__/demo.spec.js`（演示动画：注册表与知识数据里的 id 对得上、**晨昏线的几何数值正确**（切点与直射点互余、与赤道交于 6 时和 18 时）、**每个演示都能挂载并切步**）、
+`src/__tests__/demos/`（每个演示自己的用例：几何纯函数的值 + 组件渲染），
 `src/__tests__/router.spec.js`（路由表契约，含 `/licenses` 与 `/standard-map`）。
 
 ## 硬约束
