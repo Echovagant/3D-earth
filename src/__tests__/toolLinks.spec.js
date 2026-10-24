@@ -207,7 +207,7 @@ describe('知识点 ↔ 互动实验：映射表', () => {
 
 describe('知识点详情页的实验入口', () => {
   /**
-   * §3 的分片文件还没生成，这里造一份 §3.1 用来验证「本章实验」那一支。
+   * 这里造一份 §3.1 来验证「同章关联」那一支的入口文案。
    * 索引照着真的改：只把第 3 章标成有内容，其余原样（章名不能变）。
    */
   const fakeLesson31 = {
@@ -313,11 +313,12 @@ describe('知识点详情页的实验入口', () => {
     )
   })
 
-  it('章级关联显示「本章实验：…」', async () => {
+  it('章级关联显示「章名 · 可动手玩」', async () => {
     const wrapper = await mountLesson('3.1')
     const link = wrapper.find('a.learn-tag[href="/tools/terminator"]')
     expect(link.exists()).toBe(true)
-    expect(link.text()).toBe('本章实验：太阳高度角与晨昏线')
+    // 弱关联要说清这是同章的实验：章名 + 「可动手玩」，别让人以为是本节的练习
+    expect(link.text()).toBe('§3 地球的自转 · 可动手玩')
   })
 })
 

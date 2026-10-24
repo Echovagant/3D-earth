@@ -28,7 +28,7 @@
               >本节视频：{{ lesson.video.label }} →</a
             >
             <router-link v-if="tool" class="learn-tag" :to="tool.to">
-              {{ tool.kind === 'drill' ? '动手练' : '本章实验' }}：{{ tool.name }}
+              {{ tool.label }}
             </router-link>
             <span v-if="lesson.sourceLabel" class="learn-panel__meta">
               <!-- v-html：输入是仓库内的静态 JSON，不是用户输入；renderEmphasis 先转义后替换，输出只可能是 <strong> -->
@@ -215,8 +215,21 @@ const videoUrl = computed(() =>
  *
  * 映射表在 src/data/toolLinks.js：那里是唯一的真相源，
  * 实验页的「相关提纲」区块也从同一份数据派生。
+ *
+ * 入口文案分两种强度，让点击前就知道点进去会看到什么：
+ *   drill   —— 这个实验直接教这一节 → 「动手练：等高线判读」
+ *   chapter —— 只是同章的关联     → 「§7 大气环流：气压带风带与季风 · 可动手玩」
  */
-const tool = computed(() => LESSON_TOOLS[lesson.value?.id] ?? null)
+const tool = computed(() => {
+  const entry = LESSON_TOOLS[lesson.value?.id]
+  if (!entry) return null
+  if (entry.kind === 'drill') return { ...entry, label: `动手练：${entry.name}` }
+  // 章级关联：把章名摆出来，用户才知道这一章还有个能动手的地方。
+  // 章名取冒号前的短名（「大气环流：气压带风带与季风」→「大气环流」）——
+  // 完整章名塞进标签行会在窄屏上撑破。
+  const chapter = Number(lesson.value.id.split('.')[0])
+  return { ...entry, label: `${shortChapterLabel(chapter)} · 可动手玩` }
+})
 /** 前置与后续：节级引用与章级引用都算，否则只有章级引用的节会被整段藏掉 */
 const refs = computed(() => [
   ...(lesson.value?.prereq ?? []),
@@ -237,6 +250,19 @@ const chapterOf = (id) => chapters.value.find((c) => c.id === Number(id))
 const chapterLabel = (id) => {
   const chapter = chapterOf(id)
   return chapter ? `§${chapter.id} ${chapter.title}` : `§${id}`
+}
+
+/**
+ * 章名的短形式：取冒号前的部分。
+ *
+ * 「大气环流：气压带风带与季风」→「大气环流」——章名用冒号分开的是
+ * 主题与范围，标签行放不下完整版，窄屏上会撑破。
+ */
+const shortChapterLabel = (id) => {
+  const chapter = chapterOf(id)
+  if (!chapter) return `§${id}`
+  const [short] = chapter.title.split('：')
+  return `§${chapter.id} ${short}`
 }
 
 /** 该章是否已收录——已收录的章级引用要能点进章节页 */
