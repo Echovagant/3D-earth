@@ -149,10 +149,10 @@ export const HUMAN_IMPACTS = [
     id: 'reservoir',
     title: '兴修水库',
     note: '丰水期蓄水、枯水期放水',
-    changes: [
-      { link: '地表径流', dir: 'regulate' },
-      { link: '库区地下水位', dir: 'up' },
-    ],
+    // 讲义对水库只说了一件事：改变地表径流量。
+    // 不要再补「库区地下水位上升」这类讲义没有的说法——那会把
+    // 「修水库 → 地表径流」这条对号入座的规律冲淡。
+    changes: [{ link: '地表径流', dir: 'regulate' }],
   },
   {
     id: 'urbanization',

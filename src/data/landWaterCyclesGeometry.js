@@ -23,7 +23,6 @@ export const NODES = {
   evaporation: { label: '蒸发·蒸腾', x: 50, y: 168 },
   river: { label: '河流（地表径流）', x: 300, y: 168 },
   snowpack: { label: '季节性积雪', x: 620, y: 168 },
-  marsh: { label: '沼泽', x: 45, y: 256 },
   groundwater: { label: '地下水', x: 110, y: 256 },
   lake: { label: '湖泊', x: 200, y: 256 },
   ocean: { label: '海洋', x: 500, y: 256 },
@@ -76,7 +75,6 @@ export const LINKS = [
     b: { x: 116, y: 243 },
     label: '下渗',
   },
-  { id: 'rain-marsh', from: 'rain', to: 'marsh', a: { x: 138, y: 105 }, b: { x: 50, y: 243 } },
   {
     id: 'snow-snowpack',
     from: 'snow',
