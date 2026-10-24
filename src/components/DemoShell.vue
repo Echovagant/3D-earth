@@ -43,7 +43,7 @@
       <button
         type="button"
         class="learn-top__back demo__speed"
-        :aria-label="`播放速度 ${speed} 倍`"
+        :aria-label="`${speed}× · 播放速度`"
         @click="cycleSpeed"
       >
         {{ speed }}×

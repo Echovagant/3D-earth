@@ -357,13 +357,16 @@ a.learn-tag:hover {
   animation: demo-fade 0.32s ease-out;
 }
 
-/* 往下一步：新的那步从右边滑进来；往回上一步：从左边 */
+/* 往下一步：新的那步从右边揭开；往回上一步：从左边揭开。
+   用裁剪而不是位移——位移会把贴着画布边缘的文字推出画布，
+   而 SVG 会直接把它裁掉。实测全站最紧的一处文字离边缘只有 3.7 个单位
+   （画布 720 宽），位移 20 个单位足以把它切掉一大截。 */
 .demo__canvas--forward .demo__frame {
-  animation-name: demo-slide-from-right;
+  animation-name: demo-wipe-from-right;
 }
 
 .demo__canvas--back .demo__frame {
-  animation-name: demo-slide-from-left;
+  animation-name: demo-wipe-from-left;
 }
 
 @keyframes demo-fade {
@@ -375,25 +378,23 @@ a.learn-tag:hover {
   }
 }
 
-@keyframes demo-slide-from-right {
+/* 从右边揭开：左边留白 100% 收到 0，可见区域自右向左展开 */
+@keyframes demo-wipe-from-right {
   from {
-    opacity: 0;
-    transform: translateX(20px);
+    clip-path: inset(0 0 0 100%);
   }
   to {
-    opacity: 1;
-    transform: translateX(0);
+    clip-path: inset(0 0 0 0);
   }
 }
 
-@keyframes demo-slide-from-left {
+/* 从左边揭开：右边留白 100% 收到 0，可见区域自左向右展开 */
+@keyframes demo-wipe-from-left {
   from {
-    opacity: 0;
-    transform: translateX(-20px);
+    clip-path: inset(0 100% 0 0);
   }
   to {
-    opacity: 1;
-    transform: translateX(0);
+    clip-path: inset(0 0 0 0);
   }
 }
 
@@ -550,6 +551,7 @@ a.learn-tag:hover {
 }
 
 .demo__seg {
+  position: relative;
   width: 22px;
   height: 6px;
   padding: 0;
@@ -557,6 +559,17 @@ a.learn-tag:hover {
   border-radius: 3px;
   background: var(--learn-panel);
   cursor: pointer;
+}
+
+/* 分段条本身只有 6px 高，鼠标很难点中——把可点区域撑到 24px，
+   视觉不变，但手指和鼠标都够得着（WCAG 2.2 的目标尺寸下限）。 */
+.demo__seg::after {
+  content: '';
+  position: absolute;
+  top: -9px;
+  bottom: -9px;
+  left: -1px;
+  right: -1px;
 }
 
 .demo__seg.is-done {
@@ -590,6 +603,8 @@ a.learn-tag:hover {
 .demo-slider__input {
   flex: 1;
   min-width: 0;
+  /* 触控目标不小于 24px：滑块本体细，拖动区要够大 */
+  min-height: 24px;
   accent-color: var(--learn-accent);
   cursor: pointer;
 }

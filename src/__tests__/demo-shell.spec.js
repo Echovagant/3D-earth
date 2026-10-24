@@ -193,6 +193,21 @@ describe('演示外壳', () => {
     }
   })
 
+  it('按钮的无障碍名称要包含可见文字', () => {
+    // 屏幕阅读器读的是 aria-label，语音控制用户念的是屏幕上的字。
+    // 两者对不上时，用户说「点 1×」点不动（WCAG 2.2 的 label in name）。
+    const wrapper = mount(DemoShell, { props: { steps } })
+
+    const speed = wrapper.findAll('.demo__controls button').find((b) => b.text().trim().endsWith('×'))
+    expect(speed.attributes('aria-label')).toContain(speed.text().trim())
+
+    const loop = findButton(wrapper, '循环')
+    expect(loop.attributes('aria-label')).toContain('循环')
+
+    const play = findButton(wrapper, '播放')
+    expect(play.attributes('aria-label')).toContain('播放')
+  })
+
   it('没有提供 controls 槽时不渲染参数区', () => {
     const wrapper = mount(DemoShell, { props: { steps } })
     expect(wrapper.find('.demo__params').exists()).toBe(false)
