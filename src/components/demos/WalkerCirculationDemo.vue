@@ -1,5 +1,5 @@
 <template>
-  <DemoShell :steps="steps">
+  <DemoShell :steps="steps" :explains="explains">
     <template #default="{ step }">
       <!-- ①②③ 三张剖面图：① 跟着参数连续变形，②③ 是拉尼娜/厄尔尼诺的定格参照 -->
       <g v-for="(p, i) in statePanels" :key="p.key" v-show="step === i" class="demo__frame">
@@ -11,67 +11,83 @@
         <text class="demo__label demo__label--faint" x="98" y="88">高度</text>
 
         <!-- 海洋与暖水层 -->
-        <path class="wk-ocean" :d="p.oceanPath" />
-        <path class="wk-warm" :d="p.warmPath" />
+        <path class="wk-ocean" :data-explain="p.explain.sea" :d="p.oceanPath" />
+        <path class="wk-warm" :data-explain="p.explain.warmLayer" :d="p.warmPath" />
 
         <!-- 上升支（热源上方） -->
-        <path class="wk-flow" :d="p.rise.d" />
-        <path v-if="p.rise.head" class="wk-head" :d="p.rise.head" />
-        <text
-          class="demo__label demo__label--mark"
-          :x="p.riseLabel.x"
-          :y="p.riseLabel.y"
-          :text-anchor="p.riseLabel.anchor"
-        >
-          上升气流（降水）
-        </text>
+        <g :data-explain="p.explain.rise">
+          <path class="wk-flow" :d="p.rise.d" />
+          <path v-if="p.rise.head" class="wk-head" :d="p.rise.head" />
+          <text
+            class="demo__label demo__label--mark"
+            :x="p.riseLabel.x"
+            :y="p.riseLabel.y"
+            :text-anchor="p.riseLabel.anchor"
+          >
+            上升气流（降水）
+          </text>
+        </g>
 
         <!-- 下沉支（冷源上方） -->
-        <path class="wk-flow" :d="p.sink.d" />
-        <path v-if="p.sink.head" class="wk-head" :d="p.sink.head" />
-        <text
-          class="demo__label demo__label--mark"
-          :x="p.sinkLabel.x"
-          :y="p.sinkLabel.y"
-          :text-anchor="p.sinkLabel.anchor"
-        >
-          下沉气流（干晴）
-        </text>
+        <g :data-explain="p.explain.sink">
+          <path class="wk-flow" :d="p.sink.d" />
+          <path v-if="p.sink.head" class="wk-head" :d="p.sink.head" />
+          <text
+            class="demo__label demo__label--mark"
+            :x="p.sinkLabel.x"
+            :y="p.sinkLabel.y"
+            :text-anchor="p.sinkLabel.anchor"
+          >
+            下沉气流（干晴）
+          </text>
+        </g>
 
         <!-- 冷水上涌 -->
-        <path class="wk-flow wk-flow--soft" :d="p.upwell.d" />
-        <path v-if="p.upwell.head" class="wk-head wk-head--soft" :d="p.upwell.head" />
-        <text
-          v-if="p.upwellLabel"
-          class="demo__label demo__label--faint"
-          :x="p.upwellLabel.x"
-          :y="p.upwellLabel.y"
-          :text-anchor="p.upwellLabel.anchor"
-        >
-          冷水上涌
-        </text>
+        <g :data-explain="p.explain.upwell">
+          <path class="wk-flow wk-flow--soft" :d="p.upwell.d" />
+          <path v-if="p.upwell.head" class="wk-head wk-head--soft" :d="p.upwell.head" />
+          <text
+            v-if="p.upwellLabel"
+            class="demo__label demo__label--faint"
+            :x="p.upwellLabel.x"
+            :y="p.upwellLabel.y"
+            :text-anchor="p.upwellLabel.anchor"
+          >
+            冷水上涌
+          </text>
+        </g>
 
         <!-- 高空气流：上升支 → 下沉支 -->
-        <path class="wk-flow" :d="p.upper.d" />
-        <path v-if="p.upper.head" class="wk-head" :d="p.upper.head" />
-        <text class="demo__label" :x="p.upperLabel.x" :y="p.upperLabel.y" text-anchor="middle">
-          高空气流
-        </text>
+        <g :data-explain="p.explain.upper">
+          <path class="wk-flow" :d="p.upper.d" />
+          <path v-if="p.upper.head" class="wk-head" :d="p.upper.head" />
+          <text class="demo__label" :x="p.upperLabel.x" :y="p.upperLabel.y" text-anchor="middle">
+            高空气流
+          </text>
+        </g>
 
         <!-- 近地面气流：下沉支 → 上升支（这就是东南信风） -->
-        <path class="wk-flow" :d="p.surface.d" />
-        <path v-if="p.surface.head" class="wk-head" :d="p.surface.head" />
-        <text
-          class="demo__label demo__label--mark"
-          :x="p.tradeLabel.x"
-          :y="p.tradeLabel.y"
-          :text-anchor="p.tradeLabel.anchor"
-        >
-          {{ p.meta.trade }}
-        </text>
+        <g :data-explain="p.explain.surface">
+          <path class="wk-flow" :d="p.surface.d" />
+          <path v-if="p.surface.head" class="wk-head" :d="p.surface.head" />
+          <text
+            class="demo__label demo__label--mark"
+            :x="p.tradeLabel.x"
+            :y="p.tradeLabel.y"
+            :text-anchor="p.tradeLabel.anchor"
+          >
+            {{ p.meta.trade }}
+          </text>
+        </g>
 
         <!-- 暖水与洋流注记 -->
-        <text class="demo__label demo__label--mark" :x="p.warmLabel.x" :y="p.warmLabel.y" text-anchor="middle">
+        <text
+          class="demo__label demo__label--mark"
+          :data-explain="p.explain.warmPool"
+          :x="p.warmLabel.x"
+          :y="p.warmLabel.y"
+          text-anchor="middle"
+        >
           暖水
         </text>
         <text class="demo__label demo__label--faint" x="110" y="334">西太平洋</text>
@@ -92,8 +108,10 @@
           <path class="wk-head" :d="p.rise.head" />
           <path class="wk-flow" :d="p.sink.d" />
           <path class="wk-head" :d="p.sink.head" />
-          <path class="wk-flow" :d="p.surface.d" />
-          <path class="wk-head" :d="p.surface.head" />
+          <g :data-explain="p.explain.surface">
+            <path class="wk-flow" :d="p.surface.d" />
+            <path class="wk-head" :d="p.surface.head" />
+          </g>
 
           <text class="demo__label" :x="p.cx" y="218" text-anchor="middle">{{ p.meta.west }}</text>
           <text class="demo__label" :x="p.cx" y="240" text-anchor="middle">{{ p.meta.east }}</text>
@@ -157,8 +175,12 @@ import { arrowHead } from '../../data/svgParts'
 import {
   MIDLINE,
   PLOT,
+  SEA_TILT,
   STALL_EPS,
   STATE_META,
+  TILT_FULL_SPREAD,
+  WARM_LAYER_SPREAD,
+  WARM_LAYER_THICKNESS,
   WARM_POOL_X,
   directionAngle,
   surfaceFlowDirection,
@@ -266,6 +288,10 @@ function tradeLabelFor(dir, t) {
  * @param {object} c walkerCirculation 算出来的环流
  */
 function buildPanel(key, meta, c) {
+  // 讲解层的挂点：只有第①步的元素逐个可讲，②③是定格参照，各挂暖水池与
+  // 近地面气流两处。定格状态的画法与①完全一样，多挂只会多一份说不清的说明。
+  const live = key === 'live'
+  const suffix = live ? '' : `-${key}`
   const surfaceY = Math.min(c.seaWestY, c.seaEastY) - 30
   // 近地面气流停在上升支前一点，免得箭头压在上升气流上。
   // 缩进按长度取比例：暖水堆靠近中线时气流变短，缩进跟着缩，
@@ -310,6 +336,17 @@ function buildPanel(key, meta, c) {
   return {
     key,
     meta,
+    /** 讲解层挂点：与说明表里的 id 一一对应；undefined 表示不挂 */
+    explain: {
+      sea: live ? 'sea-surface' : undefined,
+      warmLayer: live ? 'warm-layer' : undefined,
+      warmPool: `warm-pool${suffix}`,
+      rise: live ? 'rise' : undefined,
+      sink: live ? 'sink' : undefined,
+      upwell: live ? 'upwell' : undefined,
+      upper: live ? 'upper' : undefined,
+      surface: `surface${suffix}`,
+    },
     oceanPath: `M ${PLOT.left} ${c.seaWestY} L ${PLOT.right} ${c.seaEastY} L ${PLOT.right} ${PLOT.bottom} L ${PLOT.left} ${PLOT.bottom} Z`,
     warmPath: warmPath(c),
     rise: seg({ x: c.rise.x, y: c.rise.y1 - 2 }, { x: c.rise.x, y: 92 }),
@@ -366,6 +403,245 @@ const statePanels = computed(() => [
   buildPanel('elnino', STATE_META.elnino, walkerCirculation(WARM_POOL_X.elnino)),
 ])
 
+/** 绘图区宽度：位置比例换算成画布坐标要用 */
+const PLOT_W = PLOT.right - PLOT.left
+
+/** 横向位置比例写成百分比 */
+const pct = (v) => `${Math.round(v * 100)}%`
+
+/** 近地面气流的走向写成一句话 */
+function flowDirText(warmPoolX) {
+  const dir = surfaceFlowDirection(warmPoolX)
+  if (dir === 'stall') return '停摆（低层气流为零）'
+  if (dir === 'east') return '自西向东（低层气流反向）'
+  return '自东向西（东南信风）'
+}
+
+/** 暖水堆在横向的哪一侧 */
+function warmSideText(warmPoolX) {
+  if (Math.abs(warmPoolX - MIDLINE) <= STALL_EPS) return '暖水堆压在中线上'
+  return warmPoolX < MIDLINE ? '暖水堆在西' : '暖水堆在东'
+}
+
+/**
+ * 某个定格状态的讲解数值。
+ *
+ * 只放与画布尺寸无关的量（位置比例、走向、系数）——同一份说明才能同时用在
+ * 第②③步的全幅剖面图与第④步的小图上，两处画的数值才对得上。
+ */
+function stateVars(c) {
+  return {
+    warmPct: pct(c.warmPoolX),
+    coldPct: pct(1 - c.warmPoolX),
+    offPct: pct(Math.abs(c.warmPoolX - MIDLINE)),
+    normalPct: pct(WARM_POOL_X.normal),
+    tiltAmount: c.tiltAmount.toFixed(2),
+    dirText: flowDirText(c.warmPoolX),
+  }
+}
+
+/**
+ * 讲解层：图上能点的元素，说明它是什么、怎么算出来的。
+ *
+ * steps 里的数字全部由几何函数算好后填进 {占位符}，不手写——
+ * 参数一动，图和讲解一起变，不会出现「图上箭头指向东、讲解却说吹向西」。
+ *
+ * 挂点只给能讲出推导的元素：第①步八个，第②③步各两个（暖水池与低层气流），
+ * 第④步三张小图各一个（低层气流）。其余箭头与①的画法完全一样，
+ * 挂上去只会多一份重复而说不清的说明。
+ */
+const explains = computed(() => {
+  const live = walkerCirculation(warmPoolX.value)
+  const lanina = walkerCirculation(WARM_POOL_X.lanina)
+  const elnino = walkerCirculation(WARM_POOL_X.elnino)
+  const normal = walkerCirculation(WARM_POOL_X.normal)
+  const stall = surfaceFlowDirection(live.warmPoolX) === 'stall'
+
+  /** 第①步的实时数值：图上量得到的一切都从几何里出 */
+  const liveVars = {
+    tradeVal: trade.value.toFixed(2),
+    warmPct: pct(live.warmPoolX),
+    warmX: live.warmX.toFixed(1),
+    coldX: live.coldX.toFixed(1),
+    coldPct: pct(1 - live.warmPoolX),
+    offPct: pct(Math.abs(live.warmPoolX - MIDLINE)),
+    warmSide: warmSideText(live.warmPoolX),
+    tiltAmount: live.tiltAmount.toFixed(2),
+    tiltFull: TILT_FULL_SPREAD.toFixed(1),
+    tiltDrop: Math.abs(live.seaWestY - live.seaEastY).toFixed(0),
+    seaTiltPx: String(SEA_TILT),
+    thickness: String(WARM_LAYER_THICKNESS),
+    spread: WARM_LAYER_SPREAD.toFixed(2),
+    sigma: (WARM_LAYER_SPREAD * PLOT_W).toFixed(1),
+    coldThick: live.layerThickness(live.coldX).toFixed(1),
+    dirText: flowDirText(live.warmPoolX),
+    fromX: live.surfaceFlow.fromX.toFixed(1),
+    toX: live.surfaceFlow.toX.toFixed(1),
+    upperFrom: live.upperFlow.fromX.toFixed(1),
+    upperTo: live.upperFlow.toX.toFixed(1),
+    seaYcold: live.seaY(live.coldX).toFixed(1),
+    plotLeft: String(PLOT.left),
+    plotW: String(PLOT_W),
+  }
+
+  return {
+    'sea-surface': {
+      name: '海面与海底',
+      hint: '海面不是平的：暖水一侧受热膨胀被抬高，冷水一侧被压低。',
+      vars: liveVars,
+      steps: [
+        '海水受热膨胀：暖水一侧密度小、体积大，海面被抬高',
+        '东西冷热差得越远 → 热力环流越强 → 海面倾斜越明显',
+        '幅度系数 = smoothstep(离中线距离 ÷ {tiltFull}) = {tiltAmount}',
+        '倾斜量 = 系数 × {seaTiltPx}px ⇒ 东西两端海面相差 {tiltDrop}px',
+        '暖水堆压到中线上 → 冷热源重合 → 系数归零，海面变平',
+      ],
+    },
+    'warm-layer': {
+      name: '暖水层（温跃层）',
+      hint: '暖水层的下边界就是温跃层——暖水与冷水的交界面。',
+      vars: liveVars,
+      steps: [
+        '温跃层 = 暖水与冷水的交界面，横向密度梯度最大的一段',
+        '厚度按高斯分布：厚度(x) = {thickness}px × exp(−(x − 暖水堆)² / 2σ²)',
+        'σ = {spread} × 绘图区宽度 = {sigma}px',
+        '最厚处落在暖水堆正下方（x = {warmX}）',
+        '到冷水源那一侧只剩 {coldThick}px，两端趋近于 0',
+      ],
+    },
+    'warm-pool': {
+      name: '暖水池',
+      hint: '暖水堆在横向的哪个位置，整个环流就从这里算出来。',
+      vars: liveVars,
+      steps: [
+        '信风自东向西推表层暖水 → 暖水堆在西太平洋；信风反转时暖水回流到东太平洋',
+        '暖水堆位置 = 绘图区左端 + 位置比例 × 绘图区宽度',
+        '当前信风参数 t = {tradeVal} ⇒ 位置比例 = {warmPct}（{warmSide}）',
+        '画布横坐标 = {plotLeft} + {warmPct} × {plotW} = {warmX}',
+        '整个环流只有一个自由度：暖水堆移到哪，上升支就移到哪',
+      ],
+    },
+    rise: {
+      name: '上升支（热源上升）',
+      hint: '暖水堆正上方的上升气流，降水就发生在这一带。',
+      vars: liveVars,
+      steps: [
+        '暖水堆是热源 → 上空气受热膨胀变轻 → 上升',
+        '所以上升支的横坐标 = 暖水堆的横坐标，不是另摆一个位置',
+        '当前暖水堆 x = {warmX}（绘图区 {warmPct} 处）',
+        '暖湿空气抬升到高空冷却凝结 → 这一带上降水多',
+      ],
+    },
+    sink: {
+      name: '下沉支（冷源下沉）',
+      hint: '冷水一侧的空气冷却变重而下沉，天空晴朗干旱。',
+      vars: liveVars,
+      steps: [
+        '冷水一侧是冷源 → 空气冷却变重 → 下沉',
+        '下沉支的横坐标 = 冷水源的横坐标 = 绘图区右端 − 暖水堆位置比例 × 宽度',
+        '当前冷水源 x = {coldX}（绘图区 {coldPct} 处）',
+        '下沉支正对着被离岸风刮走的表层水 → 底层冷水上涌',
+      ],
+    },
+    upwell: {
+      name: '冷水上涌',
+      hint: '表层水被风刮走后，压在下面的冷水顶上来。',
+      vars: liveVars,
+      steps: [
+        '近地面气流从下沉支吹向上升支 → 冷源一侧的表层水被带走',
+        '表层水一走，下面压着的冷水就顶上来 → 冷水上涌',
+        '上涌的冷水在 x = {coldX} 处顶到海面（该处海面 y = {seaYcold}）',
+        '冷水上涌带来营养盐 → 秘鲁渔场的饵料来源',
+      ],
+    },
+    upper: {
+      name: '高空气流',
+      hint: '高空的西风把上升的暖湿空气送回东边。',
+      vars: liveVars,
+      steps: [
+        '暖水一侧上空因上升而堆高气压 → 高空有暖湿空气可送',
+        '高空气流由上升支流向下沉支，是闭合回路的上半圈',
+        '当前从 x = {upperFrom} 吹向 x = {upperTo}',
+        '东边空气堆积后下沉 → 接回近地面那条回路，环流闭合',
+      ],
+    },
+    surface: {
+      name: '近地面气流（东南信风）',
+      hint: '由下沉支吹向上升支——高压吹向低压。',
+      vars: liveVars,
+      steps: [
+        '海面受热不均 → 暖水一侧成热低压、冷水一侧成冷高压',
+        '近地面气流由高压吹向低压：下沉支 → 上升支',
+        '当前走向 = {dirText}',
+        stall
+          ? '冷热源重合 → 起止点落在同一处（x = {fromX}），箭头长度为 0'
+          : '从 x = {fromX} 吹到 x = {toX}',
+        '气流吹向暖水堆（热低压），把表层暖水也推向那边 —— 箭头与暖水堆绑在一起',
+      ],
+    },
+    'warm-pool-lanina': {
+      name: '暖水池（拉尼娜）',
+      hint: '信风异常增强，暖水堆被推到比常年更靠西的位置。',
+      vars: stateVars(lanina),
+      steps: [
+        '信风比常年强一截 → 更多表层暖水被推向西边',
+        '暖水堆位置 = 绘图区左端 + 位置比例 × 绘图区宽度',
+        '拉尼娜的位置比例 = {warmPct}（常年是 {normalPct}）',
+        '离中线 {offPct} → 海面倾斜幅度系数 = {tiltAmount}（满幅）',
+        '暖水堆越靠西 → 上升支越靠西、下沉支越靠东',
+      ],
+    },
+    'surface-lanina': {
+      name: '近地面气流（拉尼娜）',
+      hint: '东南信风异常增强，自东向西吹得更起劲。',
+      vars: stateVars(lanina),
+      steps: [
+        '海面受热不均 → 西边暖（热低压）、东边冷（冷高压）',
+        '近地面气流由高压吹向低压：下沉支 → 上升支',
+        '当前走向 = {dirText}',
+        '暖水堆在西（{warmPct}），低层气流也指向西 —— 两件事绑在一起',
+        '信风越强 → 暖水堆越靠西 → 环流越猛：西边上升更旺、东边下沉更强',
+      ],
+    },
+    'warm-pool-elnino': {
+      name: '暖水池（厄尔尼诺）',
+      hint: '信风异常偏弱，暖水回流到东太平洋。',
+      vars: stateVars(elnino),
+      steps: [
+        '信风比常年弱 → 暖水不再被推向西边，而是回流东太平洋',
+        '位置比例 = {warmPct}（常年是 {normalPct}），暖水堆翻到东边',
+        '离中线 {offPct} → 海面倾斜幅度系数 = {tiltAmount}（满幅，但方向翻面）',
+        '冷热源跟着翻面：东边变热源、西边变冷源',
+        '暖水堆翻到东边，上升支也跟着翻到东边',
+      ],
+    },
+    'surface-elnino': {
+      name: '近地面气流（厄尔尼诺）',
+      hint: '低层气流反转为自西向东。',
+      vars: stateVars(elnino),
+      steps: [
+        '海面受热不均 → 现在东边暖（热低压）、西边冷（冷高压）',
+        '近地面气流由高压吹向低压：西边的下沉支 → 东边的上升支',
+        '当前走向 = {dirText}',
+        '暖水堆在东（{warmPct}），低层气流也指向东 —— 两件事绑在一起',
+        '低层反向 → 西太平洋下沉转晴、东太平洋上升转湿',
+      ],
+    },
+    'surface-normal': {
+      name: '近地面气流（正常年）',
+      hint: '自东向西的东南信风——暖水堆在西。',
+      vars: stateVars(normal),
+      steps: [
+        '海面受热不均 → 西边暖（热低压）、东边冷（冷高压）',
+        '近地面气流由高压吹向低压：下沉支 → 上升支',
+        '当前走向 = {dirText}',
+        '暖水堆在西（{warmPct}），低层气流也指向西 —— 这是正常年的样子',
+        '三个状态对比：信风强 → 暖水更西；信风弱 → 暖水东移、气流反向',
+      ],
+    },
+  }
+})
+
 /** 滑块读数：信风状态 + 暖水堆现在在哪 */
 function formatTrade(value) {
   const t = Number(value)
@@ -405,6 +681,8 @@ const miniPanels = computed(() => {
       key,
       meta,
       cx,
+      // 小图与第②③步的全幅剖面图讲的是同一个状态，共用同一条说明
+      explain: { surface: `surface-${key}` },
       oceanPath: `M ${at(box.left)} ${c.seaWestY} L ${at(box.right)} ${c.seaEastY} L ${at(box.right)} ${box.bottom} L ${at(box.left)} ${box.bottom} Z`,
       warmPath: (() => {
         const pts = warmLayerPoints(c).map((p) => ({ x: at(p.x), y: p.y }))

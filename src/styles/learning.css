@@ -525,6 +525,88 @@ a.learn-tag:hover {
   margin-top: var(--sp-3);
 }
 
+/* 讲解层：悬停高亮、点开看推导 */
+.demo__canvas [data-explain] {
+  cursor: pointer;
+}
+
+/* 高亮用亮度+光晕，不改色相——原图的配色是讲义定的，不能被高亮带偏 */
+.demo__canvas [data-explain]:hover {
+  filter: brightness(1.2) drop-shadow(0 0 3px var(--learn-accent));
+}
+
+.demo__canvas [data-explain].is-pinned {
+  filter: brightness(1.24) drop-shadow(0 0 4px var(--learn-accent));
+}
+
+.demo__inspect {
+  margin-top: var(--sp-3);
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--learn-line);
+  border-radius: var(--radius-sm);
+  background: var(--learn-panel);
+}
+
+.demo__inspect-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1);
+}
+
+.demo__chip {
+  padding: 2px 8px;
+  border: 1px solid var(--learn-line);
+  border-radius: 999px;
+  background: var(--learn-panel);
+  color: var(--learn-ink-soft);
+  font-size: 12px;
+  line-height: 1.6;
+  cursor: pointer;
+}
+
+.demo__chip:hover {
+  border-color: var(--learn-accent);
+  color: var(--learn-accent);
+}
+
+.demo__chip.is-on {
+  background: var(--learn-accent-soft);
+  border-color: var(--learn-accent);
+  color: var(--learn-accent);
+}
+
+.demo__inspect-tip {
+  margin: var(--sp-2) 0 0;
+  font-size: 12px;
+  color: var(--learn-ink-faint);
+}
+
+.demo__inspect-name {
+  margin: var(--sp-2) 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--learn-accent);
+}
+
+.demo__inspect-hint {
+  margin: var(--sp-1) 0 0;
+  font-size: 13px;
+  color: var(--learn-ink-soft);
+  line-height: 1.7;
+}
+
+.demo__inspect-steps {
+  margin: var(--sp-2) 0 0;
+  padding-left: 1.4em;
+  font-size: 12px;
+  color: var(--learn-ink-soft);
+  line-height: 1.9;
+}
+
+.demo__inspect-steps li::marker {
+  color: var(--learn-ink-faint);
+}
+
 .demo__count {
   margin-left: auto;
   font-size: 12px;
