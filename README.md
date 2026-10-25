@@ -174,7 +174,7 @@ npm run check      # lint + 测试 + 构建，与 CI 跑的是同一套
 
 ## 贡献
 
-欢迎提 issue 与 PR。开始之前请读 [AGENTS.md](./AGENTS.md)，里面是完整的目录职责、命令、硬约束与代码约定。
+欢迎提 issue 与 PR。开始之前请读 [CONTRIBUTING.md](./CONTRIBUTING.md)，里面是完整的目录职责、命令、硬约束与代码约定。
 
 几条最容易踩的：
 

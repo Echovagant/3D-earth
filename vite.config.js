@@ -3,6 +3,9 @@ import { fileURLToPath } from 'node:url'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+// Vue DevTools 的悬浮面板：开发时的调试助手。import 先留着，需要时把下面
+// plugins 里 vueDevTools() 那行取消注释即可（生产构建本来也不含它）。
+// eslint-disable-next-line no-unused-vars
 import vueDevTools from 'vite-plugin-vue-devtools'
 
 /**
@@ -24,7 +27,8 @@ export default defineConfig({
   base: SITE_BASE,
   plugins: [
     vue(),
-    vueDevTools(),
+    // 开发辅助：Vue DevTools 悬浮面板。需要时取消下面这行的注释。
+    // vueDevTools(),
     {
       // GitHub Pages 没有服务端重写，深链直接访问会 404。
       // 这个文件负责在构建时生成 404.html，模板里用 __BASE__ 占位，避免路径写死。

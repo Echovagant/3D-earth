@@ -41,3 +41,6 @@ content/
 
 # 本地开发用的过程文档（实施计划、任务报告），只留在本地
 .superpowers/
+
+# 本地开发说明的副本（供工具自动加载），公开版是 CONTRIBUTING.md
+AGENTS.md
