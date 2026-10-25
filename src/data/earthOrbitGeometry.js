@@ -17,6 +17,27 @@ export const SEMI_MAJOR = 132
 /** 夸大的偏心率（真实值约 0.0167） */
 export const ECCENTRICITY = 0.26
 
+/** 真实的偏心率——照实画几乎是个正圆 */
+export const TRUE_ECCENTRICITY = 0.0167
+
+/** 恒星年（回归年比它长） */
+export const SIDEREAL_YEAR_TEXT = '365 日 6 时 9 分 10 秒'
+
+/** 回归年 */
+export const TROPICAL_YEAR_TEXT = '365 日 5 时 48 分 46 秒'
+
+/** 回归年比恒星年短多少（秒） */
+export const YEAR_DIFF_SECONDS = 20 * 60 + 24
+
+/** 近日点到太阳的距离（km） */
+export const PERIHELION_DISTANCE_KM = 147100000
+
+/** 远日点到太阳的距离（km） */
+export const APHELION_DISTANCE_KM = 152100000
+
+/** 二分日的年内序号（平年） */
+export const EQUINOX_DAY_OF_YEAR = { vernal: 80, autumnal: 266 }
+
 /** 半短轴 */
 export const SEMI_MINOR = SEMI_MAJOR * Math.sqrt(1 - ECCENTRICITY * ECCENTRICITY)
 
@@ -171,6 +192,34 @@ export const NORTHERN_SUMMER_DAYS = 186
 
 /** 北半球冬半年（秋分 → 次年春分）的天数 */
 export const NORTHERN_WINTER_DAYS = 179
+
+/**
+ * 近日点／远日点到太阳的距离（以半长轴为单位）：a(1∓e)。
+ *
+ * @param {number} a 半长轴
+ * @param {number} e 偏心率
+ * @param {boolean} atPerihelion true = 近日点，false = 远日点
+ */
+export function apsisDistance(a = SEMI_MAJOR, e = ECCENTRICITY, atPerihelion = true) {
+  return a * (1 - (atPerihelion ? e : -e))
+}
+
+/**
+ * 远日点距离与近日点距离之比 = (1+e)/(1−e)。
+ *
+ * @param {number} e 偏心率
+ */
+export function apsisRatio(e = ECCENTRICITY) {
+  return (1 + e) / (1 - e)
+}
+
+/**
+ * 两个半年的天数：夏半年 = 秋分序号 − 春分序号；冬半年 = 一年 − 夏半年。
+ */
+export function halfYearLengths() {
+  const summer = EQUINOX_DAY_OF_YEAR.autumnal - EQUINOX_DAY_OF_YEAR.vernal
+  return { summer, winter: Math.round(DAYS_PER_YEAR) - summer }
+}
 
 /**
  * 相等时间（默认 30 天）里，近日点与远日点各扫过的**等面积**区域。

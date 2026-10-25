@@ -1,11 +1,18 @@
 <template>
-  <DemoShell :steps="steps">
+  <DemoShell :steps="steps" :explains="explains">
     <template #default="{ step }">
       <!-- ① 搭骨架：6 条经线 + 6 条纬线 -->
       <g v-show="step === 0" class="demo__frame">
         <g class="demo__grid">
-          <path v-for="m in meridians" :key="`m${m.lon}`" :d="m.path" />
-          <path v-for="p in parallels" :key="`p${p.lat}`" :d="p.path" />
+          <g data-explain="meridian">
+            <path v-for="m in meridians" :key="`m${m.lon}`" :d="m.path" />
+          </g>
+          <path
+            v-for="p in parallels"
+            :key="`p${p.lat}`"
+            :d="p.path"
+            :data-explain="p.lat === 23.5 ? 'tropic' : 'parallel'"
+          />
         </g>
 
         <text
@@ -37,8 +44,15 @@
       <!-- ② 点亮南段：北纬 20°、北回归线、北纬 30° -->
       <g v-show="step === 1" class="demo__frame">
         <g class="demo__grid">
-          <path v-for="m in meridians" :key="`m${m.lon}`" :d="m.path" />
-          <path v-for="p in parallels" :key="`p${p.lat}`" :d="p.path" />
+          <g data-explain="meridian">
+            <path v-for="m in meridians" :key="`m${m.lon}`" :d="m.path" />
+          </g>
+          <path
+            v-for="p in parallels"
+            :key="`p${p.lat}`"
+            :d="p.path"
+            :data-explain="p.lat === 23.5 ? 'tropic' : 'parallel'"
+          />
         </g>
         <text
           v-for="m in meridians"
@@ -62,8 +76,8 @@
         </text>
 
         <g v-for="a in southAnchors" :key="`s${a.lat}${a.lon}${a.name}`">
-          <circle v-if="a.kind === 'point'" class="demo__cut" :cx="a.x" :cy="a.y" r="5" />
-          <path v-else class="demo__curve" :d="a.bandPath" />
+          <circle v-if="a.kind === 'point'" class="demo__cut" data-explain="nail" :cx="a.x" :cy="a.y" r="5" />
+          <path v-else class="demo__curve" data-explain="band" :d="a.bandPath" />
           <text
             class="demo__label demo__label--mark"
             :x="a.labelX"
@@ -82,8 +96,15 @@
       <!-- ③ 点亮北段：北纬 34°、北纬 40°、北纬 50° -->
       <g v-show="step === 2" class="demo__frame">
         <g class="demo__grid">
-          <path v-for="m in meridians" :key="`m${m.lon}`" :d="m.path" />
-          <path v-for="p in parallels" :key="`p${p.lat}`" :d="p.path" />
+          <g data-explain="meridian">
+            <path v-for="m in meridians" :key="`m${m.lon}`" :d="m.path" />
+          </g>
+          <path
+            v-for="p in parallels"
+            :key="`p${p.lat}`"
+            :d="p.path"
+            :data-explain="p.lat === 23.5 ? 'tropic' : 'parallel'"
+          />
         </g>
         <text
           v-for="m in meridians"
@@ -107,8 +128,8 @@
         </text>
 
         <g v-for="a in northAnchors" :key="`n${a.lat}${a.lon}${a.name}`">
-          <circle v-if="a.kind === 'point'" class="demo__cut" :cx="a.x" :cy="a.y" r="5" />
-          <path v-else class="demo__curve" :d="a.bandPath" />
+          <circle v-if="a.kind === 'point'" class="demo__cut" data-explain="nail" :cx="a.x" :cy="a.y" r="5" />
+          <path v-else class="demo__curve" data-explain="band" :d="a.bandPath" />
           <text
             class="demo__label demo__label--mark"
             :x="a.labelX"
@@ -127,8 +148,15 @@
       <!-- ④ 钉钉子：先钉格子，再往格子里填名字 -->
       <g v-show="step === 3" class="demo__frame">
         <g class="demo__grid">
-          <path v-for="m in meridians" :key="`m${m.lon}`" :d="m.path" />
-          <path v-for="p in parallels" :key="`p${p.lat}`" :d="p.path" />
+          <g data-explain="meridian">
+            <path v-for="m in meridians" :key="`m${m.lon}`" :d="m.path" />
+          </g>
+          <path
+            v-for="p in parallels"
+            :key="`p${p.lat}`"
+            :d="p.path"
+            :data-explain="p.lat === 23.5 ? 'tropic' : 'parallel'"
+          />
         </g>
         <text
           v-for="m in meridians"
@@ -152,7 +180,7 @@
         </text>
 
         <!-- 不在骨架线上的那一个：4488 天山脚 -->
-        <circle class="demo__cut" :cx="extra.x" :cy="extra.y" r="5" />
+        <circle class="demo__cut" data-explain="extra" :cx="extra.x" :cy="extra.y" r="5" />
         <text class="demo__label demo__label--mark" :x="extra.labelX" :y="extra.labelY" text-anchor="middle">
           乌鲁木齐
         </text>
@@ -163,7 +191,7 @@
         <text class="demo__label demo__label--mark" x="360" y="336" text-anchor="middle">
           钉钉子：先钉格子，再往格子里填名字
         </text>
-        <text class="demo__label demo__label--faint" x="360" y="358" text-anchor="middle">
+        <text class="demo__label demo__label--faint" data-explain="extent" x="360" y="358" text-anchor="middle">
           先定位：最西东经 73° 帕米尔 · 最东东经 135° · 最北北纬 53° 漠河 · 最南约北纬 4° 曾母暗沙
         </text>
       </g>
@@ -191,11 +219,16 @@
 import DemoShell from '../DemoShell.vue'
 import {
   ANCHOR_ROWS,
+  EXTENT_BOUNDS,
   EXTRA_POINT,
   MERIDIANS,
   PARALLELS,
+  anchorCount,
+  bracketPosition,
   gridProjection,
+  gridScale,
   rowAnchors,
+  skeletonGaps,
 } from '../../data/mapGridMnemonicGeometry'
 
 const steps = [
@@ -296,4 +329,122 @@ const extra = (() => {
     labelY: Number((y - 30).toFixed(2)),
   }
 })()
+
+/**
+ * 讲解层：图上能点的元素，说明它是什么、怎么算出来的。
+ *
+ * 数字全部由几何函数算好后填进 {占位符}：格距、缺口、
+ * 钉点个数、骨架外的点落在哪两条线之间——不手写。
+ */
+const scale = gridScale(BOX, 78, 132, 16, 52)
+const gaps = skeletonGaps(MERIDIANS, PARALLELS)
+const counts = anchorCount(ANCHOR_ROWS)
+const extraLonBracket = bracketPosition(EXTRA_POINT.lon, MERIDIANS)
+const extraLatBracket = bracketPosition(EXTRA_POINT.lat, PARALLELS.map((p) => p.lat))
+
+const vars = {
+  meridianCount: `${MERIDIANS.length}`,
+  parallelCount: `${PARALLELS.length}`,
+  lonStep: `${MERIDIANS[1] - MERIDIANS[0]}°`,
+  latStep: `${PARALLELS[0].lat - PARALLELS[1].lat}°`,
+  meridianGapPx: `${(scale.xPerDeg * (MERIDIANS[1] - MERIDIANS[0])).toFixed(1)} px`,
+  parallelGapPx: `${(scale.yPerDeg * (PARALLELS[0].lat - PARALLELS[1].lat)).toFixed(1)} px`,
+  nailCount: `${counts.points}`,
+  bandCount: `${counts.bands}`,
+  tropicLat: `${PARALLELS.find((p) => p.lat === 23.5).lat}°`,
+  gapWest: `${gaps.west}°`,
+  gapEast: `${gaps.east}°`,
+  gapNorth: `${gaps.north}°`,
+  gapSouth: `${gaps.south}°`,
+  extentLon: `${EXTENT_BOUNDS.lonMin}° – ${EXTENT_BOUNDS.lonMax}°`,
+  extentLat: `${EXTENT_BOUNDS.latMin}° – ${EXTENT_BOUNDS.latMax}°`,
+  extraLon: `${EXTRA_POINT.lon}°`,
+  extraLat: `${EXTRA_POINT.lat}°`,
+  extraLonLow: `${extraLonBracket.low}°`,
+  extraLonHigh: `${extraLonBracket.high}°`,
+  extraLonPct: `${Math.round(extraLonBracket.t * 100)}%`,
+  extraLatLow: `${extraLatBracket.low}°`,
+  extraLatHigh: `${extraLatBracket.high}°`,
+  extraLatPct: `${Math.round(extraLatBracket.t * 100)}%`,
+}
+
+const explains = {
+  meridian: {
+    name: '竖线（经线）',
+    hint: '六根等距的竖线是经线，它们定的是东西方向。',
+    vars,
+    steps: [
+      '网格定位靠的是经纬网：竖线是经线，横线是纬线',
+      '骨架只取东经 {meridianCount} 条：80° 到 130°，相邻差 {lonStep}',
+      '经度定东西：数值向东增大，最东那根是东经 130°',
+      '经线之间在图上等距（相邻两根相距 {meridianGapPx}），因为图上用的是等距投影',
+    ],
+  },
+  parallel: {
+    name: '横线（纬线）',
+    hint: '六根横线是纬线，它们定的是南北方向。',
+    vars,
+    steps: [
+      '横线是纬线：北纬 50°、40°、34°、30°，加上北回归线和北纬 20°',
+      '纬度定南北：数值向北增大，最上那根是北纬 50°',
+      '相邻纬线一般相差 10°（图上相距 {parallelGapPx}）',
+      '先把经纬线认全，再去读某个点的度数——认错线，度数全错',
+    ],
+  },
+  tropic: {
+    name: `北回归线（北纬 ${PARALLELS.find((p) => p.lat === 23.5).lat}°）`,
+    hint: '骨架里唯一一条不是整十度的纬线，它把南段和北段分开。',
+    vars,
+    steps: [
+      '北回归线是太阳直射的最北界线，纬度 {tropicLat}',
+      '骨架其余五条纬线都是整十度，只有它是 {tropicLat}——所以它最好认',
+      '它把中国南北分成两段：20°、{tropicLat}、30° 是南段，34°、40°、50° 是北段',
+      '背图时先记这条线，再记它上面下面各有什么',
+    ],
+  },
+  nail: {
+    name: '钉点（交点上的东西）',
+    hint: '整套方法的核心：先钉格子，再往格子里填名字。',
+    vars,
+    steps: [
+      '经线与纬线的交点就是位置，一个交点就是一个格子',
+      '骨架上一共钉了 {nailCount} 个点，每钉一个就记住一条信息',
+      '钉的时候按「某条纬线 + 某个经度 → 什么东西」记，不按歌词记',
+      '比如北纬 34° × 东经 110° = 秦岭（东西走向，划分中国南北）',
+    ],
+  },
+  band: {
+    name: '区间带（画成一段，不是一个点）',
+    hint: '讲义只给出范围、没有给出确切经纬度的，就画成一段。',
+    vars,
+    steps: [
+      '广东在东经 110° 与 120° 之间、长江中下游呈 ω 形——讲义没给确切经纬度',
+      '这类地方不能编一个坐标出来，所以画成一段区间',
+      '图上一共 {bandCount} 段这样的区间',
+      '真到了考场上，考题问的是「大致位置」——区间比假坐标更保险',
+    ],
+  },
+  extra: {
+    name: '骨架外的点（乌鲁木齐）',
+    hint: '不在骨架线上的点，用「夹在两条线之间」来估位置。',
+    vars,
+    steps: [
+      '乌鲁木齐在北纬 {extraLat}、东经 {extraLon}，两条骨架线上都没有它',
+      '先夹经度：在东经 {extraLonLow} 与 {extraLonHigh} 之间，偏东 {extraLonPct}',
+      '再夹纬度：在北纬 {extraLatLow} 与 {extraLatHigh} 之间，偏北 {extraLatPct}',
+      '会这样估位置，骨架外的点也能落到格子里——「4488」就是这么记的',
+    ],
+  },
+  extent: {
+    name: '四至（先定位）',
+    hint: '骨架之前先把中国的四个极值钉住，地图才有边界。',
+    vars,
+    steps: [
+      '四至就是中国领土的四个极值点：最西、最东、最北、最南',
+      '经度范围 {extentLon}，纬度范围 {extentLat}',
+      '骨架最西是东经 80°，比四至最西差 {gapWest}；最东 130°，比四至最东差 {gapEast}',
+      '骨架最北是北纬 50°，差 {gapNorth}；最南是北纬 20°，差 {gapSouth}——边界那几度靠四至补',
+    ],
+  },
+}
 </script>

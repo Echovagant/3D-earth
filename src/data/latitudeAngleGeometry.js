@@ -39,6 +39,19 @@ export function latitudeAngleDeg(lat) {
 }
 
 /**
+ * 直角三角形 △OFP 的两条直角边。
+ *
+ * O 是地心、P 是地面上的点、F 是 P 在赤道平面上的垂足：
+ *   OF = R·cosφ（半径在面内的射影）
+ *   FP = R·sinφ（P 离开赤道平面的高度）
+ * 于是 ∠FOP = φ 就是线面角。
+ */
+export function planeTriangleSides(lat, radius) {
+  const a = (lat * Math.PI) / 180
+  return { of: radius * Math.cos(a), fp: radius * Math.sin(a) }
+}
+
+/**
  * 赤道面（扁椭圆盘）近处的半圈：近处这一半挡在球前面。
  * 路径不闭合——填充时浏览器会自动闭合，描边时不会多画那条直径。
  */

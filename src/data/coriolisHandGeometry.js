@@ -73,3 +73,42 @@ export function coriolisFactor(latDeg) {
 export function coriolisFactors(lats) {
   return lats.map((lat) => ({ lat, factor: coriolisFactor(lat) }))
 }
+
+/** 地球自转角速度（rad/s） */
+export const EARTH_ANGULAR_SPEED = 7.292e-5
+
+/**
+ * 地转偏向力参数 f = 2Ωsinφ（单位 s⁻¹）。
+ *
+ * f 的正负由 sinφ 的正负定出来：北半球为正、南半球为负、赤道为 0。
+ * 「北右南左」不是口诀，是这个符号定出来的——所以讲解里必须给出 f 的正负。
+ *
+ * @param {number} latDeg 纬度（度）
+ */
+export function coriolisParameter(latDeg) {
+  return 2 * EARTH_ANGULAR_SPEED * coriolisFactor(latDeg)
+}
+
+/** 地转偏向力参数的读法：×10⁻⁵ s⁻¹ */
+export function coriolisParameterText(latDeg) {
+  return `${(coriolisParameter(latDeg) * 1e5).toFixed(2)}×10⁻⁵ s⁻¹`
+}
+
+/** 自转角速度的读法 */
+export function angularSpeedText() {
+  return `${(EARTH_ANGULAR_SPEED * 1e5).toFixed(3)}×10⁻⁵ rad/s`
+}
+
+/** 偏转方向的文字：右偏 / 左偏 / 不偏 */
+export function deflectionText(hemisphere) {
+  const a = deflectionAngle(hemisphere)
+  if (a === 0) return '不偏'
+  return a < 0 ? '右偏（顺时针）' : '左偏（逆时针）'
+}
+
+/** 偏转角的读法：带符号的度数（数学角，逆时针为正） */
+export function deflectionAngleText(hemisphere) {
+  const a = deflectionAngle(hemisphere)
+  if (a === 0) return '0°'
+  return a > 0 ? `+${a}°` : `−${Math.abs(a)}°`
+}

@@ -51,6 +51,11 @@ export function meridianLengthKm(earthRadiusKm = 6371) {
   return Math.PI * earthRadiusKm
 }
 
+/** 赤道（一个大圆）的周长（千米）——经线是它的一半 */
+export function equatorLengthKm(earthRadiusKm = 6371) {
+  return 2 * Math.PI * earthRadiusKm
+}
+
 /**
  * 相邻两条经线之间的实地距离（千米）。
  * 随纬度递减：纬线越短，同样的经度差挤得越近；极点处为 0。

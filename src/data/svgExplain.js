@@ -29,6 +29,9 @@ export function fillTemplate(text, vars) {
 /**
  * 一条说明的最终形态：标题、提示、填好数值的推导步骤。
  *
+ * name 也要填占位符——词条名里带数字的话（「比例尺 1:{denominator}」），
+ * 不填就会在界面上原样露出大括号。
+ *
  * @param {object} entry 说明表里的一条
  * @returns {{name: string, hint: string, steps: string[]}}
  */
@@ -36,7 +39,7 @@ export function resolveExplain(entry) {
   if (!entry) return { name: '', hint: '', steps: [] }
   const vars = entry.vars ?? {}
   return {
-    name: entry.name ?? '',
+    name: fillTemplate(entry.name ?? '', vars),
     hint: fillTemplate(entry.hint ?? '', vars),
     steps: (entry.steps ?? []).map((s) => fillTemplate(s, vars)),
   }

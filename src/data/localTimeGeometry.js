@@ -13,6 +13,9 @@ import { localHour, SUBSOLAR_LON } from './terminatorGeometry'
 /** 经度每差 1°，时间相差 4 分钟 */
 export const MINUTES_PER_DEGREE = 4
 
+/** 自转角速度：24 小时转 360°，即 15°/小时 */
+export const DEGREES_PER_HOUR = 15
+
 /** 直接复用晨昏线那一套：某经度上的地方时 */
 export { localHour }
 
@@ -74,6 +77,22 @@ export function hourAtAngle(angleDeg, subsolarLon = SUBSOLAR_LON) {
 /** 小时数归一化到 [0, 24) */
 export function normalizeHours(h) {
   return ((h % 24) + 24) % 24
+}
+
+/**
+ * 经度每差 1° 对应多少分钟 = 60 分钟 ÷ 15°。
+ */
+export function minutesPerDegree() {
+  return 60 / DEGREES_PER_HOUR
+}
+
+/**
+ * 经度差（度）换算成时间差（小时）。
+ *
+ * @param {number} lonDiffDeg 经度差（度）
+ */
+export function hoursForLonDiff(lonDiffDeg) {
+  return lonDiffDeg / DEGREES_PER_HOUR
 }
 
 /**

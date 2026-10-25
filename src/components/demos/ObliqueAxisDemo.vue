@@ -1,10 +1,11 @@
 <template>
-  <DemoShell :steps="steps">
+  <DemoShell :steps="steps" :explains="explains">
     <template #default="{ step }">
       <!-- ① 两个面：赤道面与黄道面的夹角 = 黄赤交角 -->
       <g v-show="step === 0" class="demo__frame">
         <ellipse
           class="demo-plane demo-plane--ecliptic"
+          data-explain="ecliptic"
           cx="360"
           cy="200"
           rx="250"
@@ -12,6 +13,7 @@
         />
         <ellipse
           class="demo-plane demo-plane--equator"
+          data-explain="equator-plane"
           cx="360"
           cy="200"
           rx="250"
@@ -19,11 +21,11 @@
           transform="rotate(23.5 360 200)"
         />
         <circle class="demo__globe-plain" cx="360" cy="200" r="84" />
-        <path class="demo__spin" :d="axisLine(360, 200, 118)" />
+        <path class="demo__spin" data-explain="axis" :d="axisLine(360, 200, 118)" />
         <text class="demo__label demo__label--faint" x="416" y="84">北极点</text>
         <text class="demo__label demo__label--faint" x="304" y="318" text-anchor="end">南极点</text>
 
-        <path class="demo__spin" :d="obliqueArc" />
+        <path class="demo__spin" data-explain="oblique-arc" :d="obliqueArc" />
         <text class="demo__label demo__label--mark" x="620" y="258">23.5°</text>
 
         <text class="demo__label" x="122" y="182" text-anchor="middle">黄道面</text>
@@ -46,6 +48,7 @@
           :key="`p${p.lat}`"
           class="demo-parallel"
           :class="{ 'demo-parallel--key': p.key }"
+          :data-explain="p.explainId"
           :d="`M ${p.from.x} ${p.from.y} L ${p.to.x} ${p.to.y}`"
         />
         <path class="demo__spin" :d="axisLine(270, 195, 128)" />
@@ -72,6 +75,7 @@
       <g v-show="step === 2" class="demo__frame">
         <rect
           class="demo-band"
+          data-explain="band"
           :x="plot.left"
           :y="bandTop"
           :width="plot.right - plot.left"
@@ -86,11 +90,12 @@
           class="demo-tropic"
           :d="`M ${plot.left} ${bandBottom} L ${plot.right} ${bandBottom}`"
         />
-        <path class="demo__curve" :d="trackPath" />
+        <path class="demo__curve" data-explain="track" :d="trackPath" />
         <circle
           v-for="p in seasonPoints"
           :key="p.key"
           class="demo__cut"
+          data-explain="season-point"
           :cx="p.x"
           :cy="p.y"
           r="5.5"
@@ -114,7 +119,7 @@
 
         <!-- 球面上：直射点只能落在两条回归线之间 -->
         <circle class="demo__globe-plain" cx="570" cy="195" r="82" />
-        <path class="demo-band-path" :d="insetBandPath" />
+        <path class="demo-band-path" data-explain="band" :d="insetBandPath" />
         <path class="demo-axis-line" :d="axisLine(570, 195, 110)" />
         <text class="demo__label demo__label--mark" x="570" y="304" text-anchor="middle">
           直射点只落在两条回归线之间
@@ -140,7 +145,7 @@
         <text class="demo__label demo__label--mark" x="535" y="92" text-anchor="middle">
           假想：黄赤交角 = 0°
         </text>
-        <circle class="demo__globe-plain" cx="535" cy="190" r="78" />
+        <circle class="demo__globe-plain" data-explain="zero-world" cx="535" cy="190" r="78" />
         <path class="demo-axis-line" d="M 457 190 L 613 190" />
         <path class="demo__spin" :d="axisLine(535, 190, 96, 0)" />
         <circle class="demo__cut" cx="535" cy="112" r="4" />
@@ -193,12 +198,18 @@
 import { computed } from 'vue'
 import DemoShell from '../DemoShell.vue'
 import {
+  AXIS_TO_ECLIPTIC,
+  AXIS_TO_ECLIPTIC_DMS,
+  DAYS_PER_YEAR,
+  DECLINATION_SPAN,
   OBLIQUITY,
+  OBLIQUITY_DMS,
   POLAR_CIRCLE,
   SEASON_DAYS,
   TROPIC,
   axisVector,
   declination,
+  declinationSpeedPerDay,
   parallelSegment,
   subsolarTrack,
 } from '../../data/obliqueAxisGeometry'
@@ -248,11 +259,11 @@ const parallels = computed(() => {
   const center = { x: 270, y: 195 }
   const r = 95
   const list = [
-    { lat: POLAR_CIRCLE, label: `北极圈 ${POLAR_CIRCLE}°N`, key: false },
-    { lat: TROPIC, label: `北回归线 ${TROPIC}°N`, key: true },
-    { lat: 0, label: '赤道 0°', key: true },
-    { lat: -TROPIC, label: `南回归线 ${TROPIC}°S`, key: true },
-    { lat: -POLAR_CIRCLE, label: `南极圈 ${POLAR_CIRCLE}°S`, key: false },
+    { lat: POLAR_CIRCLE, label: `北极圈 ${POLAR_CIRCLE}°N`, key: false, explainId: 'polar-circle' },
+    { lat: TROPIC, label: `北回归线 ${TROPIC}°N`, key: true, explainId: 'tropic' },
+    { lat: 0, label: '赤道 0°', key: true, explainId: undefined },
+    { lat: -TROPIC, label: `南回归线 ${TROPIC}°S`, key: true, explainId: 'tropic' },
+    { lat: -POLAR_CIRCLE, label: `南极圈 ${POLAR_CIRCLE}°S`, key: false, explainId: 'polar-circle' },
   ]
   return list.map((p) => ({ ...p, ...parallelSegment(center, r, p.lat) }))
 })
@@ -303,6 +314,150 @@ const nowBandPath = computed(() => {
 })
 
 const segmentPath = (p) => `M ${p.from.x} ${p.from.y} L ${p.to.x} ${p.to.y}`
+
+/**
+ * 讲解层：图上能点的元素，说明它是什么、怎么算出来的。
+ *
+ * steps 里的数字全部由几何函数算好后填进 {占位符}，不手写——
+ * 参数一动，图和讲解一起变，不会出现「图上 66.5°、文字写着 65°」。
+ */
+const explains = computed(() => {
+  const quarterDays = SEASON_DAYS.summer
+  const vars = {
+    obliquity: `${OBLIQUITY}°`,
+    obliquityDms: OBLIQUITY_DMS,
+    axisToEcliptic: `${AXIS_TO_ECLIPTIC}°`,
+    axisToEclipticDms: AXIS_TO_ECLIPTIC_DMS,
+    tropic: `${TROPIC}°`,
+    tropicS: `${TROPIC}°S`,
+    polarCircle: `${POLAR_CIRCLE}°`,
+    polarCircleS: `${POLAR_CIRCLE}°S`,
+    sum: `${OBLIQUITY + POLAR_CIRCLE}°`,
+    zeroPolar: `${90 - 0}°`,
+    span: `${DECLINATION_SPAN}°`,
+    speedDeg: declinationSpeedPerDay().toFixed(2),
+    yearDays: String(DAYS_PER_YEAR),
+    quarterDays: quarterDays.toFixed(1),
+    vernalDecl: `${declination(SEASON_DAYS.vernal).toFixed(1)}°`,
+    summerDecl: `${declination(SEASON_DAYS.summer).toFixed(1)}°`,
+    autumnalDecl: `${declination(SEASON_DAYS.autumnal).toFixed(1)}°`,
+    winterDecl: `${declination(SEASON_DAYS.winter).toFixed(1)}°`,
+  }
+
+  return {
+    ecliptic: {
+      name: '黄道面',
+      hint: '地球公转轨道所在的平面：太阳直射点就在这个面上。',
+      vars,
+      steps: [
+        '黄道面 = 地球公转轨道所在的平面',
+        '太阳在轨道面上，地球绕着它转',
+        '地球在轨道面上看到太阳，就等于太阳绕着地球在天球上走',
+        '直射点 = 地心与日心连线的延长线在地球表面的交点',
+      ],
+    },
+    'equator-plane': {
+      name: '赤道面',
+      hint: '赤道所在的平面：它垂直于地轴。',
+      vars,
+      steps: [
+        '赤道面 = 垂直于地轴的平面',
+        '太阳直射点落在赤道面上时，当地正午太阳高度 90°',
+        '两个面差多少，就是黄赤交角',
+        '地球公转时这个面并不跟着转——地轴始终指向同一方',
+      ],
+    },
+    'oblique-arc': {
+      name: '黄赤交角（23.5°）',
+      hint: '赤道面与黄道面的夹角：23°26′，教材里取整成 23.5°。',
+      vars,
+      steps: [
+        `黄赤交角 = 赤道面与黄道面的夹角 = ${vars.obliquityDms}，教材取整成 ${vars.obliquity}`,
+        '它同时等于地轴与黄道面法线的夹角',
+        `所以地轴与黄道面的夹角 = 90° − ${vars.obliquity} = ${vars.axisToEcliptic}（${vars.axisToEclipticDms}）`,
+        '这两个角千万别记混：一个是 23.5°，一个是 66.5°',
+      ],
+    },
+    axis: {
+      name: '地轴',
+      hint: '地轴是斜的：斜到什么程度，决定了回归线和极圈在哪。',
+      vars,
+      steps: [
+        '地轴垂直于赤道面',
+        `地轴与黄道面的夹角 = ${vars.axisToEcliptic}`,
+        `地轴与黄道面法线的夹角 = ${vars.obliquity}`,
+        '公转一圈地轴方向始终平行——倾斜方向不变，只改倾斜角度',
+      ],
+    },
+    tropic: {
+      name: '回归线（23.5°）',
+      hint: '太阳直射点最远能到的纬线：23.5°N 与 23.5°S。',
+      vars,
+      steps: [
+        `回归线纬度 = 黄赤交角 = ${vars.tropic}`,
+        '直射点最北时正好在夏至，此时日心连线的投影落在北回归线上',
+        `南回归线同理：${vars.tropicS}`,
+        '回归线内一年被直射 2 次，回归线上 1 次，线外 0 次',
+      ],
+    },
+    'polar-circle': {
+      name: '极圈（66.5°）',
+      hint: '有极昼极夜的界线：66.5°N 与 66.5°S。',
+      vars,
+      steps: [
+        `极圈纬度 = 90° − 黄赤交角 = 90° − ${vars.obliquity} = ${vars.polarCircle}`,
+        '推导：晨昏线与纬线相切的那条纬线，纬度 = 90° − |直射点纬度|，取最大就是极圈',
+        `所以回归线与极圈互余：${vars.obliquity} + ${vars.polarCircle} = ${vars.sum}`,
+        '黄赤交角一变，这两条线跟着一起变',
+      ],
+    },
+    track: {
+      name: '直射点轨迹',
+      hint: '直射点一年在南北回归线之间往返，越靠近回归线走得越慢。',
+      vars,
+      steps: [
+        '直射点纬度满足 sinδ = sinε·sinλ（ε 是黄赤交角，λ 是太阳黄经）',
+        `一年从 −${vars.tropic} 走到 +${vars.tropic} 再回来 ⇒ 一共走 4 × ${vars.tropic} = ${vars.span}`,
+        `平均速度 = ${vars.span} ÷ ${vars.yearDays} 天 ≈ ${vars.speedDeg}°/天`,
+        '不是匀速：正弦关系让它在赤道附近最快、在回归线附近最慢',
+      ],
+    },
+    band: {
+      name: '直射点的范围带',
+      hint: '球面上，直射点只可能落在两条回归线之间。',
+      vars,
+      steps: [
+        '直射点 = 地心与日心连线的延长线在球面的交点',
+        `它与赤道面的夹角最多是黄赤交角 ${vars.obliquity}`,
+        `所以直射点的纬度范围 = [−${vars.tropic}, +${vars.tropic}]`,
+        '落到球面上就是一条带状区域',
+      ],
+    },
+    'season-point': {
+      name: '二分二至的直射点',
+      hint: '春分在赤道、夏至到北回归线、秋分回赤道、冬至到南回归线。',
+      vars,
+      steps: [
+        `春分（λ = 0°）⇒ sinδ = 0 ⇒ δ = ${vars.vernalDecl}（赤道）`,
+        `夏至（λ = 90°）⇒ sinδ = sin${vars.obliquity} ⇒ δ = ${vars.summerDecl}`,
+        `秋分（λ = 180°）⇒ δ = ${vars.autumnalDecl}（赤道）`,
+        `冬至（λ = 270°）⇒ δ = ${vars.winterDecl}`,
+        `二分二至之间的天数相等：每段约 ${vars.quarterDays} 天`,
+      ],
+    },
+    'zero-world': {
+      name: '假想：交角为 0° 的世界',
+      hint: '假如地球不歪着头，会变成什么样。',
+      vars,
+      steps: [
+        '黄赤交角 = 0° ⇒ 赤道面与黄道面重合',
+        '直射点纬度 = 0 ⇒ 直射点永远钉在赤道上',
+        `回归线与赤道重合，极圈缩到极点（纬度 = 90° − 0 = ${vars.zeroPolar}）`,
+        '极点处永久冰封，四季变化消失',
+      ],
+    },
+  }
+})
 </script>
 
 <style scoped>

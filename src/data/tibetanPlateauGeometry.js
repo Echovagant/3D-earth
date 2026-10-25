@@ -61,3 +61,46 @@ export const PLATEAU_ARROWS = [
   { toward: 'se', x1: 396, y1: 218, x2: 438, y2: 254 },
   { toward: 'sw', x1: 324, y1: 218, x2: 282, y2: 254 },
 ]
+
+/**
+ * ① 地形剖面的画布坐标。
+ *
+ * reliefKm 是这段高度差对应的实际高差——剖面图上的比例尺就靠它定。
+ */
+export const PLATEAU_PROFILE = {
+  /** 低地面的画布 y */
+  groundY: 288,
+  /** 高原面的画布 y */
+  plateauY: 158,
+  /** 剖面底边（地面以下）的画布 y */
+  bottomY: 320,
+  /** 图上高度差对应的实际高差（千米） */
+  reliefKm: 3.5,
+}
+
+/**
+ * 剖面的比例尺：1 个画布像素相当于多少米。
+ *
+ * @param {object} profile 剖面参数
+ */
+export function profileScale(profile = PLATEAU_PROFILE) {
+  const diffPx = profile.groundY - profile.plateauY
+  return (profile.reliefKm * 1000) / diffPx
+}
+
+/** 气温随海拔的递减率（℃ / 100 米） */
+export const LAPSE_RATE_PER_100M = 0.6
+
+/** 高原面高出四周低地的高度（千米，讲义口径 3—4 千米） */
+export const PLATEAU_RELIEF_KM = { min: 3, max: 4 }
+
+/**
+ * 同高度比较时，高原面比四周低地低多少度。
+ *
+ * 高原面海拔高 → 同一高度的气温更低 → 冬季它是冷源。
+ *
+ * @param {number} km 高差（千米）
+ */
+export function plateauTemperatureDeficit(km) {
+  return (km * 1000 / 100) * LAPSE_RATE_PER_100M
+}

@@ -13,6 +13,12 @@ import { polarToXY } from './svgParts'
 /** 一个太阳日里地球在公转轨道上走过的角度（度）——日均太阳运动 */
 export const ORBIT_PER_DAY_DEG = 360 / 365.25
 
+/** 自转角速度：15°/小时 */
+export const DEGREES_PER_HOUR = 15
+
+/** 一年的天数 */
+export const DAYS_PER_YEAR = 365.25
+
 /** 换算成角分：约 59′（这是角度，不是时间） */
 export const EXTRA_ARC_MINUTES = ORBIT_PER_DAY_DEG * 60
 
@@ -42,6 +48,22 @@ export function splitDuration(hours) {
   const m = Math.floor((totalSeconds % 3600) / 60)
   const s = totalSeconds % 60
   return { h, m, s }
+}
+
+/**
+ * 「多转的那一点」折算成时间（小时）。
+ *
+ * 每天公转走的角度 ÷ 自转角速度 = 要多花的时间。
+ */
+export function extraArcHours() {
+  return ORBIT_PER_DAY_DEG / DEGREES_PER_HOUR
+}
+
+/**
+ * 两个周期的时间差（秒）。
+ */
+export function dayDiffSeconds() {
+  return (24 - SIDEREAL_DAY_HOURS) * 3600
 }
 
 /** 角度归一化到 [0, 360) */

@@ -37,3 +37,21 @@ export function groupDigits(n) {
 export function scaleText(denominator) {
   return `1 : ${groupDigits(denominator)}`
 }
+
+/**
+ * 线段式比例尺：量出 n 格，1 厘米等于几格 ⇒ 每格多少厘米。
+ *
+ * 线段式比例尺画的那一段未必正好 1 厘米，必须量。
+ */
+export function cmPerDivision(divisions) {
+  return 1 / divisions
+}
+
+/**
+ * 同样大小的两幅图，实地覆盖范围之比。
+ *
+ * 图幅一样大时，覆盖范围之比就是分母之比（也等于实地距离之比）。
+ */
+export function coverageRatio(denominatorA, denominatorB) {
+  return denominatorB / denominatorA
+}

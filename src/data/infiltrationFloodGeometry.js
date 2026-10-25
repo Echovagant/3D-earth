@@ -88,3 +88,35 @@ export const SOLUTIONS = [
   { id: 'brick', label: '透水砖', note: '带缝隙，替代不透水地砖' },
   { id: 'swale', label: '植草沟', note: '施工量小、节约成本' },
 ]
+
+/** 城市硬化路面的厚度（画布单位） */
+export const PAVEMENT_THICKNESS = 12
+
+/**
+ * 剖面各层的厚度与埋深（画布单位）。
+ *
+ * 用来核对剖面画得对不对：地下水位必须落在可透水土层里，
+ * 落到岩层里就是画错了。
+ */
+export function profileLayers(profile = PROFILE) {
+  return {
+    soil: profile.soilBottomY - profile.surfaceY,
+    bedrock: profile.bedrockBottomY - profile.soilBottomY,
+    depthToWaterTable: profile.waterTableY - profile.surfaceY,
+    waterTableAboveBedrock: profile.soilBottomY - profile.waterTableY,
+  }
+}
+
+/**
+ * 下渗占比之间的差与倍数（讲义数据之间的对比）。
+ *
+ * 「自然路面比深城高 20 个百分点」「深城只有自然路面的五分之一」，
+ * 这些话由它算出来，不手写。
+ */
+export function shareComparison(share = INFILTRATION_SHARE) {
+  return {
+    naturalVsShallow: share.natural - share.shallowUrban,
+    shallowVsDeep: share.shallowUrban - share.deepUrban,
+    naturalOverDeep: share.natural / share.deepUrban,
+  }
+}

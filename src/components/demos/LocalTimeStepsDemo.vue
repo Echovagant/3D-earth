@@ -1,10 +1,10 @@
 <template>
-  <DemoShell :steps="steps">
+  <DemoShell :steps="steps" :explains="explains">
     <template #default="{ step }">
       <!-- ① 画简图 + 标条件 -->
       <g v-show="step === 0" class="demo__frame">
         <!-- 展开图口诀：东西两条 180，零度中间行 -->
-        <path class="demo__curve" d="M 60 78 L 660 78" />
+        <path class="demo__curve" data-explain="expanded" d="M 60 78 L 660 78" />
         <path class="demo__spin-head" :d="arrowHead(660, 78, 0, 11)" />
         <text class="demo__label demo__label--faint" x="60" y="62" text-anchor="middle">180°W</text>
         <text class="demo__label demo__label--faint" x="360" y="62" text-anchor="middle">0°</text>
@@ -14,12 +14,12 @@
         </text>
 
         <!-- 放大的那一条经度区间（在上方的整条展开图上标出来） -->
-        <path class="demo__leader" :d="zoomBracket" />
+        <path class="demo__leader" data-explain="zoom" :d="zoomBracket" />
         <text class="demo__label demo__label--faint" :x="zoomMid" y="140" text-anchor="middle">
           放大这一段（两条经线都在东经这一侧）
         </text>
 
-        <path class="demo__curve" :d="axisPath" />
+        <path class="demo__curve" data-explain="axis" :d="axisPath" />
         <g class="demo__grid">
           <path v-for="t in ticks" :key="t.label" :d="t.path" />
         </g>
@@ -34,8 +34,8 @@
           {{ t.label }}
         </text>
 
-        <circle class="demo__cut" :cx="known.x" :cy="axisY" r="6" />
-        <circle class="demo__cut" :cx="target.x" :cy="axisY" r="6" />
+        <circle class="demo__cut" data-explain="known" :cx="known.x" :cy="axisY" r="6" />
+        <circle class="demo__cut" data-explain="target" :cx="target.x" :cy="axisY" r="6" />
         <text class="demo__label demo__label--mark" :x="known.x" y="196" text-anchor="middle">
           东经 107°（已知）
         </text>
@@ -61,7 +61,7 @@
 
         <circle class="demo__cut" :cx="known.x" :cy="axisY" r="6" />
         <circle class="demo__cut" :cx="target.x" :cy="axisY" r="6" />
-        <path class="demo__curve" :d="diffBracket" />
+        <path class="demo__curve" data-explain="diff-bracket" :d="diffBracket" />
         <text class="demo__label demo__label--mark" :x="(known.x + target.x) / 2" y="308" text-anchor="middle">
           经度差 = {{ TARGET_LON }} − {{ KNOWN_LON }} = {{ diff }}°
         </text>
@@ -90,7 +90,7 @@
         <circle class="demo__cut" :cx="target.x" :cy="axisY" r="6" />
         <path class="demo__curve" :d="diffBracket" />
 
-        <g>
+        <g data-explain="minute-marks">
           <path
             v-for="m in minuteMarks"
             :key="`m${m.i}`"
@@ -122,9 +122,11 @@
         </text>
         <path class="demo__curve" d="M 96 176 L 300 176" />
         <path class="demo__spin-head" :d="arrowHead(300, 176, 0, 12)" />
-        <text class="demo__label" x="110" y="206">{{ knownText }}</text>
-        <text class="demo__label" x="196" y="206">+ {{ minutes }} 分钟</text>
-        <text class="demo__label demo__label--mark" x="286" y="206">= {{ resultText }}</text>
+        <g data-explain="result">
+          <text class="demo__label" x="110" y="206">{{ knownText }}</text>
+          <text class="demo__label" x="196" y="206">+ {{ minutes }} 分钟</text>
+          <text class="demo__label demo__label--mark" x="286" y="206">= {{ resultText }}</text>
+        </g>
         <text class="demo__label demo__label--faint" x="110" y="228">东经 {{ TARGET_LON }}° 的地方时</text>
 
         <text class="demo__label demo__label--mark" x="420" y="152">写法：24 时制，有日期把日期带上</text>
@@ -162,10 +164,14 @@
  * 算式全部由 localTimeStepsGeometry.js 算出（经度差、时间差、加减方向、
  * 跨日进位），不是抄在图上的文字。
  */
+import { computed } from 'vue'
 import DemoShell from '../DemoShell.vue'
 import { arrowHead } from '../../data/svgParts'
 import {
+  DEGREES_PER_HOUR,
+  formatClock24,
   longitudeDiff,
+  minutesPerDegree,
   solveLocalTime,
   split24,
   timeDiffMinutes,
@@ -214,7 +220,11 @@ const ax = (lon) =>
 const axisPath = `M ${BOX.left} ${axisY} L ${BOX.right} ${axisY}`
 
 /** 刻度：每 10° 一根 */
-const ticks = [90, 100, 110, 120, 130, 140].map((lon) => ({
+const TICK_STEP = 10
+const ticks = Array.from(
+  { length: Math.round((LON_MAX - LON_MIN) / TICK_STEP) + 1 },
+  (_, i) => LON_MIN + i * TICK_STEP,
+).map((lon) => ({
   label: `东经 ${lon}°`,
   x: Number(ax(lon).toFixed(2)),
   path: `M ${ax(lon).toFixed(2)} ${axisY - 9} L ${ax(lon).toFixed(2)} ${axisY + 9}`,
@@ -244,7 +254,134 @@ const minuteMarks = Array.from({ length: 13 }, (_, i) => {
 })
 
 /** ④ 结果文字（用算出来的数，不手写） */
-const knownText = '10:50'
+const knownText = formatClock24(KNOWN_HOUR)
 const resultText = `${String(finalClock.hours).padStart(2, '0')}:${String(finalClock.minutes).padStart(2, '0')}`
 const eastText = result.east ? '东加西减' : '西减东加'
+
+/** 「减法不够减时把小时写大」那个例子里的小时数 */
+const BORROW_HOUR = 18
+
+/**
+ * 讲解层：图上能点的元素，说明它是什么、怎么算出来的。
+ *
+ * steps 里的数字全部由几何函数算好后填进 {占位符}，不手写——
+ * 参数一动，图和讲解一起变，不会出现「图上 66.5°、文字写着 65°」。
+ */
+const explains = computed(() => {
+  const vars = {
+    knownLonNum: String(KNOWN_LON),
+    targetLonNum: String(TARGET_LON),
+    knownLon: `东经 ${KNOWN_LON}°`,
+    targetLon: `东经 ${TARGET_LON}°`,
+    knownTime: knownText,
+    knownHourNum: KNOWN_HOUR.toFixed(2),
+    diffDeg: `${diff}°`,
+    minutesPerDeg: `${minutesPerDegree()} 分钟`,
+    timeDiff: `${minutes} 分钟`,
+    resultTime: formatClock24(result.hours),
+    spinDeg: `${DEGREES_PER_HOUR}°`,
+    spinHours: `${DEGREES_PER_HOUR}° = 1 小时 = 60 分钟`,
+    markCount: String(minuteMarks.length),
+    lonMin: String(LON_MIN),
+    lonMax: String(LON_MAX),
+    tickStep: String(TICK_STEP),
+    midLon: String((LON_MIN + LON_MAX) / 2),
+    borrowHour: String(BORROW_HOUR),
+    borrowBigHour: String(BORROW_HOUR + 24),
+    side: result.east ? '东边' : '西边',
+    op: result.east ? '加' : '减',
+  }
+
+  return {
+    expanded: {
+      name: '东西半球展开图',
+      hint: '口诀「东西两条 180，零度中间行」：0° 以西是西经、以东是东经。',
+      vars,
+      steps: [
+        '展开图：左边 180°W，中间 0°，右边 180°E',
+        '0° 以西是西经（记负数），以东是东经（记正数）',
+        '自西向东 → 地方时读数越来越大',
+        '横轴就是经度：从 180°W 到 180°E 均匀铺开 360°',
+      ],
+    },
+    zoom: {
+      name: '放大的那一段',
+      hint: '把用到的经度区间放大，经度差才量得准。',
+      vars,
+      steps: [
+        `整条展开图有 360°，一小格代表很多度，直接量会量不准`,
+        `把本题用到的区间放大：${vars.lonMin}° 到 ${vars.lonMax}°`,
+        '放大后每一度的间距变大，经度差可以直接读出来',
+        '同在东经这一侧，不必绕到 180° 经线那边去',
+      ],
+    },
+    axis: {
+      name: '经度刻度',
+      hint: '横轴是经度，每 10° 一根刻度。',
+      vars,
+      steps: [
+        `横轴 = 经度，每 ${vars.tickStep}° 一根刻度`,
+        `刻度从 ${vars.lonMin}° 到 ${vars.lonMax}°，中间是 ${vars.midLon}°`,
+        '读经度先看它落在哪两根刻度之间',
+        '西经写负、东经写正，后面相减才不用再判断符号',
+      ],
+    },
+    known: {
+      name: '已知地（东经 107°）',
+      hint: '已知东经 107° 的地方时是 10:50。',
+      vars,
+      steps: [
+        `已知地：${vars.knownLon}，地方时 ${vars.knownTime}`,
+        `写在数轴上：东经为正 ⇒ ${vars.knownLonNum} 记作 +${vars.knownLonNum}`,
+        '所有经度统一按「东经为正、西经为负」记号',
+        `时间也换成小时数：${vars.knownTime} = ${vars.knownHourNum} 小时`,
+      ],
+    },
+    target: {
+      name: '所求地（东经 120°）',
+      hint: '东经 120° 的地方时是所求。',
+      vars,
+      steps: [
+        `所求地：${vars.targetLon}`,
+        '它和已知地同在东经这一侧',
+        '度数更大 ⇒ 在展开图上更靠右 ⇒ 在已知地的东边',
+        `所以最后一步用「${vars.op}」`,
+      ],
+    },
+    'diff-bracket': {
+      name: '经度差',
+      hint: '第三步：东经为正、西经为负，相减取绝对值。',
+      vars,
+      steps: [
+        `经度差 = |${vars.targetLonNum} − ${vars.knownLonNum}| = ${vars.diffDeg}`,
+        '取绝对值，劣弧优先——尽量不穿过 180° 经线，免得牵涉国际日界线',
+        `同在东经这一侧：${vars.targetLonNum} > ${vars.knownLonNum} ⇒ 所求地在东边`,
+        `所以经度差就是 ${vars.diffDeg}`,
+      ],
+    },
+    'minute-marks': {
+      name: '时间差（52 分钟）',
+      hint: '第四步的一半：经度差 × 4 分钟 = 时间差。',
+      vars,
+      steps: [
+        `地球 24 小时转 360° ⇒ ${vars.spinHours}`,
+        `每 1° 对应 60 ÷ ${vars.spinDeg} = ${vars.minutesPerDeg}`,
+        `时间差 = ${vars.diffDeg} × ${vars.minutesPerDeg} = ${vars.timeDiff}`,
+        `图上每 1° 一小格：${vars.markCount} 格 × ${vars.minutesPerDeg} = ${vars.timeDiff}`,
+      ],
+    },
+    result: {
+      name: '结果算式',
+      hint: '最后一步：东加西减，写成 24 时制并带日期。',
+      vars,
+      steps: [
+        `所求地在已知地的${vars.side} ⇒ 用${vars.op}`,
+        `${vars.knownTime} + ${vars.timeDiff} = ${vars.resultTime}`,
+        '24 时制：小时写 00–23、分写 00–59；不要写「晚上十点」',
+        '题目给了日期就把日期带上',
+        `减法不够减时把小时写大：${vars.borrowHour} 点 → ${vars.borrowBigHour} 点（借一天），再减`,
+      ],
+    },
+  }
+})
 </script>

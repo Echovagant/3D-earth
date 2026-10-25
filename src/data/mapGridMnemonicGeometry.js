@@ -102,6 +102,69 @@ export const EXTENT = [
   { text: '最南 约北纬 4° 曾母暗沙' },
 ]
 
+/** 四至的经纬度范围（数值版：从 EXTENT 的文字里拆出来的） */
+export const EXTENT_BOUNDS = { lonMin: 73, lonMax: 135, latMin: 4, latMax: 53 }
+
+/**
+ * 骨架的比例：图上 1° 经度、1° 纬度各占多少像素。
+ *
+ * 有了它，「两条线之间差几度」才能换算成「图上隔多远」。
+ */
+export function gridScale(box, lonMin, lonMax, latMin, latMax) {
+  return {
+    xPerDeg: (box.right - box.left) / (lonMax - lonMin),
+    yPerDeg: (box.bottom - box.top) / (latMax - latMin),
+  }
+}
+
+/**
+ * 骨架四条边与四至之间的缺口（度）。
+ *
+ * 缺口是负数说明骨架已经越过了四至，正数说明还差一截——
+ * 靠这张表能说清「骨架覆盖的是主体，边界得靠四至补」。
+ */
+export function skeletonGaps(meridians, parallels, bounds = EXTENT_BOUNDS) {
+  const lats = parallels.map((p) => p.lat)
+  return {
+    west: Math.min(...meridians) - bounds.lonMin,
+    east: bounds.lonMax - Math.max(...meridians),
+    north: bounds.latMax - Math.max(...lats),
+    south: Math.min(...lats) - bounds.latMin,
+  }
+}
+
+/**
+ * 一个数落在哪两条骨架线之间、偏了多少（0 = 贴着低的那条，1 = 贴着高的那条）。
+ *
+ * 不在骨架线上的点只能这样估——「在 80° 与 90° 之间偏东八成」。
+ */
+export function bracketPosition(value, list) {
+  const sorted = [...list].sort((a, b) => a - b)
+  for (let i = 0; i < sorted.length - 1; i += 1) {
+    if (value >= sorted[i] && value <= sorted[i + 1]) {
+      return {
+        low: sorted[i],
+        high: sorted[i + 1],
+        t: (value - sorted[i]) / (sorted[i + 1] - sorted[i]),
+      }
+    }
+  }
+  return null
+}
+
+/** 骨架上一共钉了多少个点、多少段区间 */
+export function anchorCount(rows) {
+  let points = 0
+  let bands = 0
+  for (const row of rows) {
+    for (const item of row.items) {
+      if (item.kind === 'point') points += 1
+      else bands += 1
+    }
+  }
+  return { points, bands, total: points + bands }
+}
+
 /**
  * 骨架的投影：经度 → x、纬度 → y（线性）。
  *

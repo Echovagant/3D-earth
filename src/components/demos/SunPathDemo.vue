@@ -1,23 +1,38 @@
 <template>
-  <DemoShell :steps="steps">
+  <DemoShell :steps="steps" :explains="explains">
     <template #default="{ step }">
       <!-- ① 地平面 + 天球（半圆） -->
       <g v-show="step === 0" class="demo__frame">
-        <path class="demo-horizon" :d="dome.dome" />
+        <path class="demo-horizon" data-explain="dome" :d="dome.dome" />
         <ellipse
           class="demo-horizon"
+          data-explain="horizon"
           :cx="dome.box.cx"
           :cy="dome.box.cy"
           :rx="dome.box.rx"
           :ry="dome.box.ry"
         />
-        <circle class="demo__cut" :cx="dome.box.cx" :cy="dome.box.cy" r="5" />
+        <circle
+          class="demo__cut"
+          data-explain="observer"
+          :cx="dome.box.cx"
+          :cy="dome.box.cy"
+          r="5"
+        />
         <text class="demo__label demo__label--mark" x="150" y="268">北</text>
         <text class="demo__label demo__label--mark" x="570" y="268">南</text>
         <text class="demo__label demo__label--faint" x="360" y="212" text-anchor="middle">西（远处）</text>
         <text class="demo__label demo__label--faint" x="360" y="374" text-anchor="middle">东（近处）</text>
         <text class="demo__label demo__label--faint" x="360" y="106" text-anchor="middle">天顶</text>
-        <text class="demo__label demo__label--mark" x="360" y="306" text-anchor="middle">人（观测点）</text>
+        <text
+          class="demo__label demo__label--mark"
+          data-explain="observer"
+          x="360"
+          y="306"
+          text-anchor="middle"
+        >
+          人（观测点）
+        </text>
         <text class="demo__caption-line" x="360" y="40" text-anchor="middle">
           天球：地平圈 + 竖直圈，人站在地平圈的中心
         </text>
@@ -25,24 +40,33 @@
 
       <!-- ② 太阳一天的运动轨迹 -->
       <g v-show="step === 1" class="demo__frame">
-        <path class="demo-horizon" :d="dome.dome" />
+        <path class="demo-horizon" data-explain="dome" :d="dome.dome" />
         <ellipse
           class="demo-horizon"
+          data-explain="horizon"
           :cx="dome.box.cx"
           :cy="dome.box.cy"
           :rx="dome.box.rx"
           :ry="dome.box.ry"
         />
-        <path class="demo__curve" :d="trackPath" />
-        <path class="demo__spin-head" :d="arrowHead(directionArrow.x, directionArrow.y, directionArrow.angle, 13)" />
+        <path class="demo__curve" data-explain="track" :d="trackPath" />
+        <path
+          class="demo__spin-head"
+          data-explain="track"
+          :d="arrowHead(directionArrow.x, directionArrow.y, directionArrow.angle, 13)"
+        />
 
-        <circle class="demo__sun" :cx="mark.noon.x" :cy="mark.noon.y" r="11" />
-        <circle class="demo__cut" :cx="mark.rise.x" :cy="mark.rise.y" r="6" />
-        <circle class="demo__cut" :cx="mark.set.x" :cy="mark.set.y" r="6" />
+        <circle class="demo__sun" data-explain="noon" :cx="mark.noon.x" :cy="mark.noon.y" r="11" />
+        <circle class="demo__cut" data-explain="sunrise" :cx="mark.rise.x" :cy="mark.rise.y" r="6" />
+        <circle class="demo__cut" data-explain="sunset" :cx="mark.set.x" :cy="mark.set.y" r="6" />
 
-        <text class="demo__label demo__label--mark" x="452" y="116">正午</text>
-        <text class="demo__label demo__label--mark" x="244" y="372">日出（东北）</text>
-        <text class="demo__label demo__label--mark" x="146" y="212">日落（西北）</text>
+        <text class="demo__label demo__label--mark" data-explain="noon" x="452" y="116">正午</text>
+        <text class="demo__label demo__label--mark" data-explain="sunrise" x="244" y="372">
+          日出（东北）
+        </text>
+        <text class="demo__label demo__label--mark" data-explain="sunset" x="146" y="212">
+          日落（西北）
+        </text>
         <path class="demo__leader" d="M 214 208 L 226 230" />
         <text class="demo__label demo__label--faint" x="360" y="40" text-anchor="middle">
           40°N、夏至日：东北升、经过正南、西北落，昼长
@@ -54,11 +78,11 @@
       <g v-show="step === 2" class="demo__frame">
         <!-- 正确：角在观测点张开 -->
         <path class="demo-horizon" d="M 92 300 L 340 300" />
-        <circle class="demo__cut" cx="210" cy="300" r="5" />
-        <circle class="demo__sun" cx="257" cy="142" r="12" />
-        <path class="demo__curve" d="M 210 300 L 257 142" />
+        <circle class="demo__cut" data-explain="altitude" cx="210" cy="300" r="5" />
+        <circle class="demo__sun" data-explain="altitude" cx="257" cy="142" r="12" />
+        <path class="demo__curve" data-explain="altitude" d="M 210 300 L 257 142" />
         <path class="demo__spin" d="M 210 300 L 340 300" />
-        <path class="demo__spin" :d="heightArc" />
+        <path class="demo__spin" data-explain="altitude" :d="heightArc" />
         <text class="demo__label demo__label--mark" x="266" y="268">H = {{ altitude }}°</text>
         <text class="demo__label demo__label--faint" x="257" y="120" text-anchor="middle">太阳</text>
         <text class="demo__label" x="210" y="326" text-anchor="middle">人（观测点）</text>
@@ -68,10 +92,10 @@
 
         <!-- 错误：连到太阳的地面投影点 -->
         <path class="demo-horizon" d="M 440 300 L 690 300" />
-        <circle class="demo__cut" cx="520" cy="300" r="5" />
-        <circle class="demo__sun" cx="567" cy="142" r="12" />
-        <path class="demo__curve" d="M 520 300 L 567 142" />
-        <path class="demo__leader" d="M 567 142 L 567 300" />
+        <circle class="demo__cut" data-explain="wrong-angle" cx="520" cy="300" r="5" />
+        <circle class="demo__sun" data-explain="wrong-angle" cx="567" cy="142" r="12" />
+        <path class="demo__curve" data-explain="wrong-angle" d="M 520 300 L 567 142" />
+        <path class="demo__leader" data-explain="wrong-angle" d="M 567 142 L 567 300" />
         <path class="demo__spin" d="M 557 300 L 557 290 L 567 290" />
         <text class="demo__label demo__label--faint" x="567" y="120" text-anchor="middle">太阳</text>
         <text class="demo__label" x="612" y="294" text-anchor="start">地面投影点 P</text>
@@ -85,19 +109,31 @@
 
       <!-- ④ 正午太阳在正南还是正北 -->
       <g v-show="step === 3" class="demo__frame">
-        <path class="demo-horizon" :d="dome.dome" />
+        <path class="demo-horizon" data-explain="dome" :d="dome.dome" />
         <ellipse
           class="demo-horizon"
+          data-explain="horizon"
           :cx="dome.box.cx"
           :cy="dome.box.cy"
           :rx="dome.box.rx"
           :ry="dome.box.ry"
         />
-        <path class="demo__leader" d="M 360 118 L 360 288" />
-        <circle class="demo__sun" :cx="mark.noon.x" :cy="mark.noon.y" r="11" />
+        <path class="demo__leader" data-explain="noon-side" d="M 360 118 L 360 288" />
+        <circle
+          class="demo__sun"
+          data-explain="noon-side"
+          :cx="mark.noon.x"
+          :cy="mark.noon.y"
+          r="11"
+        />
         <text class="demo__label demo__label--faint" x="214" y="162">北半边</text>
         <text class="demo__label demo__label--faint" x="506" y="162">南半边</text>
-        <text class="demo__label demo__label--mark" x="452" y="116">
+        <text
+          class="demo__label demo__label--mark"
+          data-explain="noon-side"
+          x="452"
+          y="116"
+        >
           正午太阳{{ side === 'south' ? '（正南）' : '（正北）' }}
         </text>
         <text class="demo__label" x="360" y="306" text-anchor="middle">人（观测点）</text>
@@ -136,12 +172,16 @@ import { computed } from 'vue'
 import DemoShell from '../DemoShell.vue'
 import { arrowHead } from '../../data/svgParts'
 import {
-  domeProjection,
+  azimuthBearingText,
   dayLengthHours,
+  dayLengthText,
+  domeProjection,
   hourAngleRange,
   noonAltitude,
+  noonAzimuth,
   noonSide,
   sunPosition,
+  sunriseAzimuth,
   sunTrack,
 } from '../../data/sunPathGeometry'
 
@@ -221,6 +261,158 @@ const heightArc = computed(() => {
 
 /** ④ 正午太阳的方位：图形上用落在南半边表示 */
 const side = computed(() => noonSide(LAT, DECL))
+
+/**
+ * 讲解层：图上能点的元素，说明它是什么、怎么算出来的。
+ *
+ * steps 里的数字全部由几何函数算好后填进 {占位符}，不手写——
+ * 参数一动，图和讲解一起变，不会出现「图上 73.5°、文字写着 70°」。
+ */
+const explains = computed(() => {
+  const range = hourAngleRange(LAT, DECL)
+  const riseAz = sunriseAzimuth(LAT, DECL)
+  const noonAz = noonAzimuth(LAT, DECL)
+  const tropicLat = 20
+  const vars = {
+    lat: `${LAT}°N`,
+    decl: `${DECL}°N`,
+    latNum: String(LAT),
+    declNum: String(DECL),
+    alt: noonAltitude(LAT, DECL).toFixed(1),
+    hourAngle: range.to.toFixed(1),
+    dayLen: dayLengthHours(LAT, DECL).toFixed(1),
+    dayLenText: dayLengthText(LAT, DECL),
+    riseAzDeg: riseAz.toFixed(1),
+    riseAz: azimuthBearingText(riseAz),
+    setAzDeg: (360 - riseAz).toFixed(1),
+    setAz: azimuthBearingText(360 - riseAz),
+    noonAzDeg: noonAz.toFixed(0),
+    noonAz: azimuthBearingText(noonAz),
+    side: noonSide(LAT, DECL) === 'south' ? '正南' : '正北',
+    tropicLat: `${tropicLat}°N`,
+    altTropic: noonAltitude(tropicLat, DECL).toFixed(1),
+    noonAzTropic: azimuthBearingText(noonAzimuth(tropicLat, DECL)),
+  }
+
+  return {
+    horizon: {
+      name: '地平圈',
+      hint: '观测点所在的地平面，把天球分成地上与地下。',
+      vars,
+      steps: [
+        '地平圈 = 观测点所在的地平面，它把天球分成天顶方向与地平线下方向',
+        '透视图里地平圈画成椭圆：近的一边在下面（东），远的一边在上面（西）',
+        '日出点、日落点都落在这条椭圆上——太阳高度 h = 0 的地方',
+        '太阳高度角就是太阳与这条地平面的夹角',
+      ],
+    },
+    dome: {
+      name: '竖直圈（天球）',
+      hint: '从北经天顶到南的那半个圈，把天球分成东西两半。',
+      vars,
+      steps: [
+        '竖直圈从北经天顶到南，与地平圈互相垂直',
+        '它把天球分成东半边与西半边',
+        '正午太阳走的是竖直圈里最高的那一点',
+        '所以正午太阳在正南还是正北，看它落在这圈的哪一侧',
+      ],
+    },
+    observer: {
+      name: '观测点',
+      hint: '人站的地方，也是全图的原点——所有角都对它张。',
+      vars,
+      steps: [
+        '观测点是人站的地方，也是这张图的原点',
+        '所有高度角都要对这一点张：把人和太阳连起来，读它与地平面的夹角',
+        '连到太阳的地面投影点去读，量到的是直角，角就全错了',
+        '观测点的纬度决定它与直射点纬度的差，也就决定了正午太阳高度',
+      ],
+    },
+    track: {
+      name: '太阳日轨',
+      hint: '日出 → 正午 → 日落连成的一段弧，弧长就是昼长。',
+      vars,
+      steps: [
+        '太阳一天走过的轨迹：日出 → 正午 → 日落连成一段弧',
+        '时角 H 从 −H₀ 到 +H₀，H₀ = arccos(−tanφ·tanδ)',
+        '当前 φ = {latNum}°、δ = {declNum}° ⇒ H₀ = {hourAngle}°',
+        '昼长 = 2H₀ ÷ 15°/时 = {dayLen} 小时（{dayLenText}）',
+        '弧偏向昼长那一侧，偏向多少由当地纬度与直射点纬度的差决定',
+      ],
+    },
+    sunrise: {
+      name: '日出点',
+      hint: '太阳高度为 0 的那一刻，方位由昼长决定。',
+      vars,
+      steps: [
+        '日出 = 太阳高度 h = 0 的那一刻',
+        '日出方位角满足 cos A = sinδ / cosφ（A 自北起顺时针）',
+        '当前 δ = {declNum}°、φ = {latNum}° ⇒ A = {riseAzDeg}°',
+        '所以日出方位是 {riseAz}——在东北方向',
+        '昼越长，日出方位越偏北（夏至东北升得更高）',
+      ],
+    },
+    noon: {
+      name: '正午',
+      hint: '地方时 12 时，太阳在竖直圈的最高点。',
+      vars,
+      steps: [
+        '正午 = 地方时 12 时，太阳在竖直圈里最高的那一点',
+        '正午太阳高度 h = 90° − |当地纬度 − 直射点纬度|',
+        '当前 = 90° − |{latNum}° − {declNum}°| = {alt}°',
+        '正午方位 = {noonAz}（{noonAzDeg}°）',
+        '高度角要对观测点张，不能对太阳的地面投影点张',
+      ],
+    },
+    sunset: {
+      name: '日落点',
+      hint: '太阳高度回到 0 的另一刻，方位与日出关于正午对称。',
+      vars,
+      steps: [
+        '日落 = 太阳高度 h = 0 的另一刻',
+        '日落方位角与日出关于正午对称：360° − {riseAzDeg}° = {setAzDeg}°',
+        '当前日落方位是 {setAz}——在西北方向',
+        '昼越长，日落方位越偏西',
+      ],
+    },
+    altitude: {
+      name: '正午太阳高度角',
+      hint: '角顶在人所在的那一点，量的是太阳与地平面的夹角。',
+      vars,
+      steps: [
+        '正午太阳高度角 = 太阳与地平面的夹角，角顶在观测点',
+        'h = 90° − |当地纬度 − 直射点纬度|',
+        '当前 90° − |{latNum}° − {declNum}°| = {alt}°',
+        '角必须对观测点张：把人和太阳连起来，读它与地平面的夹角',
+        '图上量的角度应当正好是 {alt}°',
+      ],
+    },
+    'wrong-angle': {
+      name: '错法：对投影点张角',
+      hint: '连到太阳的地面投影点去读，量到的是直角。',
+      vars,
+      steps: [
+        '错法：连到太阳的地面投影点 P 去读角',
+        '投影点 P 在人脚边，读出来的是直角（或它的余角）',
+        '角顶被换成了 P，量的就不再是太阳高度角',
+        '正确做法：角顶在人所在的那一点，答案是 {alt}°',
+        '记住：先定角顶，再读角',
+      ],
+    },
+    'noon-side': {
+      name: '正午太阳在正南还是正北',
+      hint: '看当地纬度与直射点纬度谁大。',
+      vars,
+      steps: [
+        '正午太阳在正南还是正北，取决于直射点纬度与当地纬度谁大',
+        '当地 {lat} > 直射点 {decl} ⇒ 正午太阳在{side}（方位 {noonAz}）',
+        '反例：当地 {tropicLat} < 直射点 {decl} ⇒ 正午太阳在正北（方位 {noonAzTropic}），高度 {altTropic}°',
+        '当地纬度正好等于直射点纬度时 h = 90°，太阳直射头顶，影子就在脚下',
+        '图上的判据：看太阳落在竖直圈的哪一侧',
+      ],
+    },
+  }
+})
 </script>
 
 <style scoped>

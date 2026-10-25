@@ -100,3 +100,42 @@ export function noonSide(latDeg, declDeg) {
   if (Math.abs(latDeg - declDeg) < 1e-9) return 'overhead'
   return declDeg < latDeg ? 'south' : 'north'
 }
+
+/**
+ * 正午太阳的方位角（自北起顺时针）。
+ *
+ * 正午时太阳一定落在地方子午线上，所以方位只有两种：
+ *   直射点在当地以南（δ < φ）→ 180°（正南）；
+ *   直射点在当地以北（δ > φ）→ 0°（正北）；
+ *   直射点就在当地 → 90°（天顶，方位无意义）。
+ */
+export function noonAzimuth(latDeg, declDeg) {
+  const p = sunPosition(latDeg, declDeg, 0)
+  if (Math.abs(latDeg - declDeg) < 1e-9) return 90
+  return p.azimuth
+}
+
+/**
+ * 方位角的读法：北偏东 58.7° / 正南 …
+ *
+ * 方位角自北起顺时针量，正北 0°、正东 90°、正南 180°、正西 270°。
+ */
+export function azimuthBearingText(azDeg) {
+  const a = (((azDeg % 360) + 360) % 360)
+  if (a < 0.05 || a > 359.95) return '正北'
+  if (Math.abs(a - 90) < 0.05) return '正东'
+  if (Math.abs(a - 180) < 0.05) return '正南'
+  if (Math.abs(a - 270) < 0.05) return '正西'
+  if (a < 90) return `北偏东 ${a.toFixed(1)}°`
+  if (a < 180) return `东偏南 ${(180 - a).toFixed(1)}°`
+  if (a < 270) return `南偏西 ${(a - 180).toFixed(1)}°`
+  return `西偏北 ${(360 - a).toFixed(1)}°`
+}
+
+/** 昼长的读法：14 小时 51 分 */
+export function dayLengthText(latDeg, declDeg) {
+  const h = dayLengthHours(latDeg, declDeg)
+  const hh = Math.floor(h)
+  const mm = Math.round((h - hh) * 60)
+  return `${hh} 小时 ${mm} 分`
+}

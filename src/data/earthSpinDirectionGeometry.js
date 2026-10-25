@@ -6,9 +6,45 @@
  * 不是两个方向。所以箭头一律算出来，不靠手画。
  */
 import { polarToXY } from './svgParts'
+import { speedFromCircumference } from './rotationSpeedGeometry'
 
 /** 地轴与公转轨道面法线的夹角（黄赤交角）——侧视图里地轴偏离铅垂线的角度 */
 export const AXIS_TILT = 23.5
+
+/** 地轴与公转轨道面的夹角——与黄赤交角互余 */
+export const AXIS_TO_ECLIPTIC = 90 - AXIS_TILT
+
+/** 地球赤道半径（km） */
+export const EARTH_RADIUS_KM = 6378
+
+/** 自转角速度：24 小时转 360° */
+export const DEGREES_PER_HOUR = 360 / 24
+
+/**
+ * 赤道周长（km）= 2πR。
+ *
+ * @param {number} radiusKm 地球半径（km）
+ */
+export function equatorCircumferenceKm(radiusKm = EARTH_RADIUS_KM) {
+  return 2 * Math.PI * radiusKm
+}
+
+/**
+ * 纬度 φ 的纬线圈周长（km）= 2πR·cosφ。
+ *
+ * @param {number} latDeg 纬度（度）
+ * @param {number} radiusKm 地球半径（km）
+ */
+export function latitudeCircumferenceKm(latDeg, radiusKm = EARTH_RADIUS_KM) {
+  return 2 * Math.PI * radiusKm * Math.cos((latDeg * Math.PI) / 180)
+}
+
+/**
+ * 赤道上的自转线速度（km/h）= 赤道周长 ÷ 24 小时。
+ */
+export function equatorSpeedKmh(radiusKm = EARTH_RADIUS_KM) {
+  return speedFromCircumference(equatorCircumferenceKm(radiusKm))
+}
 
 /**
  * 侧视图中南北极点与赤道的位置。

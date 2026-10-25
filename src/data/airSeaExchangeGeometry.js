@@ -101,6 +101,17 @@ export const HEAT_STORAGE = {
   conclusion: '海洋是大气最主要的热量储存库，大气温度主要来自海洋',
 }
 
+/** 大气中的水汽来自海洋的比例（%） */
+export const VAPOR_FROM_OCEAN_PERCENT = 87.5
+
+/** 水的汽化潜热（焦/千克）：每蒸发 1 千克水从海面带走的热量 */
+export const LATENT_HEAT_VAPORIZATION = 2.5e6
+
+/** 汽化潜热的读法 */
+export function latentHeatText() {
+  return `${(LATENT_HEAT_VAPORIZATION / 1e6).toFixed(1)}×10⁶ J/kg`
+}
+
 /**
  * 从 (x1, y1) 到 (x2, y2) 的方向角。
  * 0° 向右，90° 向上，逆时针为正——与 svgParts 的 arrowHead 一致。

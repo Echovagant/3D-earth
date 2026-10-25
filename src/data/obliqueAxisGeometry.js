@@ -12,6 +12,12 @@
 /** 黄赤交角（度）：赤道面与黄道面的夹角 */
 export const OBLIQUITY = 23.5
 
+/** 黄赤交角的度分表示 */
+export const OBLIQUITY_DMS = '23°26′'
+
+/** 地轴与黄道面夹角的度分表示 */
+export const AXIS_TO_ECLIPTIC_DMS = '66°34′'
+
 /** 回归线纬度 */
 export const TROPIC = OBLIQUITY
 
@@ -23,6 +29,16 @@ export const AXIS_TO_ECLIPTIC = 90 - OBLIQUITY
 
 /** 一年里的天数 */
 export const DAYS_PER_YEAR = 365.25
+
+/** 一年里直射点走过的纬度跨度（度）：来回各一次，4 倍黄赤交角 */
+export const DECLINATION_SPAN = 4 * OBLIQUITY
+
+/**
+ * 直射点移动的平均速度（度/天）。
+ */
+export function declinationSpeedPerDay() {
+  return DECLINATION_SPAN / DAYS_PER_YEAR
+}
 
 /**
  * 地轴单位向量（画布坐标，y 向下）：北端向右倾 tiltDeg 度。

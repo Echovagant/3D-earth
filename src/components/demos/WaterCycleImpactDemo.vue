@@ -1,5 +1,5 @@
 <template>
-  <DemoShell :steps="steps">
+  <DemoShell :steps="steps" :explains="explains">
     <template #default="{ step }">
       <!-- ① 海陆间循环的六个环节 -->
       <g v-show="step === 0" class="demo__frame">
@@ -14,7 +14,7 @@
         />
 
         <!-- 六个环节 -->
-        <g v-for="link in links" :key="link.id">
+        <g v-for="link in links" :key="link.id" :data-explain="link.id">
           <path class="wi-flow" :d="link.d" />
           <path class="wi-head" :d="link.head" />
           <text
@@ -58,7 +58,7 @@
 
       <!-- ③ 人类活动改了哪些环节 -->
       <g v-show="step === 2" class="demo__frame">
-        <g v-for="a in impacts" :key="a.id">
+        <g v-for="a in impacts" :key="a.id" :data-explain="a.id">
           <rect class="wi-card wi-card--head" :x="a.x" y="52" width="200" height="66" rx="8" />
           <text class="demo__label demo__label--mark" :x="a.x + 100" y="80" text-anchor="middle">
             {{ a.title }}
@@ -93,7 +93,7 @@
 
       <!-- ④ 万能公式 -->
       <g v-show="step === 3" class="demo__frame">
-        <g v-for="row in ruleRows" :key="row.id">
+        <g v-for="row in ruleRows" :key="row.id" data-explain="rule">
           <text class="demo__label demo__label--mark" :x="70" :y="row.titleY" text-anchor="start">
             {{ row.title }}
           </text>
@@ -148,6 +148,9 @@ import {
   STAGE,
   UNIVERSAL_RULE,
   directionAngle,
+  directionWord,
+  impactSummary,
+  linkLength,
 } from '../../data/waterCycleImpactGeometry'
 
 const steps = [
@@ -187,6 +190,8 @@ const links = computed(() =>
       labelX: link.labelX,
       labelY: link.labelY,
       labelAnchor: link.labelAnchor,
+      dir: directionWord(angle),
+      length: linkLength(link),
     }
   }),
 )
@@ -233,6 +238,156 @@ const ruleRows = computed(() => {
     build('less', '城市硬化地面：下渗少', 190, 204, UNIVERSAL_RULE.down),
   ]
 })
+
+/**
+ * 讲解层：图上能点的元素，说明它是什么、怎么算出来的。
+ *
+ * 每个环节的方向词都从几何算出来（图上画的方向 = 讲解里说的方向），
+ * 人类活动改了哪几个环节、改成什么方向，也由同一份数据拼出来。
+ */
+const linkOf = (id) => links.value.find((l) => l.id === id)
+const impactOf = (id) => impacts.value.find((a) => a.id === id)
+
+const vars = {
+  evapDir: linkOf('evaporation').dir,
+  transportDir: linkOf('transport').dir,
+  precipDir: linkOf('precipitation').dir,
+  surfaceDir: linkOf('surface-runoff').dir,
+  infilDir: linkOf('infiltration').dir,
+  groundDir: linkOf('groundwater-runoff').dir,
+  transportLen: `${Math.round(linkOf('transport').length)}`,
+  linkCount: `${CYCLE_LINKS.length}`,
+  afforCount: `${impactSummary(impactOf('afforestation')).count}`,
+  afforMarks: impactSummary(impactOf('afforestation')).marks,
+  reservoirCount: `${impactSummary(impactOf('reservoir')).count}`,
+  reservoirMarks: impactSummary(impactOf('reservoir')).marks,
+  urbanCount: `${impactSummary(impactOf('urbanization')).count}`,
+  urbanMarks: impactSummary(impactOf('urbanization')).marks,
+  ruleUpCount: `${UNIVERSAL_RULE.up.length}`,
+  ruleDownCount: `${UNIVERSAL_RULE.down.length}`,
+}
+
+const explains = {
+  evaporation: {
+    name: '蒸发',
+    hint: '水的第一站：海面变成水汽升上天空，能量来自太阳。',
+    vars,
+    steps: [
+      '水循环的能量来自太阳：液态水变成水汽要吸热（汽化潜热）',
+      '所以蒸发集中在有日照、白天和夏季',
+      '方向是{evapDir}——水汽密度小，往上升',
+      '海洋占地球表面约 71%，所以海洋是最大的蒸发源',
+      '人类活动能影响它：植被的蒸腾量与覆盖度成正比',
+    ],
+  },
+  transport: {
+    name: '水汽输送',
+    hint: '水汽被大气从海上搬到陆上，靠的是大气环流。',
+    vars,
+    steps: [
+      '搬运它的是大气环流——§7 那条链（气压差 → 风）就是搬运的动力',
+      '所以输送方向和风向一致',
+      '图上这条线{transportDir}，从海洋到陆地',
+      '它是六个环节里最长的一段（{transportLen}）：要从海上跨到陆上',
+      '人推不动大尺度的环流，所以这个环节基本影响不了',
+    ],
+  },
+  precipitation: {
+    name: '降水',
+    hint: '水汽上升冷却凝结成云，重量够了就落回地面。',
+    vars,
+    steps: [
+      '水汽被抬升 → 冷却 → 凝结成云 → 云里水汽够了就成降水',
+      '方向是{precipDir}',
+      '陆地上的淡水全靠这一环补给',
+      '人工降雨条件苛刻（要有足量的凝结核），对自然降水影响很小',
+      '所以「植树导致降水增加」这类说法一律判错',
+    ],
+  },
+  'surface-runoff': {
+    name: '地表径流',
+    hint: '降水落到地表后顺着地表流走——它做的事最多。',
+    vars,
+    steps: [
+      '落到地面的雨水有一部分直接顺着地表流走，这就是地表径流',
+      '方向是回海（图上这条线{surfaceDir}）',
+      '它同时在侵蚀、搬运、堆积，塑造地表形态',
+      '人类活动改它改得最多：水库、跨流域调水、围湖造田',
+      '它和下渗是一对跷跷板——下渗一动，它就跟着反向动',
+    ],
+  },
+  infiltration: {
+    name: '下渗',
+    hint: '降水落到地表后渗进土里——这是人类活动影响最大的环节。',
+    vars,
+    steps: [
+      '落到地面的雨有一部分渗进土壤，就是下渗',
+      '方向是{infilDir}',
+      '渗下去的水补给地下水 → 形成地下径流',
+      '人类活动对它影响最大：地面硬化让下渗减少，植被覆盖让下渗增加',
+      '下渗一动，地下径流和地表径流跟着一起动——这就是万能公式',
+    ],
+  },
+  'groundwater-runoff': {
+    name: '地下径流',
+    hint: '渗下去的水在地下慢慢流回海洋。',
+    vars,
+    steps: [
+      '渗到地下的水在含水层里缓慢流动，最终回到海洋，这就是地下径流',
+      '方向是回海（图上这条线{groundDir}），但走得慢、路程长',
+      '它和地表径流共享同一份降水——所以一条涨，另一条就落',
+      '人类活动不直接动它，而是通过改下渗来间接改它',
+    ],
+  },
+  afforestation: {
+    name: '植树造林',
+    hint: '涵养水源、减缓地表径流——改的是三个环节。',
+    vars,
+    steps: [
+      '植树造林的做法：树冠拦一下雨，枯枝落叶层吸水，根系松动土壤',
+      '它改了 {afforCount} 个环节：{afforMarks}',
+      '下渗↑ ⇒ 地下径流↑、地表径流↓',
+      '蒸腾↑ ⇒ 回到大气里的水汽也多一点（这才是它对蒸发的影响）',
+      '所以山区的水土流失会变小、洪峰会被削平',
+    ],
+  },
+  reservoir: {
+    name: '兴修水库',
+    hint: '丰水期蓄水、枯水期放水——改的是时间分配，不是总量。',
+    vars,
+    steps: [
+      '水库的做法：丰水期把水蓄在库区，枯水期再放出来',
+      '它只改了 {reservoirCount} 个环节：{reservoirMarks}',
+      '关键在方向是「⇅」而不是「↑」或「↓」：水的总量没变，变的是时间分配',
+      '所以水库削峰补枯——洪峰被削平，枯水期有补水',
+      '这跟植树造林不一样：一个改总量，一个改时间',
+    ],
+  },
+  urbanization: {
+    name: '城市化',
+    hint: '地面硬化，不透水——它把万能公式反着推了一遍。',
+    vars,
+    steps: [
+      '水泥路、沥青路一点水都渗不进去，这就是地面硬化',
+      '它改了 {urbanCount} 个环节：{urbanMarks}',
+      '下渗↓ ⇒ 地下径流↓、地表径流↑',
+      '地表径流↑ ⇒ 低洼处来不及排走就积水',
+      '所以城市内涝（§11.4）就是这条链的反过来',
+    ],
+  },
+  rule: {
+    name: '万能公式',
+    hint: '降水落到地表只有两个去向：顺着地表流走，或者下渗到地下。',
+    vars,
+    steps: [
+      '降水落到地表只有两个去向：顺着地表流走，或者下渗到地下',
+      '所以下渗↑ → 地下径流↑、地表径流↓；下渗↓ 就反过来',
+      '这是个跷跷板：同一份水量在两条线之间重新分配，总量守恒',
+      '题目里只要出现「下渗」两个字，后面的一切都能顺着这条链推出来',
+      '两行是同一句话的两种方向：自然地面（{ruleUpCount} 环）与城市硬化地面（{ruleDownCount} 环）',
+    ],
+  },
+}
 </script>
 
 <style scoped>

@@ -47,3 +47,18 @@ export function longitudeLabel(lon, side) {
 export function degreesIncreaseEastward(side) {
   return side === 'east'
 }
+
+/** 自西向东走，度数是变大还是变小（中文说法） */
+export function eastwardTrend(side) {
+  return degreesIncreaseEastward(side) ? '变大' : '变小'
+}
+
+/**
+ * 经线在赤道上的落点相对圆心的横向偏移（正数为右）。
+ *
+ * 落点位置 = R·cosλ：0° 落在直径一端，90° 落在正中间，180° 落在另一端。
+ */
+export function meridianOffset(r, lon, side) {
+  const c = Math.cos((lon * Math.PI) / 180)
+  return side === 'east' ? -r * c : r * c
+}

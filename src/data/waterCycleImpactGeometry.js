@@ -197,3 +197,41 @@ export function directionAngle(x1, y1, x2, y2) {
 export function linkById(id) {
   return CYCLE_LINKS.find((l) => l.id === id)
 }
+
+/**
+ * 某个环节这条线的长度（画布单位）。
+ *
+ * 只用来比长短——比如「水汽输送是六个环节里最长的一段」，
+ * 不是实地距离，别当成比例尺用。
+ */
+export function linkLength(link) {
+  return Math.hypot(link.to.x - link.from.x, link.to.y - link.from.y)
+}
+
+/**
+ * 把方向角变成方位词（0° 向右、90° 向上，逆时针为正）。
+ *
+ * 水循环的方向不能画反，所以每个环节的方向词都从几何算出来，
+ * 讲解里说的和图上画的是同一个来源。
+ */
+export function directionWord(angle) {
+  const a = ((angle % 360) + 360) % 360
+  if (a > 45 && a <= 135) return '向上'
+  if (a > 135 && a <= 225) return '向左'
+  if (a > 225 && a <= 315) return '向下'
+  return '向右'
+}
+
+/**
+ * 某种人类活动改了哪些环节：条数、方向标记、方向列表。
+ *
+ * 「植树造林改了 3 个环节：下渗↑、地表径流↓、蒸发（蒸腾）↑」
+ * 这句话由它拼出来，不手写。
+ */
+export function impactSummary(impact) {
+  return {
+    count: impact.changes.length,
+    marks: impact.changes.map((c) => `${c.link}${DIR_MARK[c.dir]}`).join('、'),
+    dirs: impact.changes.map((c) => c.dir),
+  }
+}

@@ -15,6 +15,42 @@ export const EQUATOR_SPEED = 1670
 /** 自转角速度：除极点外处处相同，约 15°/小时 */
 export const DEGREES_PER_HOUR = 15
 
+/** 地球赤道半径（km） */
+export const EARTH_RADIUS_KM = 6378
+
+/** 自转转满一圈的时长（小时） */
+export const SPIN_HOURS = 24
+
+/**
+ * 赤道周长（km）= 2πR。
+ *
+ * @param {number} radiusKm 地球半径（km）
+ */
+export function equatorCircumferenceKm(radiusKm = EARTH_RADIUS_KM) {
+  return 2 * Math.PI * radiusKm
+}
+
+/**
+ * 由纬线圈周长与自转时长求线速度（km/h）。
+ *
+ * @param {number} circumferenceKm 纬线圈周长（km）
+ * @param {number} hours 自转一周的时长（小时）
+ */
+export function speedFromCircumference(circumferenceKm, hours = SPIN_HOURS) {
+  return circumferenceKm / hours
+}
+
+/**
+ * 海拔每升高 altitudeKm，线速度增大的百分比。
+ *
+ * @param {number} latDeg 纬度（度）
+ * @param {number} altitudeKm 海拔增量（km）
+ * @param {number} radiusKm 地球半径（km）
+ */
+export function altitudeSpeedGainPercent(latDeg, altitudeKm = 1, radiusKm = EARTH_RADIUS_KM) {
+  return (radiusRatio(latDeg, altitudeKm, radiusKm) - 1) * 100
+}
+
 /** 讲义的常用取值表（纬度 → 线速度 km/h） */
 export const SPEED_TABLE = [
   { lat: 0, label: '赤道', speed: 1670 },

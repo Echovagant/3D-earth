@@ -50,6 +50,30 @@ export function latitudeGapKm(degreeGap = 1) {
 }
 
 /**
+ * 相邻纬线之间的实地弧长（千米），不取整。
+ *
+ * 1° 纬度 = 绕地轴转 1° 的弧长 = R × (π/180)。
+ * 讲义里取整成 111 千米，这里给的是没取整的真值。
+ */
+export function latitudeArcKm(degreeGap = 1, earthRadiusKm = EARTH_RADIUS_KM) {
+  return earthRadiusKm * ((degreeGap * Math.PI) / 180)
+}
+
+/** 纬圈半径相对球半径的比例：R·cosφ / R = cosφ */
+export function parallelRadiusRatio(lat) {
+  return Math.cos((lat * Math.PI) / 180)
+}
+
+/**
+ * 纬线长度的标注值（千米，取整到百位）。
+ *
+ * 图上标的和讲解里写的必须用同一套数，所以这里给一份标注口径。
+ */
+export function parallelLengthLabel(lat, earthRadiusKm = EARTH_RADIUS_KM) {
+  return Math.round(parallelLengthKm(lat, earthRadiusKm) / 100) * 100
+}
+
+/**
  * 柱面展开图（等距圆柱投影）上某条纬线的 y。
  *
  * 这里的 y 与纬度成正比（不是正弦），所以相邻纬线的间隔处处相等——

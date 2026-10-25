@@ -14,6 +14,16 @@
 /** 经度每差 1°，时间相差 4 分钟 */
 export const MINUTES_PER_DEGREE = 4
 
+/** 自转角速度：24 小时转 360°，即 15°/小时 */
+export const DEGREES_PER_HOUR = 15
+
+/**
+ * 经度每差 1° 对应多少分钟 = 60 分钟 ÷ 15°。
+ */
+export function minutesPerDegree() {
+  return 60 / DEGREES_PER_HOUR
+}
+
 /**
  * 经度差：相减取绝对值。
  *
@@ -96,4 +106,14 @@ export function split24(hours) {
  */
 export function expandedX(box, lon) {
   return box.left + ((lon + 180) / 360) * (box.right - box.left)
+}
+
+/**
+ * 24 时制文字（如 11:42）。
+ *
+ * @param {number} hours 小时数（可越界）
+ */
+export function formatClock24(hours) {
+  const { hours: h, minutes: m } = split24(hours)
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
 }

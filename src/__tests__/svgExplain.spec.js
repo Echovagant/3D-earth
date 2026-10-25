@@ -29,14 +29,19 @@ describe('讲解步骤的模板替换', () => {
 
   it('说明表填好后，标题、提示、步骤都拿到了', () => {
     const one = resolveExplain({
-      name: '晨昏线',
+      name: '比例尺 1:{denom}',
       hint: 'δ = {decl}',
-      vars: { decl: '23.5°N', cot: '2.30' },
+      vars: { decl: '23.5°N', cot: '2.30', denom: '500 万' },
       steps: ['cotδ = {cot}', 'H = ±90°'],
     })
-    expect(one.name).toBe('晨昏线')
+    expect(one.name).toBe('比例尺 1:500 万')
     expect(one.hint).toBe('δ = 23.5°N')
     expect(one.steps).toEqual(['cotδ = 2.30', 'H = ±90°'])
+  })
+
+  it('词条名里也不能露出没替换的占位符', () => {
+    const one = resolveExplain({ name: '比例尺 1:{denom}', vars: { denom: '500 万' } })
+    expect(one.name).not.toMatch(/\{/)
   })
 
   it('整张说明表一起展开', () => {

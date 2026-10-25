@@ -14,6 +14,11 @@ export function normalizeEast(lon) {
   return ((lon % 360) + 360) % 360
 }
 
+/** 西经度数换成对应的东经度数（0~360） */
+export function eastEquivalent(westValue) {
+  return normalizeEast(360 - westValue)
+}
+
 /** 从 lon1 自东（经度增大）走到 lon2 的经度差（0~360） */
 export function eastwardDifference(lon1, lon2) {
   return normalizeEast(lon2 - lon1)

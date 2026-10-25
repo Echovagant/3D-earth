@@ -1,13 +1,19 @@
 <template>
-  <DemoShell :steps="steps">
+  <DemoShell :steps="steps" :explains="explains">
     <template #default="{ step }">
       <!-- 底图：东西两个半球的展开图 -->
-      <g v-for="d in disks" :key="d.side" :opacity="diskOpacity(d.side, step)">
+      <g
+        v-for="d in disks"
+        :key="d.side"
+        :opacity="diskOpacity(d.side, step)"
+        :data-explain="d.side === 'east' ? 'east-hemisphere' : 'west-hemisphere'"
+      >
         <g class="demo__grid">
-          <path :d="d.equator" />
+          <path data-explain="equator" :d="d.equator" />
           <path
             v-for="p in d.parallels"
             :key="`${d.side}p${p.lat}`"
+            data-explain="parallel"
             :d="p.d"
           />
         </g>
@@ -15,9 +21,10 @@
           v-for="m in d.meridians"
           :key="`${d.side}m${m.lon}`"
           class="demo__curve"
+          data-explain="meridian"
           :d="m.d"
         />
-        <circle class="demo__cut" :cx="d.cx" :cy="d.cy - d.r" r="5" />
+        <circle class="demo__cut" data-explain="north-pole" :cx="d.cx" :cy="d.cy - d.r" r="5" />
         <text class="demo__label demo__label--mark" :x="d.cx" y="30" text-anchor="middle">
           {{ d.title }}
         </text>
@@ -31,18 +38,21 @@
           v-for="t in d.ticks"
           :key="`${d.side}t${t.lon}`"
           class="demo__label"
+          data-explain="degree"
           :x="t.x"
           :y="t.row === 0 ? d.cy + 19 : d.cy + 37"
           text-anchor="middle"
         >
           {{ t.label }}
         </text>
-        <path
-          class="demo__spin"
-          :d="`M ${d.cx - d.r} ${d.cy + 56} L ${d.cx + d.r} ${d.cy + 56}`"
-        />
-        <path class="demo__spin-head" :d="arrowHead(d.cx + d.r, d.cy + 56, 0, 12)" />
-        <text class="demo__label" :x="d.cx" :y="d.cy + 76" text-anchor="middle">自西向东</text>
+        <g data-explain="spin">
+          <path
+            class="demo__spin"
+            :d="`M ${d.cx - d.r} ${d.cy + 56} L ${d.cx + d.r} ${d.cy + 56}`"
+          />
+          <path class="demo__spin-head" :d="arrowHead(d.cx + d.r, d.cy + 56, 0, 12)" />
+          <text class="demo__label" :x="d.cx" :y="d.cy + 76" text-anchor="middle">自西向东</text>
+        </g>
       </g>
 
       <!-- ① 展开图长什么样 -->
@@ -106,10 +116,12 @@
  */
 import DemoShell from '../DemoShell.vue'
 import {
+  eastwardTrend,
   hemisphereMeridianPath,
   hemisphereMeridianX,
   hemisphereParallelPath,
   longitudeLabel,
+  meridianOffset,
 } from '../../data/longitudeHemisphereGeometry'
 import { arrowHead } from '../../data/svgParts'
 
@@ -182,5 +194,119 @@ function diskOpacity(side, step) {
   if (step === 1) return side === 'east' ? 1 : 0.28
   if (step === 2) return side === 'west' ? 1 : 0.28
   return 1
+}
+
+/**
+ * 讲解层：图上能点的元素，说明它是什么、怎么算出来的。
+ *
+ * 这一节讲的是「怎么判 E 还是 W」，所以推导写的是判据的来由：
+ * 展开图怎么摆 → 往东走度数是变大还是变小 → E/W 怎么定。
+ *
+ * steps 里的数字全部由几何函数算好后填进 {占位符}，不手写——
+ * 图上标的 0°/180° 的位置与这里说的是同一套几何。
+ */
+const vars = {
+  eastTrend: eastwardTrend('east'),
+  westTrend: eastwardTrend('west'),
+  off0: String(Math.round(meridianOffset(R, 0, 'east'))),
+  off90: String(Math.round(meridianOffset(R, 90, 'east'))),
+  off180: String(Math.round(meridianOffset(R, 180, 'east'))),
+  radius: String(R),
+  stepDeg: String(MERIDIANS[1] - MERIDIANS[0]),
+}
+
+const explains = {
+  'east-hemisphere': {
+    name: '东经半球',
+    hint: '把北半球从 90°E 正对着看，得到的半圆展开图。',
+    vars,
+    steps: [
+      '正对着看 90°E 时，0° 经线落在直径左端、180° 落在右端',
+      '落点横向位置 = R·cosλ：0° 是 {off0}，90° 是 {off90}（正中），180° 是 {off180}',
+      '地图约定上北下南、左西右东 ⇒ 直径上从左往右就是自西向东',
+      '从 0° 走到 180°，度数一路{eastTrend}',
+      '所以这张图上的经线全是东经',
+    ],
+  },
+  'west-hemisphere': {
+    name: '西经半球',
+    hint: '把北半球从 90°W 正对着看，得到的半圆展开图。',
+    vars,
+    steps: [
+      '正对着看 90°W 时，180° 经线落在直径左端、0° 落在右端',
+      '同一套落点公式 R·cosλ，左右两端对调',
+      '直径上从左往右仍是自西向东',
+      '从 180° 走到 0°，度数一路{westTrend}',
+      '所以这张图上的经线全是西经',
+    ],
+  },
+  meridian: {
+    name: '经线（弧）',
+    hint: '从北极点画到赤道落点的那一段弧，就是经线的北半圈。',
+    vars,
+    steps: [
+      '经线 = 过南北两极的半圆；展开图上只画出它的北半圈',
+      '所以每一段弧都从顶点（北极点）出发，落在赤道直径上',
+      '落点位置 = R·cosλ：0° 在直径一端，90° 在正中，180° 在另一端',
+      '正因为 0° 和 180° 一定在两端，才能靠「找一条特殊经线」来判 E/W',
+      '图上相邻两条弧相差 {stepDeg}°，但疏密并不均匀——那正是 cosλ 在起作用',
+    ],
+  },
+  equator: {
+    name: '赤道（直径）',
+    hint: '展开图的直径就是赤道，它把北半球切成两半。',
+    vars,
+    steps: [
+      '从 90°E 或 90°W 正对着看，赤道正对着视线 ⇒ 投影成一条直线',
+      '这条线是直径，长度 = 地球直径 = 2R = {radius} × 2（图上单位）',
+      '直径两端分别是 0° 与 180° 两条经线和赤道的交点',
+      '所以「0° 在左还是 180° 在左」决定了整张图的东经/西经属性',
+    ],
+  },
+  parallel: {
+    name: '纬线',
+    hint: '横过半球的那一段弧，两端落在半圆的边缘上。',
+    vars,
+    steps: [
+      '纬线所在的平面垂直于地轴 ⇒ 投影成横过半球的一段弧',
+      '弧顶到直径的距离 = R·sinφ：纬度越高，弧顶离赤道越远',
+      '弧的半宽 = R·cosφ：纬度越高，弧越短',
+      '所以纬线在展开图上也是一圈套一圈的形状',
+    ],
+  },
+  'north-pole': {
+    name: '北极点',
+    hint: '所有经线都从这里出发，是展开图的顶点。',
+    vars,
+    steps: [
+      '经线都过南北两极 ⇒ 展开图上所有经线弧都从顶点出发',
+      '顶点就是北极点，也就是整张半圆图的中心',
+      '极点处经线间隔 = 0（所有经线挤在同一点上）',
+      '顶点处纬线长度 = 2πR·cos90° = 0 ⇒ 也缩成一个点',
+    ],
+  },
+  degree: {
+    name: '度数标注',
+    hint: '0° 和 180° 不带 E/W，其余要靠「往东变大还是变小」来定。',
+    vars,
+    steps: [
+      '0° 与 180° 是特殊经线，本身不带 E/W',
+      '其余经线：往东度数变大 → 东经；往东度数变小 → 西经',
+      '东经半球是 0° → 30° → 60° → … → 180°，度数{eastTrend}',
+      '西经半球反过来：180° → 150° → 120° → … → 0°，度数{westTrend}',
+      '所以西经半球上标 30° 的那条，写法是 30°W，不是 30°E',
+    ],
+  },
+  spin: {
+    name: '自西向东',
+    hint: '地球自西向东自转，图上从左往右就是往东。',
+    vars,
+    steps: [
+      '地球自西向东自转',
+      '从北极点上方俯视是逆时针，从南极点上方俯视是顺时针',
+      '地图约定上北下南、左西右东 ⇒ 直径上从左往右 = 自西向东',
+      '所以「度数往东变大还是变小」才是判 E/W 的唯一依据',
+    ],
+  },
 }
 </script>

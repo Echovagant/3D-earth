@@ -1,5 +1,5 @@
 <template>
-  <DemoShell :steps="steps">
+  <DemoShell :steps="steps" :explains="explains">
     <template #default="{ step }">
       <!-- ① 三节课的分工 -->
       <g v-show="step === 0" class="demo__frame">
@@ -7,6 +7,7 @@
           <rect
             class="demo-block"
             :class="{ 'demo-block--last': i === blocks.length - 1 }"
+            :data-explain="b.id"
             :x="b.x"
             y="118"
             :width="b.w"
@@ -36,15 +37,15 @@
             :d="arrowHead(b.x + b.w + 20, 182, 0, 12)"
           />
         </g>
-        <text class="demo__caption-line" x="360" y="300" text-anchor="middle">
+        <text class="demo__caption-line" data-explain="plan-total" x="360" y="300" text-anchor="middle">
           先立因果链，再分块学：三段各自解决哪一段问题，课后按分 P 回看
         </text>
       </g>
 
       <!-- ② 全章因果链 -->
       <g v-show="step === 1" class="demo__frame">
-        <g v-for="(c, i) in chain" :key="c.text">
-          <rect class="demo-chain" :x="c.x" y="140" :width="c.w" height="84" rx="6" />
+        <g v-for="(c, i) in chain" :key="c.id">
+          <rect class="demo-chain" :data-explain="c.id" :x="c.x" y="140" :width="c.w" height="84" rx="6" />
           <text class="demo__label" :x="c.x + c.w / 2" y="172" text-anchor="middle">
             <tspan v-for="(line, k) in c.lines" :key="k" :x="c.x + c.w / 2" :dy="k === 0 ? 0 : 20">
               {{ line }}
@@ -71,7 +72,7 @@
 
       <!-- ③ 层层假设、层层加 Buff -->
       <g v-show="step === 2" class="demo__frame">
-        <g v-for="(a, i) in assumptions" :key="a.step">
+        <g v-for="(a, i) in assumptions" :key="a.step" data-explain="assumption">
           <circle class="demo__cut" :cx="96" :cy="a.y" r="13" />
           <text class="demo__label demo__label--light" :x="96" :y="a.y + 5" text-anchor="middle">
             {{ i + 1 }}
@@ -130,21 +131,36 @@ const steps = [
   },
 ]
 
-/** ① 三段分工 */
-const blocks = computed(() => [
-  { part: 'p030', title: '三圈环流', sub: '气压带和风带', range: '覆盖 7.2 – 7.10', x: 34, w: 200 },
-  { part: 'p031', title: '季风环流', sub: '海陆热力差异', range: '覆盖 7.11 – 7.17', x: 260, w: 200 },
-  { part: 'p032', title: '考点题型与真题', sub: '六步法 · 答题框架', range: '覆盖 7.18 – 7.19', x: 486, w: 200 },
-])
+/** ① 三段分工：起止节号写清楚，节数与范围文字都从它算出来 */
+const blocks = computed(() =>
+  [
+    { id: 'part-p030', part: 'p030', title: '三圈环流', sub: '气压带和风带', from: 2, to: 10, x: 34, w: 200 },
+    { id: 'part-p031', part: 'p031', title: '季风环流', sub: '海陆热力差异', from: 11, to: 17, x: 260, w: 200 },
+    {
+      id: 'part-p032',
+      part: 'p032',
+      title: '考点题型与真题',
+      sub: '六步法 · 答题框架',
+      from: 18,
+      to: 19,
+      x: 486,
+      w: 200,
+    },
+  ].map((b) => ({
+    ...b,
+    count: b.to - b.from + 1,
+    range: `覆盖 7.${b.from} – 7.${b.to}`,
+  })),
+)
 
 /** ② 因果链 */
 const chain = computed(() => {
   const items = [
-    { lines: ['地面冷热', '不均'], w: 120 },
-    { lines: ['气压差'], w: 104 },
-    { lines: ['风'], w: 92 },
-    { lines: ['风输送水汽', '和热量'], w: 124 },
-    { lines: ['影响一个区域的', '气候和天气'], w: 128 },
+    { id: 'chain-thermal', lines: ['地面冷热', '不均'], w: 120 },
+    { id: 'chain-pressure', lines: ['气压差'], w: 104 },
+    { id: 'chain-wind', lines: ['风'], w: 92 },
+    { id: 'chain-transport', lines: ['风输送水汽', '和热量'], w: 124 },
+    { id: 'chain-climate', lines: ['影响一个区域的', '气候和天气'], w: 128 },
   ]
   const gap = 20
   const total = items.reduce((s, i) => s + i.w, 0) + gap * (items.length - 1)
@@ -156,13 +172,158 @@ const chain = computed(() => {
   })
 })
 
-/** ③ 层层加 Buff */
-const assumptions = computed(() => [
-  { y: 66, add: '只考虑热力因素', result: '→ 单圈环流（§7.3）' },
-  { y: 140, add: '加上地转偏向力（来自 §3）', result: '→ 三圈环流 ＋ 六风七带（§7.5 – §7.9）' },
-  { y: 214, add: '加上太阳直射点的季节移动（来自 §4）', result: '→ 气压带风带的季节性移动（§7.10）' },
-  { y: 288, add: '加上海陆分布差异', result: '→ 季风环流（§7.11 – §7.17）' },
-])
+/** ③ 层层加 Buff：每加一个因素，就多出一处偏差要解释 */
+const assumptions = computed(() =>
+  [
+    { from: 3, to: 3, add: '只考虑热力因素', result: '→ 单圈环流' },
+    { from: 5, to: 9, add: '加上地转偏向力（来自 §3）', result: '→ 三圈环流 ＋ 六风七带' },
+    { from: 10, to: 10, add: '加上太阳直射点的季节移动（来自 §4）', result: '→ 气压带风带的季节性移动' },
+    { from: 11, to: 17, add: '加上海陆分布差异', result: '→ 季风环流' },
+  ].map((a, i) => ({
+    ...a,
+    step: i + 1,
+    y: 66 + i * 74,
+    count: a.to - a.from + 1,
+    result: `${a.result}（§7.${a.from}${a.to === a.from ? '' : ` – §7.${a.to}`}）`,
+  })),
+)
+
+/**
+ * 讲解层：图上能点的元素，说明它是什么、怎么算出来的。
+ *
+ * 节数、范围文字都从起止节号算出来填进 {占位符}，不手写——
+ * 改一段课的起止节，图上的文字和讲解会一起变。
+ */
+const totalLessons = blocks.value.reduce((s, b) => s + b.count, 0)
+const buffLessons = assumptions.value.reduce((s, a) => s + a.count, 0)
+
+const vars = {
+  p030Count: `${blocks.value[0].count}`,
+  p031Count: `${blocks.value[1].count}`,
+  p032Count: `${blocks.value[2].count}`,
+  p030Range: blocks.value[0].range.replace('覆盖 ', ''),
+  p031Range: blocks.value[1].range.replace('覆盖 ', ''),
+  p032Range: blocks.value[2].range.replace('覆盖 ', ''),
+  totalCount: `${totalLessons}`,
+  buffCount: `${buffLessons}`,
+  chainCount: `${chain.value.length}`,
+}
+
+const explains = {
+  'part-p030': {
+    name: 'p030 · 三圈环流',
+    hint: '第一节课：气压带和风带，本章最长的一段。',
+    vars,
+    steps: [
+      '第一节课讲气压带和风带',
+      `覆盖 {p030Range}，共 {p030Count} 节——本章 19 节里最长的一段`,
+      '这 {p030Count} 节是一条链：气压带的形成 → 三圈环流 → 六风七带 → 季节移动',
+      '后面季风环流是在它基础上改造出来的，所以这段没学扎实，下一段看不懂',
+    ],
+  },
+  'part-p031': {
+    name: 'p031 · 季风环流',
+    hint: '第二节课：海陆热力差异引起的环流。',
+    vars,
+    steps: [
+      '第二节课讲季风环流，动力是海陆热力差异',
+      `覆盖 {p031Range}，共 {p031Count} 节`,
+      '它是在三圈环流的底子上，再加一条「海陆冷热不一样」改造出来的环流',
+      '所以第一段没学扎实，第二段就只能背结论、不会推',
+    ],
+  },
+  'part-p032': {
+    name: 'p032 · 考点题型与真题',
+    hint: '第三节课：不讲新知识，讲怎么考、怎么答。',
+    vars,
+    steps: [
+      '第三节课不铺新知识，讲的是考点题型和真题怎么答',
+      `覆盖 {p032Range}，共 {p032Count} 节`,
+      '前两段回答「是什么」，这一段回答「怎么写出来」',
+      '复习顺序：先按 p030 回知识，再按 p031 补区域，最后按 p032 练输出',
+    ],
+  },
+  'plan-total': {
+    name: '三段合起来',
+    hint: '三段课覆盖本章的绝大部分，导览本身不讲知识。',
+    vars,
+    steps: [
+      '三段课合起来覆盖 7.2 – 7.19，共 {totalCount} 节',
+      '本章连这一节导览一共 19 节，导览只交代怎么分工，不讲知识',
+      '所以真正要背的是 {totalCount} 节',
+      '课后按分 P 回看：p030 → p031 → p032，顺序反了容易混',
+    ],
+  },
+  'chain-thermal': {
+    name: '链子的起点：地面冷热不均',
+    hint: '地表受热不均，是整条链上所有现象的源头。',
+    vars,
+    steps: [
+      '地表受热不匀：纬度不同、海陆不同，得到的热量不同',
+      '同一高度上于是有的地方热、有的地方冷',
+      '空气受热膨胀上升、遇冷收缩下沉——这一步直接来自「热力差异」',
+      '升上去的地方高空变厚、下沉的地方高空变薄，再往下就是气压差',
+    ],
+  },
+  'chain-pressure': {
+    name: '气压差',
+    hint: '冷热不均的后果，也是风存在的直接原因。',
+    vars,
+    steps: [
+      '空气有升有降，同一水平面上就出现了气压差',
+      '气压差有方向：从高压指向低压，这个力垂直于等压线',
+      '气压差是风存在的直接原因：没有气压差就没有风',
+      '所以这一环是全链的枢纽——前面的冷热不均、后面的风都挂在这里',
+    ],
+  },
+  'chain-wind': {
+    name: '风',
+    hint: '空气从高压流向低压，地面风还要被地转偏向力掰弯。',
+    vars,
+    steps: [
+      '空气在水平气压梯度力作用下从高压流向低压，这就是风',
+      '近地面有摩擦力，风斜穿等压线；高空摩擦力可忽略，风基本平行等压线',
+      '北半球的气流再被地转偏向力右偏（§3 讲的），这才有了三圈环流和六风七带',
+      '风的意义不只是「吹」：它把热量和水汽从一处搬到另一处',
+    ],
+  },
+  'chain-transport': {
+    name: '风输送水汽和热量',
+    hint: '这一环是承上启下的落点，也是大题过程分所在。',
+    vars,
+    steps: [
+      '风是搬运工：把低纬的热量和高纬的冷量对调',
+      '有了风，水汽才能从海洋搬到陆地——这就是水循环里的「水汽输送」（§11.3）',
+      '大题得分点常常就在这一层：风输送水汽和热量 → 影响气候',
+      '只写「受海陆热力差异影响，为夏季」而跳过这一层，过程分就丢了',
+    ],
+  },
+  'chain-climate': {
+    name: '影响一个区域的气候和天气',
+    hint: '链子的终点：一个区域的天气和气候由前面几环决定。',
+    vars,
+    steps: [
+      '链子走完：一个区域的气候和天气被前面几环决定',
+      '天气是短时间的（这一场冷空气），气候是长期平均的结果',
+      '所以答题必须写出「通过什么机制影响」——也就是把中间几环写出来',
+      '三圈环流定大尺度格局，季风环流和海陆位置是区域修正，地形再叠加一层',
+    ],
+  },
+  assumption: {
+    name: '层层假设、层层加 Buff',
+    hint: '研究方法本身：先只考虑一个因素，再逐个加上去。',
+    vars,
+    steps: [
+      '方法：先只考虑一个因素，得出最简单的结果，再逐个加因素',
+      '第一层只考虑热力因素 → 单圈环流（§7.3）',
+      '加上地转偏向力（§3）→ 三圈环流 ＋ 六风七带（§7.5 – §7.9）',
+      '加上太阳直射点的季节移动（§4）→ 气压带风带的季节性移动（§7.10）',
+      '再加上海陆分布差异 → 季风环流（§7.11 – §7.17）',
+      '每加一个因素就多出一处偏差要解释——那个偏差就是下一个因素的名字',
+      '这 {buffCount} 节就是这一层层加 Buff 换来的结果',
+    ],
+  },
+}
 </script>
 
 <style scoped>

@@ -43,3 +43,8 @@ export function isMeridianPair(a, b) {
   if (x.sign === y.sign) return false
   return x.value + y.value === 180
 }
+
+/** 两条经线的度数之和——判定条件之一 */
+export function degreeSum(a, b) {
+  return parseLongitude(a).value + parseLongitude(b).value
+}

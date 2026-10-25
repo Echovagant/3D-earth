@@ -1,9 +1,15 @@
 <template>
-  <DemoShell :steps="steps">
+  <DemoShell :steps="steps" :explains="explains">
     <template #default="{ step }">
       <!-- ① 冬季的北半球 -->
       <g v-show="step === 0" class="demo__frame">
-        <circle class="demo-grid-circle" :cx="view.cx" :cy="view.cy" :r="view.rMax" />
+        <circle
+          class="demo-grid-circle"
+          data-explain="polar-view"
+          :cx="view.cx"
+          :cy="view.cy"
+          :r="view.rMax"
+        />
         <circle class="demo-grid-circle" :cx="view.cx" :cy="view.cy" :r="view.rMax / 3" />
         <circle class="demo-grid-circle" :cx="view.cx" :cy="view.cy" :r="(view.rMax * 2) / 3" />
         <g class="demo__grid">
@@ -29,18 +35,49 @@
         <text class="demo__label demo__label--faint" :x="view.cx" :y="view.cy + 4" text-anchor="middle">北极点</text>
 
         <g v-for="c in winterPoints" :key="c.key">
-          <circle class="demo__cut" :cx="c.x" :cy="c.y" r="11" />
-          <text class="demo__label demo__label--light" :x="c.x" :y="c.y + 4" text-anchor="middle">
+          <circle
+            class="demo__cut"
+            :data-explain="c.surface === 'land' ? 'winter-land' : 'winter-sea'"
+            :cx="c.x"
+            :cy="c.y"
+            r="11"
+          />
+          <text
+            class="demo__label demo__label--light"
+            :data-explain="c.surface === 'land' ? 'winter-land' : 'winter-sea'"
+            :x="c.x"
+            :y="c.y + 4"
+            text-anchor="middle"
+          >
             {{ c.no }}
           </text>
         </g>
 
         <g v-for="c in winter" :key="`l${c.key}`">
-          <circle class="demo__cut" :cx="legendX" :cy="c.ly" r="10" />
-          <text class="demo__label demo__label--light" :x="legendX" :y="c.ly + 4" text-anchor="middle">
+          <circle
+            class="demo__cut"
+            :data-explain="c.surface === 'land' ? 'winter-land' : 'winter-sea'"
+            :cx="legendX"
+            :cy="c.ly"
+            r="10"
+          />
+          <text
+            class="demo__label demo__label--light"
+            :data-explain="c.surface === 'land' ? 'winter-land' : 'winter-sea'"
+            :x="legendX"
+            :y="c.ly + 4"
+            text-anchor="middle"
+          >
             {{ c.no }}
           </text>
-          <text class="demo__label demo__label--mark" :x="legendX + 22" :y="c.ly + 4">{{ c.name }}</text>
+          <text
+            class="demo__label demo__label--mark"
+            :data-explain="c.surface === 'land' ? 'winter-land' : 'winter-sea'"
+            :x="legendX + 22"
+            :y="c.ly + 4"
+          >
+            {{ c.name }}
+          </text>
           <text class="demo__label demo__label--faint" :x="legendX + 22" :y="c.ly + 24">{{ c.note }}</text>
         </g>
 
@@ -51,7 +88,13 @@
 
       <!-- ② 夏季的北半球 -->
       <g v-show="step === 1" class="demo__frame">
-        <circle class="demo-grid-circle" :cx="view.cx" :cy="view.cy" :r="view.rMax" />
+        <circle
+          class="demo-grid-circle"
+          data-explain="polar-view"
+          :cx="view.cx"
+          :cy="view.cy"
+          :r="view.rMax"
+        />
         <circle class="demo-grid-circle" :cx="view.cx" :cy="view.cy" :r="view.rMax / 3" />
         <circle class="demo-grid-circle" :cx="view.cx" :cy="view.cy" :r="(view.rMax * 2) / 3" />
         <g class="demo__grid">
@@ -77,18 +120,49 @@
         <text class="demo__label demo__label--faint" :x="view.cx" :y="view.cy + 4" text-anchor="middle">北极点</text>
 
         <g v-for="c in summerPoints" :key="c.key">
-          <circle class="demo__cut" :cx="c.x" :cy="c.y" r="11" />
-          <text class="demo__label demo__label--light" :x="c.x" :y="c.y + 4" text-anchor="middle">
+          <circle
+            class="demo__cut"
+            :data-explain="c.surface === 'land' ? 'summer-land' : 'summer-sea'"
+            :cx="c.x"
+            :cy="c.y"
+            r="11"
+          />
+          <text
+            class="demo__label demo__label--light"
+            :data-explain="c.surface === 'land' ? 'summer-land' : 'summer-sea'"
+            :x="c.x"
+            :y="c.y + 4"
+            text-anchor="middle"
+          >
             {{ c.no }}
           </text>
         </g>
 
         <g v-for="c in summer" :key="`l${c.key}`">
-          <circle class="demo__cut" :cx="legendX" :cy="c.ly" r="10" />
-          <text class="demo__label demo__label--light" :x="legendX" :y="c.ly + 4" text-anchor="middle">
+          <circle
+            class="demo__cut"
+            :data-explain="c.surface === 'land' ? 'summer-land' : 'summer-sea'"
+            :cx="legendX"
+            :cy="c.ly"
+            r="10"
+          />
+          <text
+            class="demo__label demo__label--light"
+            :data-explain="c.surface === 'land' ? 'summer-land' : 'summer-sea'"
+            :x="legendX"
+            :y="c.ly + 4"
+            text-anchor="middle"
+          >
             {{ c.no }}
           </text>
-          <text class="demo__label demo__label--mark" :x="legendX + 22" :y="c.ly + 4">{{ c.name }}</text>
+          <text
+            class="demo__label demo__label--mark"
+            :data-explain="c.surface === 'land' ? 'summer-land' : 'summer-sea'"
+            :x="legendX + 22"
+            :y="c.ly + 4"
+          >
+            {{ c.name }}
+          </text>
           <text class="demo__label demo__label--faint" :x="legendX + 22" :y="c.ly + 24">{{ c.note }}</text>
         </g>
 
@@ -103,6 +177,7 @@
           <rect
             class="demo-belt"
             :class="{ 'demo-belt--target': b.target }"
+            data-explain="belts"
             :x="beltsX"
             :y="b.y"
             width="220"
@@ -110,7 +185,7 @@
           />
           <text class="demo__label" :x="beltsX + 12" :y="b.y + 31">{{ b.name }}</text>
           <text class="demo__label demo__label--faint" :x="beltsX + 208" :y="b.y + 31" text-anchor="end">
-            {{ b.lat }}
+            {{ b.lat }}°
           </text>
         </g>
 
@@ -119,8 +194,8 @@
           冬季（1 月）
         </text>
         <text class="demo__label" x="150" y="122" text-anchor="middle">陆地冷高压南下</text>
-        <path class="demo__spin" d="M 96 140 L 232 140" />
-        <path class="demo__spin-head" :d="arrowHead(236, 140, 0, 12)" />
+        <path class="demo__spin" data-explain="winter-push" d="M 96 140 L 232 140" />
+        <path class="demo__spin-head" data-explain="winter-push" :d="arrowHead(236, 140, 0, 12)" />
         <text class="demo__label demo__label--faint" x="150" y="216" text-anchor="middle">
           顶断副极地低气压带
         </text>
@@ -133,8 +208,8 @@
           夏季（7 月）
         </text>
         <text class="demo__label" x="570" y="194" text-anchor="middle">陆地热低压北上</text>
-        <path class="demo__spin" d="M 624 212 L 488 212" />
-        <path class="demo__spin-head" :d="arrowHead(484, 212, 180, 12)" />
+        <path class="demo__spin" data-explain="summer-push" d="M 624 212 L 488 212" />
+        <path class="demo__spin-head" data-explain="summer-push" :d="arrowHead(484, 212, 180, 12)" />
         <text class="demo__label demo__label--faint" x="570" y="256" text-anchor="middle">
           顶断副热带高气压带
         </text>
@@ -157,10 +232,26 @@
         <text class="demo__label demo__label--faint" x="120" y="166" text-anchor="middle">北半球</text>
         <text class="demo__label demo__label--faint" x="120" y="262" text-anchor="middle">南半球</text>
 
-        <rect class="demo-cell" x="210" y="112" width="220" height="86" rx="6" />
-        <rect class="demo-cell demo-cell--warm" x="430" y="112" width="220" height="86" rx="6" />
-        <rect class="demo-cell demo-cell--warm" x="210" y="208" width="220" height="86" rx="6" />
-        <rect class="demo-cell" x="430" y="208" width="220" height="86" rx="6" />
+        <rect class="demo-cell" data-explain="seasons" x="210" y="112" width="220" height="86" rx="6" />
+        <rect
+          class="demo-cell demo-cell--warm"
+          data-explain="seasons"
+          x="430"
+          y="112"
+          width="220"
+          height="86"
+          rx="6"
+        />
+        <rect
+          class="demo-cell demo-cell--warm"
+          data-explain="seasons"
+          x="210"
+          y="208"
+          width="220"
+          height="86"
+          rx="6"
+        />
+        <rect class="demo-cell" data-explain="seasons" x="430" y="208" width="220" height="86" rx="6" />
 
         <text class="demo__label demo__label--mark" x="320" y="146" text-anchor="middle">冬季</text>
         <text class="demo__label demo__label--faint" x="320" y="170" text-anchor="middle">
@@ -207,9 +298,11 @@ import { computed } from 'vue'
 import DemoShell from '../DemoShell.vue'
 import { arrowHead } from '../../data/svgParts'
 import {
+  BELTS,
   SUMMER_CENTERS,
   WINTER_CENTERS,
   polarProjection,
+  polarRadius,
 } from '../../data/pressureCentersGeometry'
 
 const steps = [
@@ -265,12 +358,151 @@ const summerPoints = computed(() =>
 
 /** ③ 气压带 */
 const beltsX = 250
-const belts = computed(() => [
-  { name: '极地高气压带', lat: '90°', y: 62, target: false },
-  { name: '副极地低气压带', lat: '60°', y: 116, target: true },
-  { name: '副热带高气压带', lat: '30°', y: 170, target: true },
-  { name: '赤道低气压带', lat: '0°', y: 224, target: false },
-])
+const belts = computed(() =>
+  BELTS.map((b, i) => ({ ...b, y: [62, 116, 170, 224][i] })),
+)
+
+/**
+ * 讲解层：图上能点的元素，说明它是什么、怎么算出来的。
+ *
+ * steps 里的数字全部由几何函数算好后填进 {占位符}，不手写——
+ * 气压中心的经纬度、俯视图半径、气压带纬度全从 pressureCentersGeometry.js 出。
+ */
+const explains = computed(() => {
+  /** 某个中心在图上的位置：俯视图的极坐标 */
+  const placeOf = (c) =>
+    `纬度 ${c.lat}°、经度 ${c.lon}° → 俯视图半径 ${polarRadius(c.lat, view.rMax).toFixed(0)}px`
+  const winterLand = WINTER_CENTERS.filter((c) => c.surface === 'land')
+  const winterSea = WINTER_CENTERS.filter((c) => c.surface === 'sea')
+  const summerLand = SUMMER_CENTERS.filter((c) => c.surface === 'land')
+  const summerSea = SUMMER_CENTERS.filter((c) => c.surface === 'sea')
+
+  const vars = {
+    rMax: String(view.rMax),
+    beltSubpolar: `${BELTS[1].name}（${BELTS[1].lat}°）`,
+    beltSubtropical: `${BELTS[2].name}（${BELTS[2].lat}°）`,
+    beltPolar: `${BELTS[0].name}（${BELTS[0].lat}°）`,
+    beltEquatorial: `${BELTS[3].name}（${BELTS[3].lat}°）`,
+    winterLandNames: winterLand.map((c) => c.name).join('、'),
+    winterSeaNames: winterSea.map((c) => c.name).join('、'),
+    summerLandNames: summerLand.map((c) => c.name).join('、'),
+    summerSeaNames: summerSea.map((c) => c.name).join('、'),
+    asiaPlace: placeOf(WINTER_CENTERS[0]),
+    alaskaPlace: placeOf(WINTER_CENTERS[1]),
+    icelandPlace: placeOf(WINTER_CENTERS[2]),
+    indiaPlace: placeOf(SUMMER_CENTERS[0]),
+    hawaiiPlace: placeOf(SUMMER_CENTERS[1]),
+    azoresPlace: placeOf(SUMMER_CENTERS[2]),
+  }
+
+  return {
+    'polar-view': {
+      name: '极地俯视图',
+      hint: '从北极上空往下看：0° 经线在正下方，90°E 在正右方。',
+      vars,
+      steps: [
+        '这是从北极上空俯视：地球自转在这个方向看是逆时针',
+        '0° 经线画在正下方，从正下方逆时针数，下一个到的就是右边的 90°E',
+        '半径 r = rMax × (90° − 纬度) ÷ 90°，赤道在最外圈（r = {rMax}px）',
+        '所以越靠极地圆心越近——图的半径就是纬度的线',
+        '经线每 30° 一根，共 12 根',
+      ],
+    },
+    'winter-land': {
+      name: '冬季陆地上的高压',
+      hint: '陆地降温快，是冷源，近地面形成冷高压。',
+      vars,
+      steps: [
+        '冬季陆地比海洋冷得快 → 近地面空气冷而重 → 气压高',
+        '海平面等压线图上，闭合高压中心的气流辐散（自中心向外）',
+        '北半球的气流受地转偏向力右偏，所以高压中心的气流顺时针辐散',
+        `本图：${vars.winterLandNames}`,
+        '位置：亚洲高压在 100°E 附近，' + vars.asiaPlace,
+      ],
+    },
+    'winter-sea': {
+      name: '冬季海上的低压',
+      hint: '海洋是热源，被顶断的副极地低气压带退到海上。',
+      vars,
+      steps: [
+        '冬季海洋比陆地冷得慢 → 海洋反而是热源 → 近地面成低压',
+        '这些低压原本是整齐的副极地低气压带，被陆地上的冷高压顶断',
+        '断掉的部分退到海上，改了名字——气压带没有消失，只是被顶断了',
+        `本图：${vars.winterSeaNames}`,
+        '位置：阿留申低压在 190°E 附近，' + vars.alaskaPlace,
+      ],
+    },
+    'summer-land': {
+      name: '夏季陆地上的低压',
+      hint: '陆地升温快，是热源，近地面形成热低压。',
+      vars,
+      steps: [
+        '夏季陆地比海洋热得快 → 近地面空气热而轻 → 气压低',
+        '海平面等压线图上，闭合低压中心的气流辐合（自外向内）',
+        '北半球的气流受地转偏向力右偏，所以低压中心的气流逆时针辐合',
+        `本图：${vars.summerLandNames}`,
+        '位置：印度低压在 80°E 附近，' + vars.indiaPlace,
+      ],
+    },
+    'summer-sea': {
+      name: '夏季海上的高压',
+      hint: '海洋是冷源，被顶断的副热带高气压带退到海上。',
+      vars,
+      steps: [
+        '夏季海洋比陆地冷得慢 → 海洋反而是冷源 → 近地面成高压',
+        '这些高压原本是副热带高气压带，被陆地上的热低压顶断',
+        '断掉的部分退到海上，改了名字——气压带没有消失，只是被顶断了',
+        `本图：${vars.summerSeaNames}`,
+        '位置：夏威夷高压在 210°E 附近，' + vars.hawaiiPlace,
+      ],
+    },
+    belts: {
+      name: '气压带',
+      hint: '全球气压带的原始格局，被顶断后就变成了气压中心。',
+      vars,
+      steps: [
+        '近地面的气压带自北向南排开，纬度就是它们的中心纬度',
+        `${vars.beltPolar} → ${vars.beltSubpolar} → ${vars.beltSubtropical} → ${vars.beltEquatorial}`,
+        '气压带的成因是纬度环流：热的地方上升成低压，冷的地方下沉成高压',
+        '大陆季风把气压带顶断——被顶断的是气压带，留下的是气压中心',
+      ],
+    },
+    'winter-push': {
+      name: '冬季：陆地冷高压南下',
+      hint: '冷高压势力强，向南推进顶断副极地低气压带。',
+      vars,
+      steps: [
+        '冬季陆地是冷源，近地面形成强大的冷高压',
+        '冷高压势力强，向南推进，把副极地低气压带顶断',
+        '被顶断的副极地低气压带退到海上，改名成阿留申低压、冰岛低压',
+        '所以冬季近地面：大陆高压、海洋低压',
+      ],
+    },
+    'summer-push': {
+      name: '夏季：陆地热低压北上',
+      hint: '热低压向北推进顶断副热带高气压带。',
+      vars,
+      steps: [
+        '夏季陆地是热源，近地面形成强大的热低压',
+        '热低压向北推进，把副热带高气压带顶断',
+        '被顶断的副热带高气压带退到海上，改名成夏威夷高压、亚速尔高压',
+        '所以夏季近地面：大陆低压、海洋高压',
+      ],
+    },
+    seasons: {
+      name: '南北半球季节相反',
+      hint: '北半球夏季是 7 月，南半球夏季是 1 月。',
+      vars,
+      steps: [
+        '地球绕太阳转，南北半球朝向太阳的时间正好错开半年',
+        '北半球夏季 = 7 月，南半球夏季 = 1 月',
+        '所以同一个大陆在两个半球里属性相反：亚洲 1 月是冷高压、7 月是热低压',
+        '澳洲大陆 1 月是热低压、7 月是冷高压',
+        '判题时先确认是哪个半球，再定季节——用错月份是最常见的失分点',
+      ],
+    },
+  }
+})
 </script>
 
 <style scoped>

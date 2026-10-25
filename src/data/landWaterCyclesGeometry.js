@@ -176,3 +176,42 @@ export function isBidirectional(a, b) {
     (l) => l.both && ((l.from === a && l.to === b) || (l.from === b && l.to === a)),
   )
 }
+
+/**
+ * 从某个节点出发的连线。
+ *
+ * @param {string} id 节点 id
+ */
+export function linksFrom(id) {
+  return LINKS.filter((l) => l.from === id)
+}
+
+/**
+ * 汇入某个节点的连线。
+ *
+ * @param {string} id 节点 id
+ */
+export function linksTo(id) {
+  return LINKS.filter((l) => l.to === id)
+}
+
+/**
+ * 汇入某个节点的「来水」有几路。
+ *
+ * 双向补给的那条线，来水也来自对方——只数 to === id 会把
+ * 「地下水补给河流」这一路漏掉，所以要把 from === id 且双向的也算进来。
+ *
+ * @param {string} id 节点 id
+ */
+export function incomingSources(id) {
+  const direct = LINKS.filter((l) => l.to === id).length
+  const reverse = LINKS.filter((l) => l.from === id && l.both).length
+  return direct + reverse
+}
+
+/**
+ * 双向补给的水体对（讲义里的「红色箭头」）。
+ */
+export function bidirectionalPairs() {
+  return LINKS.filter((l) => l.both).map((l) => [l.from, l.to])
+}
