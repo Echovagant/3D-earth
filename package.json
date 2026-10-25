@@ -26,6 +26,7 @@
     "knowledge:build": "node scripts/build-knowledge.mjs",
     "province:index": "node scripts/build-province-index.mjs",
     "province:check": "node scripts/build-province-index.mjs --check",
+    "scenic:skeleton": "node scripts/fetch-scenic-skeleton.mjs --out D:/Projects/3D-earth/.tmp/scenic-skeleton.json",
     "format": "prettier --write src/"
   },
   "overrides": {
