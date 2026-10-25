@@ -2,6 +2,7 @@
 /**
  * 景区数据流水线的回归测试：抓骨架的地址构造与解析。
  */
+import { Buffer } from 'node:buffer'
 import { describe, it, expect } from 'vitest'
 import {
   buildSearchUrl,
@@ -11,6 +12,13 @@ import {
   parseEntity,
   parseImageInfo,
 } from '../../scripts/fetch-scenic-skeleton.mjs'
+import {
+  commonsThumbUrl,
+  commonsFilePageUrl,
+  targetFileName,
+  planImages,
+  jpegSize,
+} from '../../scripts/fetch-scenic-images.mjs'
 
 describe('骨架抓取的地址与解析', () => {
   it('按中文维基标题查实体', () => {
@@ -167,5 +175,122 @@ describe('Commons 图片信息', () => {
     const img = parseImageInfo({ query: { pages: {} } }, 'Jiuzhaigou.jpg')
     expect(img.license).toBe('')
     expect(img.allowed).toBe(false)
+  })
+})
+
+describe('图片下载的地址与计划', () => {
+  it('thumb 地址把文件名换成目标宽度', () => {
+    const url = commonsThumbUrl('a/b/Abcd.jpg', 960)
+    expect(url).toContain('upload.wikimedia.org')
+    expect(url).toContain('/960px-Abcd.jpg')
+  })
+
+  it('原始页面地址指向 Commons 的文件页', () => {
+    expect(commonsFilePageUrl('a/b/Abcd.jpg')).toBe(
+      'https://commons.wikimedia.org/wiki/File:Abcd.jpg',
+    )
+  })
+
+  it('大图与缩略图的文件名不同', () => {
+    expect(targetFileName('abcdef1234567890', 960)).toBe('abcdef1234567890.jpg')
+    expect(targetFileName('abcdef1234567890', 320)).toBe('abcdef1234567890-t.jpg')
+  })
+
+  it('许可不在白名单的图要跳过并说明原因', () => {
+    const plan = planImages(
+      [
+        {
+          id: 'a',
+          images: [
+            { file: 'x.jpg', license: 'CC BY-NC 2.0', sourceUrl: 'https://commons.wikimedia.org/wiki/File:X.jpg' },
+            { file: 'y.jpg', license: 'CC0-1.0', sourceUrl: 'https://commons.wikimedia.org/wiki/File:Y.jpg' },
+          ],
+        },
+      ],
+      new Set(),
+    )
+    expect(plan.skipped.length).toBe(1)
+    expect(plan.skipped[0].reason).toContain('许可')
+    expect(plan.downloads.length).toBe(1)
+  })
+
+  it('已经下过的图不重复下', () => {
+    const plan = planImages(
+      [
+        {
+          id: 'a',
+          images: [
+            { file: 'x.jpg', license: 'CC0-1.0', sourceUrl: 'https://commons.wikimedia.org/wiki/File:X.jpg' },
+          ],
+        },
+      ],
+      new Set(['x.jpg', 'x-t.jpg']),
+    )
+    expect(plan.downloads.length).toBe(0)
+  })
+})
+
+describe('图片下载计划的补充', () => {
+  it('同一张图被多个景区引用时只计划一次下载', () => {
+    const shared = {
+      file: 'S.jpg',
+      md5: 'aaaabbbbccccddddeeeeffff00001111',
+      commonsPath: 'a/b/S.jpg',
+      license: 'CC0-1.0',
+      author: '李四',
+      sourceUrl: 'https://commons.wikimedia.org/wiki/File:S.jpg',
+    }
+    const plan = planImages(
+      [
+        { id: 'a', images: [shared] },
+        { id: 'b', images: [{ ...shared }] },
+      ],
+      new Set(),
+    )
+    expect(plan.downloads.length).toBe(1)
+    expect(plan.downloads[0].large).toBe('aaaabbbbccccdddd.jpg')
+    expect(plan.downloads[0].thumb).toBe('aaaabbbbccccdddd-t.jpg')
+  })
+
+  it('只差一张缩略图时也要计划下载', () => {
+    const plan = planImages(
+      [
+        {
+          id: 'a',
+          images: [
+            {
+              file: 'P.jpg',
+              md5: 'aaaabbbbccccddddeeeeffff00001111',
+              commonsPath: 'a/b/P.jpg',
+              license: 'CC0-1.0',
+              author: '李四',
+              sourceUrl: 'https://commons.wikimedia.org/wiki/File:P.jpg',
+            },
+          ],
+        },
+      ],
+      new Set(['aaaabbbbccccdddd.jpg']),
+    )
+    expect(plan.downloads.length).toBe(1)
+  })
+})
+
+describe('JPEG 尺寸解析', () => {
+  it('从 SOF 段里读出宽高', () => {
+    const buffer = Buffer.concat([
+      Buffer.from([0xff, 0xd8]),
+      Buffer.from([0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00]),
+      Buffer.from([0xff, 0xc0, 0x00, 0x11, 0x08, 0x02, 0x80, 0x04, 0x00, 0x03, 0x01, 0x22, 0x00, 0x02, 0x11, 0x01, 0x03, 0x11, 0x01]),
+      Buffer.from([0xff, 0xd9]),
+    ])
+    const size = jpegSize(buffer)
+    expect(size.width).toBe(0x0400)
+    expect(size.height).toBe(0x0280)
+  })
+
+  it('不是 JPEG 就返回 null', () => {
+    expect(jpegSize(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a]))).toBeNull()
+    expect(jpegSize(Buffer.from([0xff, 0xd8]))).toBeNull()
+    expect(jpegSize(Buffer.alloc(0))).toBeNull()
   })
 })
