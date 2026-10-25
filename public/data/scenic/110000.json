@@ -1,0 +1,32 @@
+{
+  "adcode": "110000",
+  "scenics": [
+    {
+      "id": "gugong",
+      "name": "故宫",
+      "level": "5A",
+      "summary": "样例数据。",
+      "highlights": ["太和殿与中轴线"],
+      "coords": [39.9163, 116.3972],
+      "images": []
+    },
+    {
+      "id": "yiheyuan",
+      "name": "颐和园",
+      "level": "5A",
+      "summary": "样例数据。",
+      "highlights": ["长廊与昆明湖"],
+      "coords": [39.9975, 116.2665],
+      "images": []
+    },
+    {
+      "id": "tiantan",
+      "name": "天坛",
+      "level": "5A",
+      "summary": "样例数据。",
+      "highlights": ["祈年殿与圜丘"],
+      "coords": [39.8822, 116.4066],
+      "images": []
+    }
+  ]
+}

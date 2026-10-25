@@ -1,0 +1,32 @@
+{
+  "adcode": "510000",
+  "scenics": [
+    {
+      "id": "jiuzhaigou",
+      "name": "九寨沟",
+      "level": "5A",
+      "summary": "样例数据。",
+      "highlights": ["彩池水漫山谷"],
+      "coords": [33.26, 103.92],
+      "images": []
+    },
+    {
+      "id": "dujiangyan",
+      "name": "都江堰",
+      "level": "5A",
+      "summary": "样例数据。",
+      "highlights": ["鱼嘴水利工程"],
+      "coords": [31.0, 103.62],
+      "images": []
+    },
+    {
+      "id": "daocheng-yading",
+      "name": "稻城亚丁",
+      "level": "5A",
+      "summary": "样例数据。",
+      "highlights": ["三座神山"],
+      "coords": [29.0, 100.3],
+      "images": []
+    }
+  ]
+}
