@@ -1,6 +1,10 @@
 // @vitest-environment node
 /**
  * 景区数据契约的回归测试：许可白名单与清单校验器。
+ *
+ * 必须跑在 node 环境：被测的校验脚本用 import.meta.url 推仓库根，
+ * jsdom 会把它变成 http 地址，fileURLToPath 直接抛错。
+ * 运行时部分（访问层、卡片、图廊、页面）在 scenicRuntime.spec.js。
  */
 import { describe, it, expect, afterEach } from 'vitest'
 import process from 'node:process'
