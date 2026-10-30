@@ -8,11 +8,12 @@
 import { describe, it, expect, afterEach, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { mount } from '@vue/test-utils'
+import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 
 import ScenicCard from '../components/ScenicCard.vue'
 import ScenicGallery from '../components/ScenicGallery.vue'
+import ScenicPage from '../components/ScenicPage.vue'
 import {
   scenicImagePath,
   provinceAdcodes,
@@ -176,5 +177,98 @@ describe('景区图廊', () => {
   it('没有图时不渲染图廊', () => {
     const w = mount(ScenicGallery, { props: { images: [], name: '甲' } })
     expect(w.find('.scenic-gallery').exists()).toBe(false)
+  })
+})
+
+/** 详情页要挂载路由（用 router-link 与 useRoute） */
+const mountPage = async (adcode, id) => {
+  const router = createRouter({
+    history: createMemoryHistory(),
+    routes: [
+      { path: '/', name: 'Earth', component: { template: '<p>地球</p>' } },
+      { path: '/province/:adcode', name: 'Province', component: { template: '<p>省份</p>' } },
+      { path: '/lesson/:lessonId', name: 'Lesson', component: { template: '<p>知识点</p>' } },
+      { path: '/scenic/:adcode/:id', name: 'Scenic', component: ScenicPage, props: true },
+    ],
+  })
+  await router.push(`/scenic/${adcode}/${id}`)
+  await router.isReady()
+  const wrapper = mount(ScenicPage, {
+    props: { adcode, id },
+    global: { plugins: [router], stubs: { ScenicGallery: true } },
+  })
+  await flushPromises()
+  await flushPromises()
+  return { wrapper, router }
+}
+
+/** 详情页要的数据：省清单、知识数据、省份索引 */
+const stubPageFetch = () =>
+  vi.stubGlobal('fetch', async (url) => {
+    if (typeof url !== 'string') throw new Error(`未预期的请求：${String(url)}`)
+    if (url.endsWith('/data/provinces/index.json')) {
+      return { ok: true, json: async () => provinceIndex }
+    }
+    if (url.endsWith('/data/scenic/510000.json')) {
+      return { ok: true, json: async () => sichuanList }
+    }
+    if (url.endsWith('/data/knowledge/index.json')) {
+      return { ok: true, json: async () => readData('knowledge/index.json') }
+    }
+    if (url.startsWith('/data/knowledge/chapter-')) {
+      const file = url.split('/').pop()
+      return { ok: true, json: async () => readData(`knowledge/${file}`) }
+    }
+    if (url.startsWith('/data/provinces/')) {
+      const file = url.split('/').pop()
+      return { ok: true, json: async () => readData(`provinces/${file}`) }
+    }
+    throw new Error(`未预期的请求：${url}`)
+  })
+
+describe('景区详情页', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    clearScenicCache()
+  })
+
+  it('图廊、正文、看点、坐标、署名区块、本省知识点、下一个景点都在', async () => {
+    stubPageFetch()
+    const { wrapper } = await mountPage('510000', 'jiuzhaigou')
+    const text = wrapper.text()
+    expect(text).toContain('九寨沟')
+    expect(text).toContain('图片来源与许可')
+    expect(text).toContain('下一个景点')
+  })
+
+  it('「在地球上看看」指向地球页的定位参数', async () => {
+    stubPageFetch()
+    const { wrapper } = await mountPage('510000', 'jiuzhaigou')
+    const link = wrapper.find('a[href^="/?at="]')
+    expect(link.exists()).toBe(true)
+    // 坐标顺序：纬度在前，经度在后
+    expect(link.attributes('href')).toBe('/?at=33.26,103.92')
+  })
+
+  it('下一个景点是本省清单里的下一个，最后一个回到第一个', async () => {
+    stubPageFetch()
+    const first = sichuanList.scenics[0].id
+    const second = sichuanList.scenics[1].id
+    const last = sichuanList.scenics[sichuanList.scenics.length - 1].id
+
+    const { wrapper } = await mountPage('510000', first)
+    expect(wrapper.find('a[href^="/scenic/510000/"]').exists()).toBe(true)
+    const nextHref = wrapper.findAll('a[href^="/scenic/510000/"]').map((n) => n.attributes('href'))
+    expect(nextHref).toContain(`/scenic/510000/${second}`)
+
+    const { wrapper: lastPage } = await mountPage('510000', last)
+    const lastHrefs = lastPage.findAll('a[href^="/scenic/510000/"]').map((n) => n.attributes('href'))
+    expect(lastHrefs).toContain(`/scenic/510000/${first}`)
+  })
+
+  it('取不到景区时给明确的空态，不是白屏', async () => {
+    stubPageFetch()
+    const { wrapper } = await mountPage('510000', 'no-such-scenic')
+    expect(wrapper.text()).toContain('没有这个景点')
   })
 })

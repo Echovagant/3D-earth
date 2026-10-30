@@ -64,6 +64,13 @@ export const routes = [
     props: true,
   },
   {
+    // 景区详情
+    path: '/scenic/:adcode/:id',
+    name: 'Scenic',
+    component: () => import('../components/ScenicPage.vue'),
+    props: true,
+  },
+  {
     // 数据来源与许可
     path: '/licenses',
     name: 'Licenses',
