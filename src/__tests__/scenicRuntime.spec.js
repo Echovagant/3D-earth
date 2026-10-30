@@ -74,6 +74,21 @@ describe('景区数据访问层', () => {
     await expect(loadScenicByProvince('999999')).resolves.toEqual([])
   })
 
+  it('服务器把不存在的路径回退成首页（200 + HTML）时按「没有清单」处理', async () => {
+    // 静态站点服务器对缺失的文件会回退到 index.html，
+    // 那份 HTML 解析成 JSON 会抛错，把整批查询带崩
+    vi.stubGlobal('fetch', async (url) => {
+      if (String(url).endsWith('/data/provinces/index.json')) {
+        return { ok: true, json: async () => provinceIndex }
+      }
+      if (String(url).includes('/data/scenic/999999.json')) {
+        return { ok: true, json: async () => JSON.parse('<!DOCTYPE html><html></html>') }
+      }
+      throw new Error(`未预期的请求：${url}`)
+    })
+    await expect(loadScenicByProvince('999999')).resolves.toEqual([])
+  })
+
   it('按 id 找景区，找不到给 null', async () => {
     stubScenicFetch()
     const found = await findScenic('510000', sichuanList.scenics[0].id)

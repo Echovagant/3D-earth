@@ -262,6 +262,7 @@ watch(
   --learn-accent: var(--accent);
   --learn-accent-soft: var(--accent-dim);
   --learn-warn: var(--accent-warm);
+  --learn-on-tint: #ffffff;
 }
 
 .province-scenic-grid {

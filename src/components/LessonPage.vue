@@ -329,7 +329,6 @@ const load = async () => {
   // 景区卡等省名取到再取，卡片上要显示省名
   await loadScenics(lesson.value?.entities?.provinces ?? [])
 }
-
 /**
  * 关联地区的景区卡：取前三个省，每省三张。
  *
@@ -339,24 +338,25 @@ const load = async () => {
 const loadScenics = async (adcodes) => {
   const token = scenicRequests.begin()
   scenicGroups.value = []
-  try {
-    const groups = []
-    for (const adcode of adcodes.slice(0, 3)) {
-      const list = await loadScenicByProvince(adcode)
-      if (!scenicRequests.isCurrent(token)) return
-      if (!list.length) continue
-      groups.push({
-        adcode: String(adcode),
-        name: provinceNames.value[String(adcode)] ?? String(adcode),
-        scenics: list.slice(0, 3),
-      })
+  const groups = []
+  for (const adcode of adcodes.slice(0, 3)) {
+    let list = []
+    try {
+      list = await loadScenicByProvince(adcode)
+    } catch {
+      // 一个省取不到不影响其它省
+      list = []
     }
     if (!scenicRequests.isCurrent(token)) return
-    scenicGroups.value = groups
-  } catch {
-    if (!scenicRequests.isCurrent(token)) return
-    scenicGroups.value = []
+    if (!list.length) continue
+    groups.push({
+      adcode: String(adcode),
+      name: provinceNames.value[String(adcode)] ?? String(adcode),
+      scenics: list.slice(0, 3),
+    })
   }
+  if (!scenicRequests.isCurrent(token)) return
+  scenicGroups.value = groups
 }
 
 const mark = (value) => {

@@ -47,8 +47,12 @@ export async function provinceAdcodes() {
 /**
  * 取某个省的景区清单。
  *
- * 该省还没有清单（404）不是错误，返回空数组；空结果照常缓存——
- * 一次会话里某省有没有清单不会变，反复请求只是浪费。
+ * 该省还没有清单不是错误，返回空数组。判断依据不只是 HTTP 404：
+ * 静态站点服务器对不存在的路径会回退到首页（200 + HTML），
+ * 那份 HTML 解析成 JSON 会抛错，把这一批查询全部带崩——
+ * 所以解析失败与「没有清单」同等对待。
+ *
+ * 空结果照常缓存：一次会话里某省有没有清单不会变，反复请求只是浪费。
  */
 export async function loadScenicByProvince(adcode) {
   const key = String(adcode)
@@ -57,9 +61,9 @@ export async function loadScenicByProvince(adcode) {
     .then((res) => {
       // 没有清单的省按「暂无景区」处理
       if (!res.ok) return []
-      return res.json()
+      return res.json().catch(() => [])
     })
-    .then((payload) => payload.scenics ?? [])
+    .then((payload) => (Array.isArray(payload) ? payload : payload?.scenics ?? []))
     .catch((error) => {
       // 网络失败要摘出缓存，重试才会真的重新拉
       listCache.delete(key)

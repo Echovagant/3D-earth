@@ -99,7 +99,8 @@ const placeholderStyle = computed(() => {
   height: 100%;
   font-size: 28px;
   font-weight: 600;
-  color: var(--learn-panel);
+  /* 省色是中亮度色，首字一律用浅色压在上面对比才够 */
+  color: var(--learn-on-tint);
 }
 
 .scenic-card__body {

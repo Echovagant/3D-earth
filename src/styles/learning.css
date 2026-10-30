@@ -16,6 +16,8 @@
   --learn-accent: #0b6fb8;
   --learn-accent-soft: #e3f0fa;
   --learn-warn: #b4530a;
+  /* 压在省色渐变上的文字色：省色是中亮度，浅字才看得清 */
+  --learn-on-tint: #ffffff;
 }
 
 .learn-page {
@@ -704,6 +706,7 @@ a.learn-tag:hover {
 .learn-scenic-group {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: var(--sp-2);
   margin-bottom: var(--sp-4);
 }
@@ -719,4 +722,5 @@ a.learn-tag:hover {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: var(--sp-3);
+  width: 100%;
 }
