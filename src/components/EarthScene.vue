@@ -87,9 +87,10 @@
 import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { createProvinceMeshFromFeature, lonLatToCartesian } from '../utils/geoDataProcessor'
 import { easeInOutCubic, pointerToNdc } from '../utils/globeMath'
+import { parseFocusQuery } from '../utils/focusQuery'
 import { isClickGesture } from '../utils/gesture'
 import { getProvinceColor, toHexString } from '../utils/provinceColors'
 import { featureAreaKm2 } from '../utils/areaData'
@@ -112,6 +113,7 @@ import ProvinceLegend from './ProvinceLegend.vue'
 
 const container = ref(null)
 const router = useRouter()
+const route = useRoute()
 
 // 悬停中的省份
 const hoveredName = ref('')
@@ -306,6 +308,7 @@ onMounted(() => {
   reducedMotionQuery?.addEventListener?.('change', onReducedMotionChange)
   animate()
   focusOnChina() // 初始视角聚焦中国
+  flyToFocusQuery() // 有 ?at= 就把镜头带到那里（景区的「在地球上看看」）
 })
 
 onUnmounted(() => {
@@ -885,6 +888,21 @@ const flyTo = (lon, lat, distance = 3.2, duration = FLY_DURATION, onDone = null)
 // 首屏视角：相机站到中国中部（lon 105 / lat 33）正对球心。
 // 距离 3.6 时球面视角半径 asin(2/3.6)=33.8°，小于垂直半 FOV 37.5°，整球完整可见。
 const FOCUS = { lon: 105, lat: 33, distance: 3.6 }
+
+/**
+ * 聚焦到 ?at= 指定的坐标。
+ *
+ * 景区的「在地球上看看」用它把镜头带到那个地方：距离 2.4 个地球半径，
+ * 看得到该景区周边的一带，而不是贴脸怼上去。
+ * 只挪镜头，不跳页、不打断用户——地球页仍然是地球页。
+ */
+const flyToFocusQuery = () => {
+  const focus = parseFocusQuery(route.query)
+  if (!focus) return
+  const [lat, lon] = focus
+  // flyTo 的参数顺序是经度在前，与清单里 coords 的顺序相反
+  flyTo(lon, lat, 2.4, FLY_DURATION)
+}
 
 const focusOnChina = () => {
   // 用经纬度反解相机位置
