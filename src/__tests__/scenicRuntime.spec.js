@@ -12,6 +12,7 @@ import { mount } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 
 import ScenicCard from '../components/ScenicCard.vue'
+import ScenicGallery from '../components/ScenicGallery.vue'
 import {
   scenicImagePath,
   provinceAdcodes,
@@ -130,5 +131,50 @@ describe('景区卡片', () => {
   it('整卡指向景区详情页', () => {
     const wrapper = mountCard(oneScenic)
     expect(wrapper.find('a').attributes('href')).toBe('/scenic/510000/jiuzhaigou')
+  })
+})
+
+const galleryImages = [
+  { file: 'a.jpg', sourceUrl: 'https://commons.wikimedia.org/wiki/File:A.jpg', license: 'CC0-1.0', author: 'X' },
+  { file: 'b.jpg', sourceUrl: 'https://commons.wikimedia.org/wiki/File:B.jpg', license: 'CC0-1.0', author: 'Y' },
+]
+
+const mountGallery = (images = galleryImages) =>
+  mount(ScenicGallery, { props: { images, name: '九寨沟' }, attachTo: document.body })
+
+describe('景区图廊', () => {
+  it('默认显示第一张，缩略图条每张一个按钮', () => {
+    const w = mountGallery()
+    expect(w.find('.scenic-gallery__main img').attributes('src')).toContain('a.jpg')
+    expect(w.findAll('.scenic-gallery__thumbs button')).toHaveLength(2)
+  })
+
+  it('点缩略图切到那张', async () => {
+    const w = mountGallery()
+    await w.findAll('.scenic-gallery__thumbs button')[1].trigger('click')
+    expect(w.find('.scenic-gallery__main img').attributes('src')).toContain('b.jpg')
+  })
+
+  it('方向键切图', async () => {
+    const w = mountGallery()
+    await w.trigger('keydown', { key: 'ArrowRight' })
+    expect(w.find('.scenic-gallery__main img').attributes('src')).toContain('b.jpg')
+    await w.trigger('keydown', { key: 'ArrowLeft' })
+    expect(w.find('.scenic-gallery__main img').attributes('src')).toContain('a.jpg')
+  })
+
+  it('点主图开灯箱，Esc 关掉，焦点回到原图', async () => {
+    const w = mountGallery()
+    const opener = w.find('.scenic-gallery__main')
+    await opener.trigger('click')
+    expect(w.find('.scenic-lightbox').exists()).toBe(true)
+    await w.find('.scenic-lightbox').trigger('keydown', { key: 'Escape' })
+    expect(w.find('.scenic-lightbox').exists()).toBe(false)
+    expect(document.activeElement).toBe(opener.element)
+  })
+
+  it('没有图时不渲染图廊', () => {
+    const w = mount(ScenicGallery, { props: { images: [], name: '甲' } })
+    expect(w.find('.scenic-gallery').exists()).toBe(false)
   })
 })
