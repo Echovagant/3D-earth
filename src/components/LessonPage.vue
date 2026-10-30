@@ -163,6 +163,20 @@
           >
         </section>
 
+        <!-- 看看这些省有什么：关联地区的省各挂三张景区卡 -->
+        <section v-if="scenicGroups.length" class="learn-panel" id="scenic">
+          <h2 class="learn-panel__title">看看这些省有什么</h2>
+          <div v-for="group in scenicGroups" :key="group.adcode" class="learn-scenic-group">
+            <p class="learn-scenic-group__name">{{ group.name }}</p>
+            <div class="learn-scenic-grid">
+              <ScenicCard v-for="scenic in group.scenics" :key="scenic.id" :scenic="scenic" :adcode="group.adcode" />
+            </div>
+            <router-link class="learn-tag" :to="`/province/${group.adcode}#scenic`">
+              看本省全部景点 →
+            </router-link>
+          </div>
+        </section>
+
         <section class="learn-panel">
           <h2 class="learn-panel__title">掌握情况</h2>
           <button type="button" class="learn-top__back" @click="mark('known')">标记已掌握</button>
@@ -182,9 +196,11 @@ import { useRoute, useRouter } from 'vue-router'
 import { loadAllLessons, lessonRefLabel, loadKnowledgeIndex } from '../utils/knowledge'
 import { LESSON_TOOLS } from '../data/toolLinks'
 import DemoBlock from './DemoBlock.vue'
+import ScenicCard from './ScenicCard.vue'
 import { readMastery, setMastery } from '../utils/mastery'
 import { renderEmphasis } from '../utils/richText'
 import { loadProvinceNames } from '../utils/provinceNames'
+import { loadScenicByProvince } from '../utils/scenic'
 import { createRequestGuard } from '../utils/latestRequest'
 
 const route = useRoute()
@@ -197,6 +213,8 @@ const allLessons = ref([])
 const chapters = ref([])
 /** adcode → 省名，来自省份数据文件 */
 const provinceNames = ref({})
+/** 关联地区里前几个省的景区卡：省名 + 三张卡 */
+const scenicGroups = ref([])
 const loading = ref(true)
 const error = ref('')
 const state = ref('')
@@ -206,6 +224,7 @@ const emph = (text) => renderEmphasis(text)
 // 换知识点是连续的两次请求：慢的那次后到时会把新一节的正文覆盖成上一节。
 // 每次请求领一个序号，只有最新序号的响应才允许写状态。
 const requests = createRequestGuard()
+const scenicRequests = createRequestGuard()
 
 const videoUrl = computed(() =>
   lesson.value
@@ -306,6 +325,38 @@ const load = async () => {
   // 省名单独补：正文不用等这几十个小文件，取不到就退回代码
   const names = await loadProvinceNames(lesson.value?.entities?.provinces ?? [])
   if (requests.isCurrent(token)) provinceNames.value = names
+
+  // 景区卡等省名取到再取，卡片上要显示省名
+  await loadScenics(lesson.value?.entities?.provinces ?? [])
+}
+
+/**
+ * 关联地区的景区卡：取前三个省，每省三张。
+ *
+ * 与正文分开加载：景区数据挂了不该影响这一节的正文，
+ * 没有景区的省就整个不出现这个区块。
+ */
+const loadScenics = async (adcodes) => {
+  const token = scenicRequests.begin()
+  scenicGroups.value = []
+  try {
+    const groups = []
+    for (const adcode of adcodes.slice(0, 3)) {
+      const list = await loadScenicByProvince(adcode)
+      if (!scenicRequests.isCurrent(token)) return
+      if (!list.length) continue
+      groups.push({
+        adcode: String(adcode),
+        name: provinceNames.value[String(adcode)] ?? String(adcode),
+        scenics: list.slice(0, 3),
+      })
+    }
+    if (!scenicRequests.isCurrent(token)) return
+    scenicGroups.value = groups
+  } catch {
+    if (!scenicRequests.isCurrent(token)) return
+    scenicGroups.value = []
+  }
 }
 
 const mark = (value) => {
@@ -331,6 +382,7 @@ onMounted(load)
 onBeforeUnmount(() => {
   // 组件已经卸载：迟到的响应不能再写状态
   requests.dispose()
+  scenicRequests.dispose()
 })
 
 // 路由只换知识点号时 vue-router 会复用同一个组件实例（不会重新挂载），

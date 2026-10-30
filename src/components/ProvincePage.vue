@@ -8,6 +8,14 @@
       </button>
       <span class="detail-page__brand">3D-EARTH <i>/</i> PROVINCE</span>
       <router-link class="detail-page__licenses" to="/licenses">许可</router-link>
+      <button
+        type="button"
+        class="detail-page__back"
+        :disabled="randomPending"
+        @click="pickRandom"
+      >
+        <span>随便看看</span>
+      </button>
       <span class="detail-page__code mono">{{ route.params.adcode || '——' }}</span>
     </header>
 
@@ -74,12 +82,14 @@
         </p>
       </section>
 
-      <!-- 标签 -->
-      <ul class="detail-page__tags">
-        <li v-for="tag in data.highlights" :key="tag" class="detail-page__tag">
-          <span class="detail-page__tag-dot"></span>{{ tag }}
-        </li>
-      </ul>
+      <!-- 景区：卡片网格（锚点 #scenic 供知识点页的「看本省全部景点」跳进来） -->
+      <section id="scenic" class="detail-page__intro">
+        <span class="detail-page__intro-label">景区 / SCENIC</span>
+        <div v-if="scenics.length" class="province-scenic-grid">
+          <ScenicCard v-for="scenic in scenics" :key="scenic.id" :scenic="scenic" :adcode="adcode" />
+        </div>
+        <p v-else class="detail-page__state">本省景区的图文内容还在整理中。</p>
+      </section>
 
       <!-- 本省关联的知识点 -->
       <section v-if="linkedLessons.length" class="detail-page__intro">
@@ -95,8 +105,7 @@
 
       <div class="detail-page__actions">
         <button type="button" class="detail-page__cta" @click="goBack">返回地球</button>
-      </div>
-    </main>
+      </div>    </main>
 
     <!-- 底部数据说明栏 -->
     <footer class="detail-page__foot">
@@ -108,12 +117,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import HudPanel from './HudPanel.vue'
+import ScenicCard from './ScenicCard.vue'
 import { formatArea } from '../utils/areaData'
 import { loadAllLessons, lessonsByProvince } from '../utils/knowledge'
 import { assetUrl } from '../utils/base'
+import { loadScenicByProvince, pickRandomScenic } from '../utils/scenic'
 import { createRequestGuard } from '../utils/latestRequest'
 
 const route = useRoute()
@@ -124,11 +135,49 @@ const loading = ref(true)
 const error = ref('')
 // 本省关联的知识点（按 entities.provinces 反查）
 const linkedLessons = ref([])
+/** 本省的景区清单：卡片网格的数据 */
+const scenics = ref([])
+/** 「随便看看」请求中：防止连点触发多次跳转 */
+const randomPending = ref(false)
+
+const adcode = computed(() => String(route.params.adcode ?? ''))
 
 // 换省是连续的两次请求：慢的那次后到时会把新省的数据覆盖成上一省。
 // 每次请求领一个序号，只有最新序号的响应才允许写状态。
 const provinceRequests = createRequestGuard()
 const lessonRequests = createRequestGuard()
+const scenicRequests = createRequestGuard()
+
+/** 取本省的景区清单：卡片网格的数据 */
+const loadScenics = async () => {
+  const token = scenicRequests.begin()
+  const code = adcode.value
+  scenics.value = []
+  try {
+    const list = await loadScenicByProvince(code)
+    if (!scenicRequests.isCurrent(token)) return
+    scenics.value = list
+  } catch {
+    if (!scenicRequests.isCurrent(token)) return
+    scenics.value = []
+  }
+}
+
+/**
+ * 随便看看：全国随机一个省的随机一个景点。
+ *
+ * 全国而不是本省——休息嘛，别被一个省的景点困住。
+ */
+const pickRandom = async () => {
+  if (randomPending.value) return
+  randomPending.value = true
+  try {
+    const picked = await pickRandomScenic()
+    if (picked) router.push(`/scenic/${picked.adcode}/${picked.scenic.id}`)
+  } finally {
+    randomPending.value = false
+  }
+}
 
 const load = async () => {
   const token = provinceRequests.begin()
@@ -175,12 +224,14 @@ const goBack = () => {
 onMounted(() => {
   load()
   loadLessons()
+  loadScenics()
 })
 
 onBeforeUnmount(() => {
   // 组件已经卸载：迟到的响应不能再写状态
   provinceRequests.dispose()
   lessonRequests.dispose()
+  scenicRequests.dispose()
 })
 
 // 路由只换省代码时 vue-router 会复用同一个组件实例（不会重新挂载），
@@ -190,7 +241,32 @@ watch(
   () => {
     load()
     loadLessons()
+    loadScenics()
   },
 )
 </script>
 
+
+<style scoped>
+/*
+ * 景区卡片用的是 --learn-* 色板（教学层的亮底取值）。
+ * 这一页是深底空间层，换成本层的深色取值，卡片在深底上也清晰，
+ * 组件本身不写死色值。
+ */
+.detail-page {
+  --learn-panel: var(--bg-panel);
+  --learn-ink: var(--text-hi);
+  --learn-ink-soft: var(--text-mid);
+  --learn-ink-faint: var(--text-lo);
+  --learn-line: var(--line);
+  --learn-accent: var(--accent);
+  --learn-accent-soft: var(--accent-dim);
+  --learn-warn: var(--accent-warm);
+}
+
+.province-scenic-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--sp-3);
+}
+</style>
