@@ -6,17 +6,37 @@
       "name": "九寨沟",
       "level": "5A",
       "summary": "样例数据。",
-      "highlights": ["彩池水漫山谷"],
-      "coords": [33.26, 103.92],
-      "images": []
+      "highlights": [
+        "彩池水漫山谷"
+      ],
+      "coords": [
+        33.26,
+        103.92
+      ],
+      "images": [
+        {
+          "file": "",
+          "md5": "f4056e7413ed0bc63315a54b46bda494",
+          "commonsPath": "e/ef/1_nuorilang_jiuzhaigou_2023.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "license": "CC BY-SA 4.0",
+          "author": "Chensiyuan",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:1_nuorilang_jiuzhaigou_2023.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ef/1_nuorilang_jiuzhaigou_2023.jpg/960px-1_nuorilang_jiuzhaigou_2023.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "dujiangyan",
       "name": "都江堰",
       "level": "5A",
       "summary": "样例数据。",
-      "highlights": ["鱼嘴水利工程"],
-      "coords": [31.0, 103.62],
+      "highlights": [
+        "鱼嘴水利工程"
+      ],
+      "coords": [
+        31,
+        103.62
+      ],
       "images": []
     },
     {
@@ -24,8 +44,13 @@
       "name": "稻城亚丁",
       "level": "5A",
       "summary": "样例数据。",
-      "highlights": ["三座神山"],
-      "coords": [29.0, 100.3],
+      "highlights": [
+        "三座神山"
+      ],
+      "coords": [
+        29,
+        100.3
+      ],
       "images": []
     }
   ]

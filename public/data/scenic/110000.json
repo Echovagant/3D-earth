@@ -6,27 +6,81 @@
       "name": "故宫",
       "level": "5A",
       "summary": "样例数据。",
-      "highlights": ["太和殿与中轴线"],
-      "coords": [39.9163, 116.3972],
-      "images": []
+      "highlights": [
+        "太和殿与中轴线"
+      ],
+      "coords": [
+        39.9163,
+        116.3972
+      ],
+      "images": [
+        {
+          "file": "",
+          "md5": "5a5598f2f107521bfee690edf73347e1",
+          "commonsPath": "2/23/Hall_of_Supreme_Harmony_%2820241127120000%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "license": "CC BY-SA 4.0",
+          "author": "N509FZ",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Hall_of_Supreme_Harmony_(20241127120000).jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/23/Hall_of_Supreme_Harmony_%2820241127120000%29.jpg/960px-Hall_of_Supreme_Harmony_%2820241127120000%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        },
+        {
+          "file": "",
+          "md5": "5a194ce89505791671a550dda0226774",
+          "commonsPath": "e/e0/%E6%99%AF%E5%B1%B1%E5%85%AC%E5%9B%AD_%2820315852831%29-_cropped.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "license": "CC BY-SA 2.0",
+          "author": "Han Zheng",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E6%99%AF%E5%B1%B1%E5%85%AC%E5%9B%AD_(20315852831)-_cropped.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e0/%E6%99%AF%E5%B1%B1%E5%85%AC%E5%9B%AD_%2820315852831%29-_cropped.jpg/960px-%E6%99%AF%E5%B1%B1%E5%85%AC%E5%9B%AD_%2820315852831%29-_cropped.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "yiheyuan",
       "name": "颐和园",
       "level": "5A",
       "summary": "样例数据。",
-      "highlights": ["长廊与昆明湖"],
-      "coords": [39.9975, 116.2665],
-      "images": []
+      "highlights": [
+        "长廊与昆明湖"
+      ],
+      "coords": [
+        39.9975,
+        116.2665
+      ],
+      "images": [
+        {
+          "file": "",
+          "md5": "2a07356d47dc810c81430a00593c04bc",
+          "commonsPath": "d/db/Longevity_Hill_of_the_Summer_Palace.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "license": "CC BY 2.0",
+          "author": "xiquinhosilva",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Longevity_Hill_of_the_Summer_Palace.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/db/Longevity_Hill_of_the_Summer_Palace.jpg/960px-Longevity_Hill_of_the_Summer_Palace.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "tiantan",
       "name": "天坛",
       "level": "5A",
       "summary": "样例数据。",
-      "highlights": ["祈年殿与圜丘"],
-      "coords": [39.8822, 116.4066],
-      "images": []
+      "highlights": [
+        "祈年殿与圜丘"
+      ],
+      "coords": [
+        39.8822,
+        116.4066
+      ],
+      "images": [
+        {
+          "file": "",
+          "md5": "7a9277e9eaaaf581efbe508c8d49c427",
+          "commonsPath": "5/5f/Temple_of_Heaven_20160323_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "license": "CC BY-SA 4.0",
+          "author": "Shujianyang",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Temple_of_Heaven_20160323_01.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5f/Temple_of_Heaven_20160323_01.jpg/960px-Temple_of_Heaven_20160323_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }
