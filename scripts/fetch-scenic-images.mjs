@@ -119,8 +119,9 @@ export function planImages(scenics, existing) {
         id: s.id,
         md5,
         commonsPath: img.commonsPath ?? '',
-        // 接口给的地址已经编码好，比自己拼可靠
+        // 接口给的地址已经编码好，比自己拼可靠；缩略图与大图分别取
         thumbUrl: img.thumbUrl ?? '',
+        thumbUrlSmall: img.thumbUrlSmall ?? '',
         sourceUrl: img.sourceUrl ?? '',
         large,
         thumb,
@@ -276,7 +277,9 @@ function main() {
       if (existing.has(name)) continue
       // 优先用接口给的地址（编码正确）；没有就按路径自己拼
       const url =
-        resizeThumbUrl(download.thumbUrl, width) || commonsThumbUrl(download.commonsPath, width)
+        (suffix ? download.thumbUrlSmall : download.thumbUrl) ||
+        resizeThumbUrl(download.thumbUrl, width) ||
+        commonsThumbUrl(download.commonsPath, width)
       if (!url) {
         const failure = { id: download.id, name, error: '缺 commonsPath 与 thumbUrl，拼不出下载地址' }
         report.failures.push(failure)

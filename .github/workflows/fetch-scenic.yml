@@ -64,7 +64,14 @@ jobs:
           node scripts/fetch-scenic-images.mjs
 
       # Commons 的 thumb 只缩放不压缩（一张 960px 的图 200KB 上下），
-      # 600 张就是 120MB，仓库放不下。runner 上预装了 ImageMagick，压一遍。
+      # 600 张就是 120MB，仓库放不下。runner 上没有 ImageMagick，装一个。
+      - name: 准备压缩工具
+        if: ${{ inputs.images }}
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq imagemagick
+          convert --version | head -1
+
       - name: 压缩图片
         if: ${{ inputs.images }}
         run: node scripts/optimize-scenic-images.mjs

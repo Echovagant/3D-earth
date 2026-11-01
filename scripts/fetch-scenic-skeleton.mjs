@@ -121,10 +121,15 @@ export function buildFallbackSearchUrl(title) {
   return `${API}?action=wbsearchentities&search=${q}&language=zh&uselang=zh&type=item&limit=5&format=json`
 }
 
-/** Commons 文件名 → 文件信息地址（许可、作者、缩略图地址都在里面） */
-export function buildImageInfoUrl(file) {
+/**
+ * Commons 文件名 → 文件信息地址（许可、作者、缩略图地址都在里面）。
+ *
+ * 缩略图地址由接口给出：自己拼要在中文名、括号与追踪参数上踩坑，
+ * 而接口给的地址是编码正确的。
+ */
+export function buildImageInfoUrl(file, width = 960) {
   const title = encodeURIComponent(`File:${file}`)
-  return `${COMMONS_API}?action=query&titles=${title}&prop=imageinfo&iiprop=url%7Csize%7Cmime%7Csha1%7Cextmetadata%7Cuser&iiurlwidth=960&format=json`
+  return `${COMMONS_API}?action=query&titles=${title}&prop=imageinfo&iiprop=url%7Csize%7Cmime%7Csha1%7Cextmetadata%7Cuser&iiurlwidth=${width}&format=json`
 }
 
 /** 从实体 JSON 里取出我们要的字段 */
@@ -236,6 +241,9 @@ export function parseImageInfo(json, file) {
     author: stripHtml(meta.Artist?.value ?? meta.Credit?.value ?? ''),
     sourceUrl: String(info.descriptionurl ?? ''),
     thumbUrl: String(info.thumburl ?? ''),
+    // 小尺寸的地址由接口另给一次（iiurlwidth=320）：
+    // 自己把 960 的地址改成 320 不可靠，Commons 对某些尺寸会回错误页
+    thumbUrlSmall: '',
     restrictions: stripHtml(meta.Restrictions?.value ?? ''),
     allowed: isAllowedLicense(license),
   }
@@ -280,12 +288,24 @@ function resolveEntity(name, tries) {
   return parseEntity(fetchJson(buildEntityUrl(hit.id), tries))
 }
 
-/** 给图片候选补上许可、作者与地址；单张取不到就保留候选，许可留空等人工核 */
+/**
+ * 给图片候选补上许可、作者与地址；单张取不到就保留候选，许可留空等人工核。
+ *
+ * 大图与缩略图的地址分别向接口要一次（iiurlwidth=960 / 320）：
+ * 接口给的地址编码正确，自己改宽��不可靠。
+ */
 function enrichImages(images, tries) {
   const enriched = []
   for (const image of images ?? []) {
     try {
-      enriched.push(parseImageInfo(fetchJson(buildImageInfoUrl(image.file), tries), image.file))
+      const info = parseImageInfo(fetchJson(buildImageInfoUrl(image.file, 960), tries), image.file)
+      try {
+        const small = parseImageInfo(fetchJson(buildImageInfoUrl(image.file, 320), tries), image.file)
+        info.thumbUrlSmall = small.thumbUrl
+      } catch {
+        // 小尺寸的地址拿不到就空着：图片脚本会退回按路径拼
+      }
+      enriched.push(info)
     } catch (error) {
       enriched.push({
         ...image,

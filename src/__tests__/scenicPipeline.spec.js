@@ -219,6 +219,14 @@ describe('图片下载的地址与计划', () => {
     )
   })
 
+  it('地址后面带查询串时，换宽度不能把参数拼两遍', () => {
+    const thumb =
+      'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/23/A_%282024%29.jpg/960px-A_%282024%29.jpg?utm_source=x&utm_campaign=y'
+    const resized = resizeThumbUrl(thumb, 320)
+    expect(resized).toContain('/320px-A_%282024%29.jpg')
+    expect(resized.match(/utm_source/g)).toHaveLength(1)
+  })
+
   it('接口给的地址是空的就返回空串', () => {
     expect(resizeThumbUrl('', 320)).toBe('')
     expect(resizeThumbUrl(null, 320)).toBe('')

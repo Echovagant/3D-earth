@@ -94,6 +94,7 @@ function main() {
         author: img.author,
         sourceUrl: img.sourceUrl,
         thumbUrl: img.thumbUrl,
+        thumbUrlSmall: img.thumbUrlSmall,
       }))
       filled += 1
       changed = true
