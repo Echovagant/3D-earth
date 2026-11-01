@@ -21,7 +21,8 @@
           "license": "CC BY-SA 4.0",
           "author": "N509FZ",
           "sourceUrl": "https://commons.wikimedia.org/wiki/File:Hall_of_Supreme_Harmony_(20241127120000).jpg",
-          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/23/Hall_of_Supreme_Harmony_%2820241127120000%29.jpg/960px-Hall_of_Supreme_Harmony_%2820241127120000%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/23/Hall_of_Supreme_Harmony_%2820241127120000%29.jpg/960px-Hall_of_Supreme_Harmony_%2820241127120000%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/23/Hall_of_Supreme_Harmony_%2820241127120000%29.jpg/330px-Hall_of_Supreme_Harmony_%2820241127120000%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
         },
         {
           "file": "5a194ce895057916.jpg",
@@ -30,7 +31,8 @@
           "license": "CC BY-SA 2.0",
           "author": "Han Zheng",
           "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E6%99%AF%E5%B1%B1%E5%85%AC%E5%9B%AD_(20315852831)-_cropped.jpg",
-          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e0/%E6%99%AF%E5%B1%B1%E5%85%AC%E5%9B%AD_%2820315852831%29-_cropped.jpg/960px-%E6%99%AF%E5%B1%B1%E5%85%AC%E5%9B%AD_%2820315852831%29-_cropped.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e0/%E6%99%AF%E5%B1%B1%E5%85%AC%E5%9B%AD_%2820315852831%29-_cropped.jpg/960px-%E6%99%AF%E5%B1%B1%E5%85%AC%E5%9B%AD_%2820315852831%29-_cropped.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e0/%E6%99%AF%E5%B1%B1%E5%85%AC%E5%9B%AD_%2820315852831%29-_cropped.jpg/330px-%E6%99%AF%E5%B1%B1%E5%85%AC%E5%9B%AD_%2820315852831%29-_cropped.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
         }
       ]
     },
@@ -54,7 +56,8 @@
           "license": "CC BY 2.0",
           "author": "xiquinhosilva",
           "sourceUrl": "https://commons.wikimedia.org/wiki/File:Longevity_Hill_of_the_Summer_Palace.jpg",
-          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/db/Longevity_Hill_of_the_Summer_Palace.jpg/960px-Longevity_Hill_of_the_Summer_Palace.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/db/Longevity_Hill_of_the_Summer_Palace.jpg/960px-Longevity_Hill_of_the_Summer_Palace.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/db/Longevity_Hill_of_the_Summer_Palace.jpg/330px-Longevity_Hill_of_the_Summer_Palace.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
         }
       ]
     },
