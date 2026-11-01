@@ -47,9 +47,6 @@ const WIDTHS = [
   { width: 320, suffix: '-t', minPx: 300 },
 ]
 
-/** 落盘上限：超过说明抓错了东西（比如抓回了 HTML） */
-const MAX_BYTES = 300 * 1024
-
 /**
  * Commons 文件路径 → thumb 地址。
  *
@@ -68,11 +65,16 @@ export function commonsThumbUrl(commonsPath, width) {
  *
  * Commons 已经算好了编码正确的地址，直接改宽度最省事，
  * 自己拼容易在中文名与括号上出错。
+ * 查询串单独摘出来：尺寸段在文件名里，参数在文件名后面，不能一起替换。
  */
 export function resizeThumbUrl(thumbUrl, width) {
   const url = String(thumbUrl ?? '')
   if (!url) return ''
-  return url.replace(/\/\d+px-[^/]+$/, `/${width}px-${url.split('/').pop().replace(/^\d+px-/, '')}`)
+  const [base, query] = url.split('?')
+  const file = base.split('/').pop() ?? ''
+  if (!/^\d+px-/.test(file)) return url
+  const resized = base.replace(/\d+px-[^/]*$/, `${width}px-${file.replace(/^\d+px-/, '')}`)
+  return query ? `${resized}?${query}` : resized
 }
 
 /** Commons 文件路径 → 原始页面地址（署名义务要给出这个） */
@@ -202,12 +204,16 @@ function readManifests(dir) {
     .filter(Boolean)
 }
 
-/** 校验一张抓回来的图：可解码、宽度达标、体积不超标 */
+/**
+ * 校验一张抓回来的图：可解码、宽度达标。
+ *
+ * 体积不在这里管：Commons 的 thumb 只缩放不压缩，原始体积本来就偏大，
+ * 压缩交给 optimize-scenic-images.mjs（runner 上有 ImageMagick）。
+ */
 function checkImage(buffer, minPx) {
   const size = jpegSize(buffer)
   if (!size) return '内容不是可解码的 JPEG'
   if (size.width < minPx) return `宽度 ${size.width}px，不足 ${minPx}px`
-  if (buffer.length > MAX_BYTES) return `体积 ${(buffer.length / 1024).toFixed(0)}KB，超过 ${MAX_BYTES / 1024}KB`
   return ''
 }
 
