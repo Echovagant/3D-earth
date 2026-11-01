@@ -74,8 +74,9 @@ function main() {
       const usable = usableImages(skeletonScenic.images)
       const allowed = usable.slice(0, 5)
 
-      // 清单里已经有图片条目：人工核过，不动
-      if ((scenic.images ?? []).length) {
+      // 清单里已经有落盘好的图片：人工核过，不动
+      const landed = (scenic.images ?? []).filter((img) => img.file)
+      if (landed.length) {
         kept += 1
         continue
       }
@@ -83,6 +84,8 @@ function main() {
         skipped += 1
         continue
       }
+      // 上一轮留了候选但没落盘成功（file 为空），或候选的地址是脏的——
+      // 一律用骨架里的候选覆盖，避免脏路径一直卡住
       scenic.images = allowed.map((img) => ({
         file: '',
         md5: img.md5,

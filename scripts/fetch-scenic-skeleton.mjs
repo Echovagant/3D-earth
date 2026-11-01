@@ -176,9 +176,16 @@ function firstText(...values) {
 }
 
 /** Commons 原图地址 → 存储路径（thumb 地址要用它拼） */
+/**
+ * Commons 原图地址 → 存储路径（thumb 地址要用它拼）。
+ *
+ * Commons 返回的 url 后面常跟一串追踪参数（?utm_source=…），
+ * 直接拿去拼 thumb 地址会 404——先剥掉查询串与锚点再取路径。
+ */
 function commonsPathOf(url) {
-  const matched = /\/wikipedia\/commons\/((?:[^/]+\/){2}[^/]+)$/.exec(String(url ?? ''))
-  return matched ? matched[1] : ''
+  const clean = String(url ?? '').split(/[?#]/)[0]
+  const matched = /\/wikipedia\/commons\/((?:[^/]+\/){2}[^/]+)$/.exec(clean)
+  return matched ? decodeURIComponent(matched[1]) : ''
 }
 
 /**

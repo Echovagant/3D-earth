@@ -164,6 +164,24 @@ describe('Commons 图片信息', () => {
     expect(img.allowed).toBe(true)
   })
 
+  it('原图地址后面带追踪参数时，路径照样剥干净', () => {
+    // Commons 返回的 url 常带 ?utm_source=…，不剥掉拼出的 thumb 地址会 404
+    const json = JSON.parse(JSON.stringify(imageinfo))
+    json.query.pages['12345'].imageinfo[0].url =
+      'https://upload.wikimedia.org/wikipedia/commons/9/9c/Jiuzhaigou.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original'
+    const img = parseImageInfo(json, 'Jiuzhaigou.jpg')
+    expect(img.commonsPath).toBe('9/9c/Jiuzhaigou.jpg')
+    expect(img.commonsPath).not.toContain('?')
+  })
+
+  it('文件名是 URL 编码的中文时，路径要解码回来', () => {
+    const json = JSON.parse(JSON.stringify(imageinfo))
+    json.query.pages['12345'].imageinfo[0].url =
+      'https://upload.wikimedia.org/wikipedia/commons/e/e0/%E6%99%AF%E5%B1%B1%E5%85%AC%E5%9B%AD.jpg'
+    const img = parseImageInfo(json, '景山公园.jpg')
+    expect(img.commonsPath).toBe('e/e0/景山公园.jpg')
+  })
+
   it('许可不在白名单的图标成不可用', () => {
     const json = JSON.parse(JSON.stringify(imageinfo))
     json.query.pages['12345'].imageinfo[0].extmetadata.LicenseShortName.value = 'CC BY-NC 2.0'
