@@ -37,7 +37,17 @@
         31,
         103.62
       ],
-      "images": []
+      "images": [
+        {
+          "file": "d3c2f764c7e622c7.jpg",
+          "md5": "d3c2f764c7e622c78d910e9d78b1c7bf",
+          "commonsPath": "a/a7/Dujiang_Weir.jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "星星",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Dujiang_Weir.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a7/Dujiang_Weir.jpg/960px-Dujiang_Weir.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "daocheng-yading",
@@ -51,7 +61,17 @@
         29,
         100.3
       ],
-      "images": []
+      "images": [
+        {
+          "file": "347ab7efb8a7420f.jpg",
+          "md5": "347ab7efb8a7420fb69f218f9fa73fc4",
+          "commonsPath": "0/03/Yading_Jampelyang-Yangmaiyong.jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "Dcpeets",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Yading_Jampelyang-Yangmaiyong.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/03/Yading_Jampelyang-Yangmaiyong.jpg/960px-Yading_Jampelyang-Yangmaiyong.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }
