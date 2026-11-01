@@ -50,12 +50,29 @@ const WIDTHS = [
 /** 落盘上限：超过说明抓错了东西（比如抓回了 HTML） */
 const MAX_BYTES = 300 * 1024
 
-/** Commons 文件路径 → thumb 地址 */
+/**
+ * Commons 文件路径 → thumb 地址。
+ *
+ * 路径里的文件名可能含中文与括号，必须按 URL 规则编码；
+ * 目录部分（两段哈希）是 ASCII，原样保留。
+ */
 export function commonsThumbUrl(commonsPath, width) {
   const parts = String(commonsPath).split('/')
   const name = parts.pop()
   const dir = parts.join('/')
-  return `${UPLOAD_BASE}/wikipedia/commons/thumb/${dir}/${name}/${width}px-${name}`
+  return `${UPLOAD_BASE}/wikipedia/commons/thumb/${dir}/${encodeURIComponent(name)}/${width}px-${encodeURIComponent(name)}`
+}
+
+/**
+ * 接口给的 thumb 地址 → 换宽度的地址。
+ *
+ * Commons 已经算好了编码正确的地址，直接改宽度最省事，
+ * 自己拼容易在中文名与括号上出错。
+ */
+export function resizeThumbUrl(thumbUrl, width) {
+  const url = String(thumbUrl ?? '')
+  if (!url) return ''
+  return url.replace(/\/\d+px-[^/]+$/, `/${width}px-${url.split('/').pop().replace(/^\d+px-/, '')}`)
 }
 
 /** Commons 文件路径 → 原始页面地址（署名义务要给出这个） */
@@ -100,6 +117,8 @@ export function planImages(scenics, existing) {
         id: s.id,
         md5,
         commonsPath: img.commonsPath ?? '',
+        // 接口给的地址已经编码好，比自己拼可靠
+        thumbUrl: img.thumbUrl ?? '',
         sourceUrl: img.sourceUrl ?? '',
         large,
         thumb,
@@ -246,16 +265,20 @@ function main() {
   }
 
   for (const download of plan.downloads) {
-    if (!download.commonsPath) {
-      report.failures.push({ id: download.id, name: download.md5, error: '缺 commonsPath，拼不出下载地址' })
-      report.totalFailed += 1
-      continue
-    }
     for (const { width, suffix, minPx } of WIDTHS) {
       const name = suffix ? download.thumb : download.large
       if (existing.has(name)) continue
+      // 优先用接口给的地址（编码正确）；没有就按路径自己拼
+      const url =
+        resizeThumbUrl(download.thumbUrl, width) || commonsThumbUrl(download.commonsPath, width)
+      if (!url) {
+        const failure = { id: download.id, name, error: '缺 commonsPath 与 thumbUrl，拼不出下载地址' }
+        report.failures.push(failure)
+        report.totalFailed += 1
+        continue
+      }
       try {
-        const buffer = fetchBufferWithRetry(commonsThumbUrl(download.commonsPath, width), args.tries)
+        const buffer = fetchBufferWithRetry(url, args.tries)
         const problem = checkImage(buffer, minPx)
         if (problem) throw new Error(problem)
         writeFileSync(join(imageDir, name), buffer)
@@ -280,8 +303,8 @@ function main() {
       for (const img of s.images ?? []) {
         if (!img.md5) continue
         const large = targetFileName(img.md5, WIDTHS[0].width)
-        const thumb = targetFileName(img.md5, WIDTHS[1].width)
-        if (existing.has(large) && existing.has(thumb) && img.file !== large) {
+        // 大图在位就写：缩略图只是列表里的缩略，缺了不影响页面显示
+        if (existing.has(large) && img.file !== large) {
           img.file = large
           changed = true
         }

@@ -18,6 +18,7 @@ import {
   targetFileName,
   planImages,
   jpegSize,
+  resizeThumbUrl,
 } from '../../scripts/fetch-scenic-images.mjs'
 
 describe('骨架抓取的地址与解析', () => {
@@ -201,6 +202,26 @@ describe('图片下载的地址与计划', () => {
     const url = commonsThumbUrl('a/b/Abcd.jpg', 960)
     expect(url).toContain('upload.wikimedia.org')
     expect(url).toContain('/960px-Abcd.jpg')
+  })
+
+  it('文件名含中文与括号时按 URL 规则编码', () => {
+    const url = commonsThumbUrl('e/e0/景山公园_(20315852831).jpg', 960)
+    expect(url).toContain('/e/e0/')
+    expect(url).toContain('%E6%99%AF%E5%B1%B1%E5%85%AC%E5%9B%AD')
+    expect(url).not.toMatch(/[^/]*[\u4e00-\u9fa5]/)
+  })
+
+  it('接口给的 thumb 地址换宽度', () => {
+    const thumb =
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Jiuzhaigou.jpg/960px-Jiuzhaigou.jpg'
+    expect(resizeThumbUrl(thumb, 320)).toBe(
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Jiuzhaigou.jpg/320px-Jiuzhaigou.jpg',
+    )
+  })
+
+  it('接口给的地址是空的就返回空串', () => {
+    expect(resizeThumbUrl('', 320)).toBe('')
+    expect(resizeThumbUrl(null, 320)).toBe('')
   })
 
   it('原始页面地址指向 Commons 的文件页', () => {
