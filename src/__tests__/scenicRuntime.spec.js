@@ -126,7 +126,12 @@ const oneScenic = {
   highlights: ['彩池水漫山谷'],
   coords: [33.26, 103.92],
   images: [
-    { file: 'a.jpg', sourceUrl: 'https://commons.wikimedia.org/wiki/File:A.jpg', license: 'CC0-1.0', author: 'X' },
+    {
+      file: 'a.jpg',
+      sourceUrl: 'https://commons.wikimedia.org/wiki/File:A.jpg',
+      license: 'CC0-1.0',
+      author: 'X',
+    },
   ],
 }
 
@@ -151,12 +156,33 @@ describe('景区卡片', () => {
 })
 
 const galleryImages = [
-  { file: 'a.jpg', sourceUrl: 'https://commons.wikimedia.org/wiki/File:A.jpg', license: 'CC0-1.0', author: 'X' },
-  { file: 'b.jpg', sourceUrl: 'https://commons.wikimedia.org/wiki/File:B.jpg', license: 'CC0-1.0', author: 'Y' },
+  {
+    file: 'a.jpg',
+    sourceUrl: 'https://commons.wikimedia.org/wiki/File:A.jpg',
+    license: 'CC0-1.0',
+    author: 'X',
+  },
+  {
+    file: 'b.jpg',
+    sourceUrl: 'https://commons.wikimedia.org/wiki/File:B.jpg',
+    license: 'CC0-1.0',
+    author: 'Y',
+  },
 ]
 
+/**
+ * 挂载图廊。
+ *
+ * 灯箱用 <Teleport to="body"> 挂在 body 上（详情页正文容器带 transform，
+ * 会把 position: fixed 降级成 absolute）。测试里把 teleport stub 成原地渲染，
+ * 才能用 wrapper.find 找到灯箱内容。
+ */
 const mountGallery = (images = galleryImages) =>
-  mount(ScenicGallery, { props: { images, name: '九寨沟' }, attachTo: document.body })
+  mount(ScenicGallery, {
+    props: { images, name: '九寨沟' },
+    attachTo: document.body,
+    global: { stubs: { teleport: true } },
+  })
 
 describe('景区图廊', () => {
   it('默认显示第一张，缩略图条每张一个按钮', () => {
@@ -187,6 +213,20 @@ describe('景区图廊', () => {
     await w.find('.scenic-lightbox').trigger('keydown', { key: 'Escape' })
     expect(w.find('.scenic-lightbox').exists()).toBe(false)
     expect(document.activeElement).toBe(opener.element)
+  })
+
+  it('灯箱挂在 body 上，不被详情页的 transform 祖先框住', async () => {
+    // 详情页正文容器带入场动画，动画结束后仍带着 identity transform；
+    // transform 祖先会把 position: fixed 降级成 absolute，灯箱就盖不住全屏。
+    // 所以灯箱必须 teleport 出去，这条断言锁住这个行为。
+    const w = mount(ScenicGallery, {
+      props: { images: galleryImages, name: '九寨沟' },
+      attachTo: document.body,
+    })
+    await w.find('.scenic-gallery__main').trigger('click')
+    expect(document.body.querySelector('.scenic-lightbox')).toBeTruthy()
+    // 不挂在组件自己的 DOM 里（没 stub teleport 时）
+    expect(w.find('.scenic-lightbox').exists()).toBe(false)
   })
 
   it('没有图时不渲染图廊', () => {
@@ -277,7 +317,9 @@ describe('景区详情页', () => {
     expect(nextHref).toContain(`/scenic/510000/${second}`)
 
     const { wrapper: lastPage } = await mountPage('510000', last)
-    const lastHrefs = lastPage.findAll('a[href^="/scenic/510000/"]').map((n) => n.attributes('href'))
+    const lastHrefs = lastPage
+      .findAll('a[href^="/scenic/510000/"]')
+      .map((n) => n.attributes('href'))
     expect(lastHrefs).toContain(`/scenic/510000/${first}`)
   })
 
