@@ -82,14 +82,21 @@ export function checkScenicDir(root) {
         problems.push(`${file}：景区 ${s.id} 的 coords 不合法：${JSON.stringify(s.coords)}`)
       }
       const images = s.images ?? []
+      // 有图景区：清单里挂了图就算（图片还没落盘时 file 为空，那是在等抓取）
       if (images.length) stats.withImage += 1
       for (const img of images) {
         stats.images += 1
         if (!img.file) {
-          problems.push(`${file}：景区 ${s.id} 有图片没写 file`)
+          // file 为空表示这张图还没落盘（清单里先留了候选，落盘后脚本会回填）。
+          // 这不算错——真正的错是写了 file 却没有对应文件。
+          if (!img.license || !img.author || !img.sourceUrl) {
+            problems.push(`${file}：景区 ${s.id} 有图片没写 file`)
+          }
           continue
         }
         referenced.add(img.file)
+        // 缩略图按约定是大图名加 -t 后缀，清单里不单独列，孤儿扫描要一并认下
+        referenced.add(`${img.file.replace(/\.jpg$/i, '')}-t.jpg`)
         if (!isAllowedLicense(img.license)) {
           problems.push(`${file}：景区 ${s.id} 的图片 ${img.file} 许可不在白名单：${img.license}`)
         }

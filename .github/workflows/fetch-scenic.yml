@@ -1,0 +1,102 @@
+name: Fetch scenic images
+
+# 在 GitHub 的 runner 上抓景区图片。
+#
+# 为什么不在本地抓：Wikimedia 的域名在这台机器上整体不可达（实测 TCP 连接超时，
+# DNS 解析正常、无代理配置），而 runner 在境外网络，访问正常。
+# 产物是仓库内的静态文件，运行时依然零网络请求。
+#
+# 只有手动触发才会跑：公开仓库的 Actions 不限免费额度，但也没必要定时跑——
+# 图片规格一次定死，之后只增不改。
+#
+# 许可白名单在抓取脚本里（scripts/fetch-scenic-images.mjs）：不在白名单的图
+# 不会下载，脚本会把它们列在报告里。
+
+on:
+  workflow_dispatch:
+    inputs:
+      provinces:
+        description: '要抓的省代码（逗号分隔，留空表示全部有清单的省）'
+        required: false
+        default: ''
+      images:
+        description: '是否同时抓图片（关掉就只抓骨架）'
+        type: boolean
+        required: false
+        default: true
+
+permissions:
+  contents: write
+
+# 同一时间只跑一个：两个任务同时推图片会互相覆盖
+concurrency:
+  group: fetch-scenic
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    name: 抓景区骨架与图片
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # 骨架抓取要 curl：Wikimedia 对 UA 敏感，带上真实 UA 的请求才不会被拒
+      - name: 抓骨架
+        run: |
+          mkdir -p out
+          node scripts/fetch-scenic-skeleton.mjs --out out/scenic-skeleton.json ${{ inputs.provinces && format('--only {0}', inputs.provinces) || '' }}
+          cp out/scenic-skeleton.json scenic-skeleton.json
+
+      # 把骨架里的图片候选与许可灌进清单：只有白名单内的会写进去
+      - name: 灌进景区清单
+        run: |
+          node scripts/apply-scenic-skeleton.mjs --skeleton out/scenic-skeleton.json
+
+      - name: 抓图片
+        if: ${{ inputs.images }}
+        run: |
+          node scripts/fetch-scenic-images.mjs
+
+      - name: 校验清单与图片对得上
+        run: |
+          npm ci
+          npm run test:unit
+          node scripts/check-scenic.mjs || true
+
+      # 骨架是抓取的原始输出，含未经核实的许可信息，不入库。
+      # 图片与清单入库：清单是核过许可之后的人话版，图片是白名单内的自由许可。
+      - name: 有变化则提交
+        run: |
+          if [ -z "$(git status --porcelain -- public/data/scenic)" ]; then
+            echo "没有新图片，无需提交"
+            exit 0
+          fi
+          {
+            echo "chore(scenic): 补充景区图片"
+            echo
+            echo "由 GitHub Actions 在境外 runner 上抓取 Wikimedia Commons 的白名单内图片。"
+            echo
+            echo "许可白名单见 src/data/scenicRules.js，署名见各省清单的 images 字段。"
+          } > commit-msg.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data/scenic
+          git commit -F commit-msg.txt
+          git push
+
+      - name: 上传产物
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scenic-skeleton
+          path: |
+            out/scenic-skeleton.json
+            scenic-skeleton.json
+          retention-days: 30
+          if-no-files-found: ignore

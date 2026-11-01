@@ -167,4 +167,47 @@ describe('景区清单校验', () => {
     const { problems } = checkScenicDir(root)
     expect(problems.join('\n')).toContain('orphan.jpg')
   })
+
+  it('缩略图是大图名加 -t 后缀，不算孤儿图', () => {
+    // 清单只列大图，缩略图由约定派生；孤儿扫描要一并认下
+    const root = makeScenicDir(
+      {
+        '510000.json': {
+          adcode: '510000',
+          scenics: [
+            {
+              id: 'a',
+              name: '甲',
+              summary: '说明。',
+              coords: [30, 100],
+              images: [{ file: 'used.jpg', license: 'CC0-1.0', author: 'X', sourceUrl: 'https://...' }],
+            },
+          ],
+        },
+      },
+      ['used.jpg', 'used-t.jpg'],
+    )
+    const { problems } = checkScenicDir(root)
+    expect(problems.join('\n')).not.toContain('used-t.jpg')
+  })
+
+  it('图片还没落盘（file 为空）时不报错，只是没覆盖到', () => {
+    const root = makeScenicDir({
+      '510000.json': {
+        adcode: '510000',
+        scenics: [
+          {
+            id: 'a',
+            name: '甲',
+            summary: '说明。',
+            coords: [30, 100],
+            images: [{ file: '', license: 'CC0-1.0', author: 'X', sourceUrl: 'https://...' }],
+          },
+        ],
+      },
+    })
+    const { problems, stats } = checkScenicDir(root)
+    expect(problems.join('\n')).not.toContain('没写 file')
+    expect(stats.withImage).toBe(1)
+  })
 })
