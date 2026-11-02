@@ -30,10 +30,20 @@ const SCENIC_DIR = join(ROOT, 'public', 'data', 'scenic')
 /** 图床域名可用环境变量改：默认官方地址，改它是为了能在本地 mock 上跑通 */
 const UPLOAD_BASE = process.env.SCENIC_UPLOAD_BASE ?? 'https://upload.wikimedia.org'
 
-const UA = '3D-earth/1.0 (static study site)'
+// UA 带上仓库地址：Wikimedia 的 UA 政策要求能识别调用方
+const UA = '3D-earth/1.0 (https://github.com/Echovagant/3D-earth; static study site)'
 
 /** Windows 上是 curl.exe，Linux 上是 curl */
 const CURL = process.platform === 'win32' ? 'curl.exe' : 'curl'
+
+/**
+ * 两次下载之间的最小间隔：批量抓图同样会被 Wikimedia 限流，
+ * 与骨架脚本同一步调节奏。
+ */
+const MIN_REQUEST_GAP_MS = 500
+
+/** 上一次请求发出的时刻 */
+let lastRequestAt = 0
 
 /** 退避间隔：1s → 2s → 4s */
 const BACKOFF_MS = [1000, 2000, 4000]
@@ -161,18 +171,23 @@ export function jpegSize(buffer) {
 }
 
 /**
- * 带 UA 与重试的二进制 GET——与骨架脚本的 fetchWithRetry 同一套退避节奏。
+ * 带 UA、限流间隔与重试的二进制 GET——与骨架脚本的 fetchWithRetry 同一套节奏。
  *
- * 不直接复用它是因为那边按 UTF-8 文本解码，图片按文本解再转回缓冲区会坏；
- * 而本任务的文件清单里没有改骨架脚本的许可，所以在这里放一个二进制版。
+ * 不直接复用它是因为那边按 UTF-8 文本解码，图片按文本解再转回缓冲区会坏。
+ * --fail 让 HTTP 错误（429 限流、404 缺图）进重试退避，而不是把错误页当图片下载。
  */
 export function fetchBufferWithRetry(url, tries = 4) {
   let lastError = null
   for (let i = 0; i < tries; i += 1) {
+    const gap = MIN_REQUEST_GAP_MS - (Date.now() - lastRequestAt)
+    if (gap > 0) {
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, gap)
+    }
+    lastRequestAt = Date.now()
     try {
       const out = execFileSync(
         CURL,
-        ['-sS', '--max-time', String(REQUEST_TIMEOUT), '-H', `User-Agent: ${UA}`, url],
+        ['-sS', '--fail', '--max-time', String(REQUEST_TIMEOUT), '-H', `User-Agent: ${UA}`, url],
         { encoding: 'buffer', maxBuffer: 32 * 1024 * 1024, timeout: (REQUEST_TIMEOUT + 5) * 1000 },
       )
       if (out && out.length) return out

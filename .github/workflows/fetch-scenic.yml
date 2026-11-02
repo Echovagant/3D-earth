@@ -46,11 +46,12 @@ jobs:
         with:
           node-version: '22'
 
-      # 骨架抓取要 curl：Wikimedia 对 UA 敏感，带上真实 UA 的请求才不会被拒
+      # 抓骨架要 curl：请求间隔 500ms 防 Wikimedia 限流，125 个景区约 10–15 分钟，
+      # 时间预算放宽到 40 分钟（超预算的记进 failures，重跑会续）
       - name: 抓骨架
         run: |
           mkdir -p out
-          node scripts/fetch-scenic-skeleton.mjs --out out/scenic-skeleton.json ${{ inputs.provinces && format('--only {0}', inputs.provinces) || '' }}
+          node scripts/fetch-scenic-skeleton.mjs --out out/scenic-skeleton.json --budget 2400 ${{ inputs.provinces && format('--only {0}', inputs.provinces) || '' }}
           cp out/scenic-skeleton.json scenic-skeleton.json
 
       # 把骨架里的图片候选与许可灌进清单：只有白名单内的会写进去

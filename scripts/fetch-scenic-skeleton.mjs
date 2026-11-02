@@ -21,7 +21,8 @@ import { basename, dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { isAllowedLicense } from '../src/data/scenicRules.js'
 
-const UA = '3D-earth/1.0 (static study site)'
+// UA 带上仓库地址：Wikimedia 的 UA 政策要求能识别调用方，不带联系方式的 UA 更容易被限流
+const UA = '3D-earth/1.0 (https://github.com/Echovagant/3D-earth; static study site)'
 
 // 接口地址可用环境变量改：默认值就是官方地址，改它是为了能在本地 mock 上跑通整条流水线
 const API = process.env.WIKIDATA_API ?? 'https://www.wikidata.org/w/api.php'
@@ -37,6 +38,18 @@ const BACKOFF_MS = [1000, 2000, 4000]
 
 /** 单次请求的 curl 超时（秒） */
 const REQUEST_TIMEOUT = 25
+
+/**
+ * 两次请求之间的最小间隔。
+ *
+ * 实测（2026-11-01，GitHub runner）：一百多个景区零间隔连发，第 4 个请求起
+ * 就被 Wikimedia 限流（HTTP 429「You are making too many requests」）。
+ * 500ms 间隔（120 次/分钟）远低于读接口的阈值，代价是整轮多几分钟。
+ */
+const MIN_REQUEST_GAP_MS = 500
+
+/** 上一次请求发出的时刻：限流靠间隔控制，不在响应后再等 */
+let lastRequestAt = 0
 
 /** 实体编号的形状：Q + 数字 */
 const QID_PATTERN = /^Q\d+$/
@@ -64,14 +77,23 @@ function sleepSync(ms) {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms)
 }
 
-/** 带 UA 与重试的 GET——Wikimedia 会间歇性抽风 */
+/**
+ * 带 UA、限流间隔与重试的 GET。
+ *
+ * --fail 让 HTTP 错误（429 限流、5xx）走 curl 的失败路径：execFileSync 抛错、
+ * 进重试退避——不加它的话限流页会被当成功返回，JSON 解析才报错，重试没机会触发。
+ */
 export function fetchWithRetry(url, tries = 4) {
   let lastError = null
   for (let i = 0; i < tries; i += 1) {
+    // 距上次请求不足间隔就等一等：限流靠控制发出节奏，不靠失败后硬扛
+    const gap = MIN_REQUEST_GAP_MS - (Date.now() - lastRequestAt)
+    if (gap > 0) sleepSync(gap)
+    lastRequestAt = Date.now()
     try {
       const out = execFileSync(
         CURL,
-        ['-sS', '--max-time', String(REQUEST_TIMEOUT), '-H', `User-Agent: ${UA}`, url],
+        ['-sS', '--fail', '--max-time', String(REQUEST_TIMEOUT), '-H', `User-Agent: ${UA}`, url],
         { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024, timeout: (REQUEST_TIMEOUT + 5) * 1000 },
       )
       if (out && out.trim()) return out
