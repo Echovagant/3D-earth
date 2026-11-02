@@ -16,7 +16,18 @@
         25.99,
         105.67
       ],
-      "images": []
+      "images": [
+        {
+          "file": "6ce77def2a4b1af7.jpg",
+          "md5": "6ce77def2a4b1af7443bb1aef9c50f03",
+          "commonsPath": "6/69/黄果树瀑布_2026-07-31_01.jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "Kcx36",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E9%BB%84%E6%9E%9C%E6%A0%91%E7%80%91%E5%B8%83_2026-07-31_01.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/69/%E9%BB%84%E6%9E%9C%E6%A0%91%E7%80%91%E5%B8%83_2026-07-31_01.jpg/960px-%E9%BB%84%E6%9E%9C%E6%A0%91%E7%80%91%E5%B8%83_2026-07-31_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/69/%E9%BB%84%E6%9E%9C%E6%A0%91%E7%80%91%E5%B8%83_2026-07-31_01.jpg/330px-%E9%BB%84%E6%9E%9C%E6%A0%91%E7%80%91%E5%B8%83_2026-07-31_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "fanjingshan",
@@ -33,7 +44,18 @@
         27.91,
         108.68
       ],
-      "images": []
+      "images": [
+        {
+          "file": "",
+          "md5": "a5c464fe51bc122b9e40a515e6ffe500",
+          "commonsPath": "a/a5/梵淨山紅雲金頂（新金頂）.jpg",
+          "license": "CC BY-SA 3.0",
+          "author": "Mande5255881",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E6%A2%B5%E6%B7%A8%E5%B1%B1%E7%B4%85%E9%9B%B2%E9%87%91%E9%A0%82%EF%BC%88%E6%96%B0%E9%87%91%E9%A0%82%EF%BC%89.jpg",
+          "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a5/%E6%A2%B5%E6%B7%A8%E5%B1%B1%E7%B4%85%E9%9B%B2%E9%87%91%E9%A0%82%EF%BC%88%E6%96%B0%E9%87%91%E9%A0%82%EF%BC%89.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a5/%E6%A2%B5%E6%B7%A8%E5%B1%B1%E7%B4%85%E9%9B%B2%E9%87%91%E9%A0%82%EF%BC%88%E6%96%B0%E9%87%91%E9%A0%82%EF%BC%89.jpg/330px-%E6%A2%B5%E6%B7%A8%E5%B1%B1%E7%B4%85%E9%9B%B2%E9%87%91%E9%A0%82%EF%BC%88%E6%96%B0%E9%87%91%E9%A0%82%EF%BC%89.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "xijiang-miao",
@@ -50,7 +72,18 @@
         26.5,
         108.28
       ],
-      "images": []
+      "images": [
+        {
+          "file": "5cd640270f3f6c3a.jpg",
+          "md5": "5cd640270f3f6c3aa6a7ed7af9bd1948",
+          "commonsPath": "9/9a/Xijiang_Qianhu_Miaozhai.Skyline.jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "Popolon",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Xijiang_Qianhu_Miaozhai.Skyline.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9a/Xijiang_Qianhu_Miaozhai.Skyline.jpg/960px-Xijiang_Qianhu_Miaozhai.Skyline.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9a/Xijiang_Qianhu_Miaozhai.Skyline.jpg/330px-Xijiang_Qianhu_Miaozhai.Skyline.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "libo-xiaoqikong",

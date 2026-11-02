@@ -12,8 +12,22 @@
         "背后是依山而建的炮台和花园，前面是小广场和石阶",
         "想拍干净的牌坊，早上 9 点前或傍晚后"
       ],
-      "coords": [22.20, 113.54],
-      "images": []
+      "coords": [
+        22.2,
+        113.54
+      ],
+      "images": [
+        {
+          "file": "48727ec7f799933b.jpg",
+          "md5": "48727ec7f799933bbbb26cc71e6016ec",
+          "commonsPath": "9/9b/Cathedral_of_Saint_Paul_in_Macau,_2023_(04).jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "Bahnfrend",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Cathedral_of_Saint_Paul_in_Macau,_2023_(04).jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9b/Cathedral_of_Saint_Paul_in_Macau%2C_2023_%2804%29.jpg/960px-Cathedral_of_Saint_Paul_in_Macau%2C_2023_%2804%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9b/Cathedral_of_Saint_Paul_in_Macau%2C_2023_%2804%29.jpg/330px-Cathedral_of_Saint_Paul_in_Macau%2C_2023_%2804%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "mazhu-ge",
@@ -26,7 +40,10 @@
         "庙前的“妈阁斜巷”是条斜坡老街，两旁是彩色葡式住宅",
         "每年农历三月廿三妈祖诞，信众抬着妈祖像巡游"
       ],
-      "coords": [22.19, 113.53],
+      "coords": [
+        22.19,
+        113.53
+      ],
       "images": []
     },
     {
@@ -40,7 +57,10 @@
         "街巷用碎石铺成，两旁是黄白相间的葡式立面",
         "走一遍城区大概半天，从议事亭前地出发绕到妈阁庙"
       ],
-      "coords": [22.19, 113.54],
+      "coords": [
+        22.19,
+        113.54
+      ],
       "images": []
     },
     {
@@ -54,7 +74,10 @@
         "内部保留了葡式瓷砖、木地板和百叶窗",
         "周末常有市集和表演，早上人少适合拍照"
       ],
-      "coords": [22.15, 113.56],
+      "coords": [
+        22.15,
+        113.56
+      ],
       "images": []
     }
   ]

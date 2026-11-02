@@ -13,8 +13,22 @@
         "窟内严禁拍照，闪光灯会烧掉矿物颜料",
         "夏天限流，门票要提前网上抢"
       ],
-      "coords": [40.04, 94.81],
-      "images": []
+      "coords": [
+        40.04,
+        94.81
+      ],
+      "images": [
+        {
+          "file": "568d2adde36f5974.jpg",
+          "md5": "568d2adde36f597409ec482f9828fd68",
+          "commonsPath": "3/3f/Dunhuang_Mogao_Ku_2013.12.31_12-30-18.jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "Zhangzhugang",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Dunhuang_Mogao_Ku_2013.12.31_12-30-18.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3f/Dunhuang_Mogao_Ku_2013.12.31_12-30-18.jpg/960px-Dunhuang_Mogao_Ku_2013.12.31_12-30-18.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3f/Dunhuang_Mogao_Ku_2013.12.31_12-30-18.jpg/330px-Dunhuang_Mogao_Ku_2013.12.31_12-30-18.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "jiayuguan",
@@ -27,8 +41,22 @@
         "悬壁长城挂在黑山陡峭的山脊上，爬上去能俯视戈壁",
         "天下第一墩下面是讨赖河深谷，玻璃观景台探出去让人腿软"
       ],
-      "coords": [39.81, 98.29],
-      "images": []
+      "coords": [
+        39.81,
+        98.29
+      ],
+      "images": [
+        {
+          "file": "103ba14ed8eaff52.jpg",
+          "md5": "103ba14ed8eaff52cb542fe25d9762d1",
+          "commonsPath": "1/10/JiayuguanFort.jpg",
+          "license": "CC BY-SA 3.0",
+          "author": "User:Doron",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:JiayuguanFort.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/10/JiayuguanFort.jpg/960px-JiayuguanFort.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/10/JiayuguanFort.jpg/330px-JiayuguanFort.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "mingsha-yueyaquan",
@@ -41,7 +69,10 @@
         "坐骆驼队绕一圈，耳边是叮咚的驼铃",
         "傍晚夕阳斜照时最美，沙山背光处变冷蓝"
       ],
-      "coords": [40.10, 94.68],
+      "coords": [
+        40.1,
+        94.68
+      ],
       "images": []
     },
     {
@@ -55,7 +86,10 @@
         "清晨和傍晚光线斜照时颜色最饱和，正午去会灰扑扑的",
         "每个观景台之间要坐车，别指望徒步串"
       ],
-      "coords": [38.92, 100.14],
+      "coords": [
+        38.92,
+        100.14
+      ],
       "images": []
     }
   ]

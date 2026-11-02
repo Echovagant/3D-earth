@@ -16,7 +16,18 @@
         27.1,
         100.18
       ],
-      "images": []
+      "images": [
+        {
+          "file": "2201f98ee1b5f303.jpg",
+          "md5": "2201f98ee1b5f3037d25f202f3d59cb0",
+          "commonsPath": "d/dd/Yulong_Xueshan_08.JPG",
+          "license": "Public domain",
+          "author": "Brücke-Osteuropa",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Yulong_Xueshan_08.JPG",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/Yulong_Xueshan_08.JPG/960px-Yulong_Xueshan_08.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/Yulong_Xueshan_08.JPG/330px-Yulong_Xueshan_08.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "lijiang-oldtown",
@@ -33,7 +44,18 @@
         26.87,
         100.23
       ],
-      "images": []
+      "images": [
+        {
+          "file": "5750af9df27d0d72.jpg",
+          "md5": "5750af9df27d0d72a2217e29d9090051",
+          "commonsPath": "e/e2/1_lijiang_old_town_2012a.jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "chensiyuan",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:1_lijiang_old_town_2012a.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e2/1_lijiang_old_town_2012a.jpg/960px-1_lijiang_old_town_2012a.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e2/1_lijiang_old_town_2012a.jpg/330px-1_lijiang_old_town_2012a.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "shilin",
@@ -67,7 +89,18 @@
         25.71,
         100.14
       ],
-      "images": []
+      "images": [
+        {
+          "file": "c59321e1a5b74c09.jpg",
+          "md5": "c59321e1a5b74c097a2fcb8e1906b8f0",
+          "commonsPath": "0/0e/Three_Pagodas_from_bottom_view.JPG",
+          "license": "CC BY-SA 3.0",
+          "author": "Tdxiang at English Wikipedia",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Three_Pagodas_from_bottom_view.JPG",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/Three_Pagodas_from_bottom_view.JPG/960px-Three_Pagodas_from_bottom_view.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/Three_Pagodas_from_bottom_view.JPG/330px-Three_Pagodas_from_bottom_view.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }

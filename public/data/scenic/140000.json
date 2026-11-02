@@ -12,8 +12,22 @@
         "昙曜五窟鲜卑面孔",
         "清代木构大殿罩佛"
       ],
-      "coords": [40.1, 113.11],
-      "images": []
+      "coords": [
+        40.1,
+        113.11
+      ],
+      "images": [
+        {
+          "file": "df03a50d04792260.jpg",
+          "md5": "df03a50d0479226058a7f9b57887ec6a",
+          "commonsPath": "5/58/Yungang11_2010.JPG",
+          "license": "CC BY-SA 4.0",
+          "author": "Marcin Białek",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Yungang11_2010.JPG",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/58/Yungang11_2010.JPG/960px-Yungang11_2010.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/58/Yungang11_2010.JPG/330px-Yungang11_2010.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "pingyao-gucheng",
@@ -26,8 +40,22 @@
         "协同庆地下金库",
         "双林寺彩塑极品"
       ],
-      "coords": [37.2, 112.17],
-      "images": []
+      "coords": [
+        37.2,
+        112.17
+      ],
+      "images": [
+        {
+          "file": "f2a455698923fae4.jpg",
+          "md5": "f2a455698923fae46f373892b6026572",
+          "commonsPath": "9/9d/Pingyao_40.JPG",
+          "license": "CC BY-SA 3.0",
+          "author": "Nicor",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Pingyao_40.JPG",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9d/Pingyao_40.JPG/960px-Pingyao_40.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9d/Pingyao_40.JPG/330px-Pingyao_40.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "wutai-shan",
@@ -40,8 +68,22 @@
         "显通寺明代铜殿",
         "一天之内四季天气"
       ],
-      "coords": [39.05, 113.55],
-      "images": []
+      "coords": [
+        39.05,
+        113.55
+      ],
+      "images": [
+        {
+          "file": "4ce02f1ee57362f0.jpg",
+          "md5": "4ce02f1ee57362f065425107e0654533",
+          "commonsPath": "c/c1/Wutai_2009_431.jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "G41rn8",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Wutai_2009_431.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c1/Wutai_2009_431.jpg/960px-Wutai_2009_431.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c1/Wutai_2009_431.jpg/330px-Wutai_2009_431.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "xuankong-si",
@@ -53,8 +95,22 @@
         "三教殿儒释道同殿",
         "恒山金龙峡绝壁"
       ],
-      "coords": [39.67, 113.72],
-      "images": []
+      "coords": [
+        39.67,
+        113.72
+      ],
+      "images": [
+        {
+          "file": "d5e58163b859ee84.jpg",
+          "md5": "d5e58163b859ee8416eea1ceb8f97578",
+          "commonsPath": "d/d5/Xuankongsi.jpg",
+          "license": "Public domain",
+          "author": "BRUNNER Emmanuel (Manu25)",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Xuankongsi.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d5/Xuankongsi.jpg/960px-Xuankongsi.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d5/Xuankongsi.jpg/330px-Xuankongsi.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }

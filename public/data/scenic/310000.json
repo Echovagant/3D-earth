@@ -12,8 +12,22 @@
         "江边步道观景平台",
         "和平饭店与海关大楼"
       ],
-      "coords": [31.2397, 121.49],
-      "images": []
+      "coords": [
+        31.2397,
+        121.49
+      ],
+      "images": [
+        {
+          "file": "97b08f307b8e8dd0.jpg",
+          "md5": "97b08f307b8e8dd0b40c4cf6c3a73edb",
+          "commonsPath": "e/e0/Promenade_du_Bund.jpg",
+          "license": "CC BY-SA 3.0",
+          "author": "Georgio",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Promenade_du_Bund.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e0/Promenade_du_Bund.jpg/960px-Promenade_du_Bund.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e0/Promenade_du_Bund.jpg/330px-Promenade_du_Bund.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "yuyuan",
@@ -26,8 +40,22 @@
         "南翔馒头店蟹粉小笼",
         "春节灯会"
       ],
-      "coords": [31.2273, 121.4928],
-      "images": []
+      "coords": [
+        31.2273,
+        121.4928
+      ],
+      "images": [
+        {
+          "file": "f27c3b32d6ec4a65.jpg",
+          "md5": "f27c3b32d6ec4a65e39369d005290021",
+          "commonsPath": "a/a1/2024-Apr_Shanghai_Yu_Yuan_Garden_豫园_-_img_20.jpg",
+          "license": "CC BY 4.0",
+          "author": "Chainwit.",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:2024-Apr_Shanghai_Yu_Yuan_Garden_%E8%B1%AB%E5%9B%AD_-_img_20.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a1/2024-Apr_Shanghai_Yu_Yuan_Garden_%E8%B1%AB%E5%9B%AD_-_img_20.jpg/960px-2024-Apr_Shanghai_Yu_Yuan_Garden_%E8%B1%AB%E5%9B%AD_-_img_20.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a1/2024-Apr_Shanghai_Yu_Yuan_Garden_%E8%B1%AB%E5%9B%AD_-_img_20.jpg/330px-2024-Apr_Shanghai_Yu_Yuan_Garden_%E8%B1%AB%E5%9B%AD_-_img_20.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "disneyland-shanghai",
@@ -40,8 +68,22 @@
         "下午花车巡游",
         "城堡前烟花秀"
       ],
-      "coords": [31.1434, 121.6577],
-      "images": []
+      "coords": [
+        31.1434,
+        121.6577
+      ],
+      "images": [
+        {
+          "file": "b9819af8bb71dd63.jpg",
+          "md5": "b9819af8bb71dd6323b0a3512deebb22",
+          "commonsPath": "b/b9/上海迪士尼乐园奇幻童话城堡正面.jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "MasaneMiyaPA",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E4%B8%8A%E6%B5%B7%E8%BF%AA%E5%A3%AB%E5%B0%BC%E4%B9%90%E5%9B%AD%E5%A5%87%E5%B9%BB%E7%AB%A5%E8%AF%9D%E5%9F%8E%E5%A0%A1%E6%AD%A3%E9%9D%A2.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/%E4%B8%8A%E6%B5%B7%E8%BF%AA%E5%A3%AB%E5%B0%BC%E4%B9%90%E5%9B%AD%E5%A5%87%E5%B9%BB%E7%AB%A5%E8%AF%9D%E5%9F%8E%E5%A0%A1%E6%AD%A3%E9%9D%A2.jpg/960px-%E4%B8%8A%E6%B5%B7%E8%BF%AA%E5%A3%AB%E5%B0%BC%E4%B9%90%E5%9B%AD%E5%A5%87%E5%B9%BB%E7%AB%A5%E8%AF%9D%E5%9F%8E%E5%A0%A1%E6%AD%A3%E9%9D%A2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/%E4%B8%8A%E6%B5%B7%E8%BF%AA%E5%A3%AB%E5%B0%BC%E4%B9%90%E5%9B%AD%E5%A5%87%E5%B9%BB%E7%AB%A5%E8%AF%9D%E5%9F%8E%E5%A0%A1%E6%AD%A3%E9%9D%A2.jpg/330px-%E4%B8%8A%E6%B5%B7%E8%BF%AA%E5%A3%AB%E5%B0%BC%E4%B9%90%E5%9B%AD%E5%A5%87%E5%B9%BB%E7%AB%A5%E8%AF%9D%E5%9F%8E%E5%A0%A1%E6%AD%A3%E9%9D%A2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }

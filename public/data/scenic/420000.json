@@ -12,8 +12,22 @@
         "崔颢题诗黄鹤楼故事",
         "毗邻户部巷热干面"
       ],
-      "coords": [30.5456, 114.3027],
-      "images": []
+      "coords": [
+        30.5456,
+        114.3027
+      ],
+      "images": [
+        {
+          "file": "586bbb5b3151218b.jpg",
+          "md5": "586bbb5b3151218be65d2f7f75598e56",
+          "commonsPath": "7/7f/CN_-_Hubei_-_Wuhan_-_Kranichpagode.jpg",
+          "license": "CC BY-SA 3.0",
+          "author": "MonsieurRoi",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:CN_-_Hubei_-_Wuhan_-_Kranichpagode.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7f/CN_-_Hubei_-_Wuhan_-_Kranichpagode.jpg/960px-CN_-_Hubei_-_Wuhan_-_Kranichpagode.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7f/CN_-_Hubei_-_Wuhan_-_Kranichpagode.jpg/330px-CN_-_Hubei_-_Wuhan_-_Kranichpagode.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "wudangshan",
@@ -26,8 +40,22 @@
         "武当武术与道茶体验",
         "古神道数十座宫观串联"
       ],
-      "coords": [32.4055, 111.001],
-      "images": []
+      "coords": [
+        32.4055,
+        111.001
+      ],
+      "images": [
+        {
+          "file": "e23510aea8059dd8.jpg",
+          "md5": "e23510aea8059dd8a2572b7a0a4a45c3",
+          "commonsPath": "4/4d/Wudangshan_2003_10.jpg",
+          "license": "Public domain",
+          "author": "",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Wudangshan_2003_10.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4d/Wudangshan_2003_10.jpg/960px-Wudangshan_2003_10.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4d/Wudangshan_2003_10.jpg/330px-Wudangshan_2003_10.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "sanxia-dam",
@@ -40,8 +68,22 @@
         "185平台截流纪念园",
         "上游三峡水库烟波浩渺"
       ],
-      "coords": [30.8254, 111.0048],
-      "images": []
+      "coords": [
+        30.8254,
+        111.0048
+      ],
+      "images": [
+        {
+          "file": "abb50afdf5c208ea.jpg",
+          "md5": "abb50afdf5c208ead59172417325e795",
+          "commonsPath": "a/ab/ThreeGorgesDam-China2009.jpg",
+          "license": "CC BY 2.0",
+          "author": "Source file: Le Grand Portage Derivative work: Rehman",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:ThreeGorgesDam-China2009.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ab/ThreeGorgesDam-China2009.jpg/960px-ThreeGorgesDam-China2009.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ab/ThreeGorgesDam-China2009.jpg/330px-ThreeGorgesDam-China2009.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }

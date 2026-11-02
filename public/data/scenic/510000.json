@@ -6,8 +6,15 @@
       "name": "九寨沟",
       "level": "5A",
       "summary": "九寨沟的水是这里的灵魂，一百零八个海子（高山湖泊）串成一条线，每个的颜色都不一样——有的像翡翠，有的像靛蓝，有的像牛奶。原因是水底的钙化沉积和光线散射，加上水深不同，颜色就分层了。诺日朗瀑布从两百多米宽的钙化台上倾下来，水雾在太阳下能看见彩虹。五花海是精华，水底的枯树和钙化在光下像一座水下森林，倒影比实景还清楚。珍珠滩瀑布是另一处必看，水顺着钙化滩流下来，溅起的水珠在光下像碎银子。建议从沟口进去坐观光车到诺日朗，再一路走下来，一天刚好。",
-      "highlights": ["五花海的水下森林", "诺日朗瀑布与钙化台", "一百零八个海子"],
-      "coords": [33.26, 103.92],
+      "highlights": [
+        "五花海的水下森林",
+        "诺日朗瀑布与钙化台",
+        "一百零八个海子"
+      ],
+      "coords": [
+        33.26,
+        103.92
+      ],
       "images": [
         {
           "file": "f4056e7413ed0bc6.jpg",
@@ -16,7 +23,8 @@
           "license": "CC BY-SA 4.0",
           "author": "Chensiyuan",
           "sourceUrl": "https://commons.wikimedia.org/wiki/File:1_nuorilang_jiuzhaigou_2023.jpg",
-          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ef/1_nuorilang_jiuzhaigou_2023.jpg/960px-1_nuorilang_jiuzhaigou_2023.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ef/1_nuorilang_jiuzhaigou_2023.jpg/960px-1_nuorilang_jiuzhaigou_2023.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ef/1_nuorilang_jiuzhaigou_2023.jpg/330px-1_nuorilang_jiuzhaigou_2023.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
         }
       ]
     },
@@ -25,8 +33,15 @@
       "name": "都江堰",
       "level": "5A",
       "summary": "都江堰是两千多年前李冰父子主持修建的水利工程，直到今天还在灌溉成都平原，是现存最古老的无坝水利工程。鱼嘴把岷江分成内江和外江，四六分水、二八分洪，枯水期六成水进内江灌溉，洪水期八成水走外江泄洪。飞沙堰利用弯道环流把泥沙排到外江，宝瓶口控制进水流量，三个部分配合得严丝合缝，没有大坝却能防洪灌溉，靠的是顺应自然而非对抗自然。站在鱼嘴看江水分流，再走安澜索桥到二王庙，沿途能看见江水在不同季节的变化。半天能走完，出来还可以顺路看南桥夜景。",
-      "highlights": ["鱼嘴分水", "飞沙堰排沙", "宝瓶口控流"],
-      "coords": [31, 103.62],
+      "highlights": [
+        "鱼嘴分水",
+        "飞沙堰排沙",
+        "宝瓶口控流"
+      ],
+      "coords": [
+        31,
+        103.62
+      ],
       "images": [
         {
           "file": "d3c2f764c7e622c7.jpg",
@@ -35,7 +50,8 @@
           "license": "CC BY-SA 4.0",
           "author": "星星",
           "sourceUrl": "https://commons.wikimedia.org/wiki/File:Dujiang_Weir.jpg",
-          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a7/Dujiang_Weir.jpg/960px-Dujiang_Weir.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a7/Dujiang_Weir.jpg/960px-Dujiang_Weir.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a7/Dujiang_Weir.jpg/330px-Dujiang_Weir.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
         }
       ]
     },
@@ -44,8 +60,15 @@
       "name": "稻城亚丁",
       "level": "5A",
       "summary": "稻城亚丁在川西高原，海拔四千米以上，三座神山——仙乃日、央迈勇、夏诺多吉——终年积雪，被藏民奉为圣山。牛奶海和五色海是两个高山海子，湖水在阳光下会变幻颜色，五色海的蓝像被过滤过一样，阴天就暗下去。从洛绒牛场骑马到牛奶海要三个多小时，也可以徒步，沿途经过草甸和溪流。海拔高，走路要慢，氧气稀薄，建议带氧气瓶和葡萄糖。秋天是最好季节，彩林配雪山，摄影天堂；春天杜鹃花开，又是另一种色彩。香格里拉镇海拔较低，住那里比住景区内更舒服。",
-      "highlights": ["三座神山", "牛奶海与五色海", "洛绒牛场徒步"],
-      "coords": [29, 100.3],
+      "highlights": [
+        "三座神山",
+        "牛奶海与五色海",
+        "洛绒牛场徒步"
+      ],
+      "coords": [
+        29,
+        100.3
+      ],
       "images": [
         {
           "file": "347ab7efb8a7420f.jpg",
@@ -54,7 +77,8 @@
           "license": "CC BY-SA 4.0",
           "author": "Dcpeets",
           "sourceUrl": "https://commons.wikimedia.org/wiki/File:Yading_Jampelyang-Yangmaiyong.jpg",
-          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/03/Yading_Jampelyang-Yangmaiyong.jpg/960px-Yading_Jampelyang-Yangmaiyong.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/03/Yading_Jampelyang-Yangmaiyong.jpg/960px-Yading_Jampelyang-Yangmaiyong.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/03/Yading_Jampelyang-Yangmaiyong.jpg/330px-Yading_Jampelyang-Yangmaiyong.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
         }
       ]
     }

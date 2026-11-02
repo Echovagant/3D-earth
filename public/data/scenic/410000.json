@@ -12,8 +12,22 @@
         "伊河两岸栈道全程",
         "毗邻白园香山寺"
       ],
-      "coords": [34.5491, 112.469],
-      "images": []
+      "coords": [
+        34.5491,
+        112.469
+      ],
+      "images": [
+        {
+          "file": "ed59db26f69a17a3.jpg",
+          "md5": "ed59db26f69a17a35d07c463407241bf",
+          "commonsPath": "b/b6/Longmen_Grottoes_3.jpg",
+          "license": "CC BY-SA 3.0",
+          "author": "Rialfver Original uploader was Rialfver at nl.wikipedia",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Longmen_Grottoes_3.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b6/Longmen_Grottoes_3.jpg/960px-Longmen_Grottoes_3.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b6/Longmen_Grottoes_3.jpg/330px-Longmen_Grottoes_3.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "shaolinsi",
@@ -26,8 +40,22 @@
         "武术馆少林拳兵器表演",
         "少室山三皇寨徒步串联"
       ],
-      "coords": [34.5123, 112.935],
-      "images": []
+      "coords": [
+        34.5123,
+        112.935
+      ],
+      "images": [
+        {
+          "file": "098c5fcb234e0ca7.jpg",
+          "md5": "098c5fcb234e0ca71a0ce8246caa166a",
+          "commonsPath": "0/09/Shaolinsi.JPG",
+          "license": "CC BY-SA 3.0",
+          "author": "User:Yaoleilei",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Shaolinsi.JPG",
+          "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/0/09/Shaolinsi.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/09/Shaolinsi.JPG/330px-Shaolinsi.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "songshan",
@@ -40,8 +68,22 @@
         "嵩阳书院将军柏",
         "中岳庙汉代石阙唐代石刻"
       ],
-      "coords": [34.4978, 112.8068],
-      "images": []
+      "coords": [
+        34.4978,
+        112.8068
+      ],
+      "images": [
+        {
+          "file": "bb35150edb8787c0.jpg",
+          "md5": "bb35150edb8787c067f937c0617f4a6e",
+          "commonsPath": "b/bb/Songshan.JPG",
+          "license": "Public domain",
+          "author": "张骐",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Songshan.JPG",
+          "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/b/bb/Songshan.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bb/Songshan.JPG/330px-Songshan.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }

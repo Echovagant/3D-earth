@@ -12,7 +12,10 @@
         "锦绣谷仙人洞天然峡谷",
         "牯岭镇近代别墅群"
       ],
-      "coords": [29.558, 115.9875],
+      "coords": [
+        29.558,
+        115.9875
+      ],
       "images": []
     },
     {
@@ -26,7 +29,10 @@
         "李坑晓起思溪延村古村",
         "白墙黑瓦徽派民居嵌花田"
       ],
-      "coords": [29.2487, 117.8622],
+      "coords": [
+        29.2487,
+        117.8622
+      ],
       "images": []
     },
     {
@@ -40,8 +46,22 @@
         "龙潭五潭十八瀑",
         "红色景点与自然风光并存"
       ],
-      "coords": [26.5774, 114.173],
-      "images": []
+      "coords": [
+        26.5774,
+        114.173
+      ],
+      "images": [
+        {
+          "file": "911e13d174b32af5.jpg",
+          "md5": "911e13d174b32af5aebd0451a424c61f",
+          "commonsPath": "c/c7/Wuzhi_Peak,_Jinggangshan_(20250124122509).jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "N509FZ",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Wuzhi_Peak,_Jinggangshan_(20250124122509).jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/Wuzhi_Peak%2C_Jinggangshan_%2820250124122509%29.jpg/960px-Wuzhi_Peak%2C_Jinggangshan_%2820250124122509%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/Wuzhi_Peak%2C_Jinggangshan_%2820250124122509%29.jpg/330px-Wuzhi_Peak%2C_Jinggangshan_%2820250124122509%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }

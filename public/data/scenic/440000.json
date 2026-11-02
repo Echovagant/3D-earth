@@ -16,7 +16,18 @@
         25.02,
         113.75
       ],
-      "images": []
+      "images": [
+        {
+          "file": "d65092f505ad50bd.jpg",
+          "md5": "d65092f505ad50bd5455f97ca5a162d7",
+          "commonsPath": "e/e3/锦石岩寺_3.jpg",
+          "license": "CC0",
+          "author": "Mx. Granger",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E9%94%A6%E7%9F%B3%E5%B2%A9%E5%AF%BA_3.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e3/%E9%94%A6%E7%9F%B3%E5%B2%A9%E5%AF%BA_3.jpg/960px-%E9%94%A6%E7%9F%B3%E5%B2%A9%E5%AF%BA_3.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e3/%E9%94%A6%E7%9F%B3%E5%B2%A9%E5%AF%BA_3.jpg/330px-%E9%94%A6%E7%9F%B3%E5%B2%A9%E5%AF%BA_3.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "kaiping-diaolou",
@@ -33,7 +44,18 @@
         22.36,
         112.56
       ],
-      "images": []
+      "images": [
+        {
+          "file": "366328e00ab1441d.jpg",
+          "md5": "366328e00ab1441d893c71083f215a87",
+          "commonsPath": "3/3a/Zili_Village_Yunhuan_Lou_0005.jpg",
+          "license": "CC BY-SA 3.0",
+          "author": "Stefan Fussan",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Zili_Village_Yunhuan_Lou_0005.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3a/Zili_Village_Yunhuan_Lou_0005.jpg/960px-Zili_Village_Yunhuan_Lou_0005.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3a/Zili_Village_Yunhuan_Lou_0005.jpg/330px-Zili_Village_Yunhuan_Lou_0005.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "chenjiaci",

@@ -11,8 +11,22 @@
         "大政殿十王亭八旗格局",
         "北京故宫看不到的馆藏"
       ],
-      "coords": [41.79, 123.45],
-      "images": []
+      "coords": [
+        41.79,
+        123.45
+      ],
+      "images": [
+        {
+          "file": "0387375cf8c2ce4d.jpg",
+          "md5": "0387375cf8c2ce4dbdec7c2b1be7f6dc",
+          "commonsPath": "6/65/Mukden_Palace_drone_view_5_(cropped_&_rotated).jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "Techyan",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mukden_Palace_drone_view_5_(cropped_%26_rotated).jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/65/Mukden_Palace_drone_view_5_%28cropped_%26_rotated%29.jpg/960px-Mukden_Palace_drone_view_5_%28cropped_%26_rotated%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/65/Mukden_Palace_drone_view_5_%28cropped_%26_rotated%29.jpg/330px-Mukden_Palace_drone_view_5_%28cropped_%26_rotated%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "qianshan",
@@ -24,7 +38,10 @@
         "天上天一线天石阶",
         "仙人台望辽河平原"
       ],
-      "coords": [41.03, 123.1],
+      "coords": [
+        41.03,
+        123.1
+      ],
       "images": []
     },
     {
@@ -37,8 +54,22 @@
         "海兽馆喂海豹",
         "滨海栈道看日落"
       ],
-      "coords": [38.88, 121.71],
-      "images": []
+      "coords": [
+        38.88,
+        121.71
+      ],
+      "images": [
+        {
+          "file": "e20d2e4e3ced4155.jpg",
+          "md5": "e20d2e4e3ced415555d42b06df38aa77",
+          "commonsPath": "8/8d/Dalian_Laohutan_Ocean_Park.JPG",
+          "license": "CC BY-SA 3.0",
+          "author": "User:Sinopitt",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Dalian_Laohutan_Ocean_Park.JPG",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8d/Dalian_Laohutan_Ocean_Park.JPG/960px-Dalian_Laohutan_Ocean_Park.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8d/Dalian_Laohutan_Ocean_Park.JPG/330px-Dalian_Laohutan_Ocean_Park.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "jinshitan",
@@ -50,8 +81,22 @@
         "海蚀崖奇石地质公园",
         "恐龙探海天然石像"
       ],
-      "coords": [39.08, 121.95],
-      "images": []
+      "coords": [
+        39.08,
+        121.95
+      ],
+      "images": [
+        {
+          "file": "a7cbd4c575dad5f1.jpg",
+          "md5": "a7cbd4c575dad5f1791b2d7724828982",
+          "commonsPath": "a/a7/金石滩2.jpg",
+          "license": "CC BY 4.0",
+          "author": "红烧腰果",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E9%87%91%E7%9F%B3%E6%BB%A92.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a7/%E9%87%91%E7%9F%B3%E6%BB%A92.jpg/960px-%E9%87%91%E7%9F%B3%E6%BB%A92.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a7/%E9%87%91%E7%9F%B3%E6%BB%A92.jpg/330px-%E9%87%91%E7%9F%B3%E6%BB%A92.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }

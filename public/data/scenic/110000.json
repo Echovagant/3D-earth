@@ -6,8 +6,15 @@
       "name": "故宫",
       "level": "5A",
       "summary": "故宫是明清两代的皇宫，世界上现存规模最大的木结构宫殿建筑群。九千多间房屋沿中轴线铺开，从午门到神武门，黄瓦红墙，重檐叠脊，每一步都踩在六百年的皇权中轴上。建筑分外朝和内廷两大部分，太和、中和、保和三大殿坐镇外朝，是举行大典的地方；乾清宫、交泰殿、坤宁宫组成内廷后三宫，是帝王起居之所。必看三大殿的台基与斗拱、乾清宫的宝座、钟表馆里乾隆年间的西洋机械。珍宝馆藏的金瓯永固杯和大禹治水玉山值得单独看。旺季人多，建议早上第一批进场，先走中轴线再拐去东西六宫，绕开人流。",
-      "highlights": ["太和殿与中轴线", "钟表馆与珍宝馆", "东西六宫与御花园"],
-      "coords": [39.9163, 116.3972],
+      "highlights": [
+        "太和殿与中轴线",
+        "钟表馆与珍宝馆",
+        "东西六宫与御花园"
+      ],
+      "coords": [
+        39.9163,
+        116.3972
+      ],
       "images": [
         {
           "file": "5a5598f2f107521b.jpg",
@@ -36,8 +43,15 @@
       "name": "颐和园",
       "level": "5A",
       "summary": "颐和园是清代皇家园林，以昆明湖和万寿山为骨架，借西山与玉泉山的远山入景，是中国古典园林的集大成者。长廊七百多米，梁上画了上万幅彩画，走一遍像翻了一遍画册，每一幅都不重样。万寿山上的佛香阁是制高点，登上去能看见整个湖面和远处的西山，风大的时候檐角的铜铃会响。昆明湖上可以划船，十七孔桥的石狮子在夕阳下特别出片，桥洞透出的光一线一线的。建议从北宫门进，先爬万寿山再沿湖走长廊，最后从东宫门出，半天刚好，不走回头路。",
-      "highlights": ["万寿山与佛香阁", "长廊彩画", "昆明湖与十七孔桥"],
-      "coords": [39.9975, 116.2665],
+      "highlights": [
+        "万寿山与佛香阁",
+        "长廊彩画",
+        "昆明湖与十七孔桥"
+      ],
+      "coords": [
+        39.9975,
+        116.2665
+      ],
       "images": [
         {
           "file": "2a07356d47dc810c.jpg",
@@ -56,8 +70,15 @@
       "name": "天坛",
       "level": "5A",
       "summary": "天坛是明清两代祭天的地方，建筑群比故宫还大，但色调是蓝的——祈年殿的三重蓝琉璃檐、圜丘的青白石台，整个园子都在讲「天」。祈年殿不用一根铁钉，全靠木构件搭起来，内部四根龙凤柱撑着藻井，是中国古代木构的教科书，顶上的鎏金宝顶在晴天格外耀眼。圜丘站在中心说话，声音像被放大了一样，因为台基的声学设计，皇帝当年在这里祭天，声音顺着台基传到四周。丹陛桥和皇穹宇的回音壁也是必看，站在回音壁一头轻声说话，另一头能听得清清楚楚。建议从南门进，沿中轴线一路向北走完。",
-      "highlights": ["祈年殿的三重檐", "圜丘的声学设计", "回音壁与丹陛桥"],
-      "coords": [39.8822, 116.4066],
+      "highlights": [
+        "祈年殿的三重檐",
+        "圜丘的声学设计",
+        "回音壁与丹陛桥"
+      ],
+      "coords": [
+        39.8822,
+        116.4066
+      ],
       "images": [
         {
           "file": "7a9277e9eaaaf581.jpg",
@@ -66,7 +87,8 @@
           "license": "CC BY-SA 4.0",
           "author": "Shujianyang",
           "sourceUrl": "https://commons.wikimedia.org/wiki/File:Temple_of_Heaven_20160323_01.jpg",
-          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5f/Temple_of_Heaven_20160323_01.jpg/960px-Temple_of_Heaven_20160323_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5f/Temple_of_Heaven_20160323_01.jpg/960px-Temple_of_Heaven_20160323_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5f/Temple_of_Heaven_20160323_01.jpg/330px-Temple_of_Heaven_20160323_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
         }
       ]
     }

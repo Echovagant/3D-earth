@@ -11,7 +11,10 @@
         "500米冰滑梯",
         "零下二十度夜景"
       ],
-      "coords": [45.81, 126.58],
+      "coords": [
+        45.81,
+        126.58
+      ],
       "images": []
     },
     {
@@ -25,8 +28,22 @@
         "火山口地下森林",
         "冬天冰瀑"
       ],
-      "coords": [44.35, 128.83],
-      "images": []
+      "coords": [
+        44.35,
+        128.83
+      ],
+      "images": [
+        {
+          "file": "e345be10b64d2142.jpg",
+          "md5": "e345be10b64d214206667909b06f8b06",
+          "commonsPath": "1/11/Jingpo_Lake_Maogong_Mountain.JPG",
+          "license": "CC BY-SA 3.0",
+          "author": "Tlrmq",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Jingpo_Lake_Maogong_Mountain.JPG",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/11/Jingpo_Lake_Maogong_Mountain.JPG/960px-Jingpo_Lake_Maogong_Mountain.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/11/Jingpo_Lake_Maogong_Mountain.JPG/330px-Jingpo_Lake_Maogong_Mountain.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "wudalianchi",
@@ -39,7 +56,10 @@
         "冷矿泉打水",
         "老黑山看五池"
       ],
-      "coords": [48.68, 126.09],
+      "coords": [
+        48.68,
+        126.09
+      ],
       "images": []
     },
     {
@@ -52,7 +72,10 @@
         "雪博会雪雕巨阵",
         "夏天湿地栈道"
       ],
-      "coords": [45.79, 126.59],
+      "coords": [
+        45.79,
+        126.59
+      ],
       "images": []
     }
   ]

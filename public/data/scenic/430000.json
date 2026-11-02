@@ -33,7 +33,18 @@
         29.37,
         113.1
       ],
-      "images": []
+      "images": [
+        {
+          "file": "f3bd6c83c4b3ee26.jpg",
+          "md5": "f3bd6c83c4b3ee26efa6e3f302ca0b6f",
+          "commonsPath": "1/1b/Frontal_view_of_Yueyang_Tower,_Hunan,_China1.jpg",
+          "license": "CC0",
+          "author": "Huangdan2060",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Frontal_view_of_Yueyang_Tower,_Hunan,_China1.jpg",
+          "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1b/Frontal_view_of_Yueyang_Tower%2C_Hunan%2C_China1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1b/Frontal_view_of_Yueyang_Tower%2C_Hunan%2C_China1.jpg/330px-Frontal_view_of_Yueyang_Tower%2C_Hunan%2C_China1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "fenghuang-guchen",
@@ -50,7 +61,18 @@
         27.95,
         109.59
       ],
-      "images": []
+      "images": [
+        {
+          "file": "126b09242a48cb21.jpg",
+          "md5": "126b09242a48cb21764322d4f7bbe8f3",
+          "commonsPath": "d/d9/凤凰古城东城门_-_panoramio.jpg",
+          "license": "CC BY 3.0",
+          "author": "江上清风1961",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E5%87%A4%E5%87%B0%E5%8F%A4%E5%9F%8E%E4%B8%9C%E5%9F%8E%E9%97%A8_-_panoramio.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/%E5%87%A4%E5%87%B0%E5%8F%A4%E5%9F%8E%E4%B8%9C%E5%9F%8E%E9%97%A8_-_panoramio.jpg/960px-%E5%87%A4%E5%87%B0%E5%8F%A4%E5%9F%8E%E4%B8%9C%E5%9F%8E%E9%97%A8_-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/%E5%87%A4%E5%87%B0%E5%8F%A4%E5%9F%8E%E4%B8%9C%E5%9F%8E%E9%97%A8_-_panoramio.jpg/330px-%E5%87%A4%E5%87%B0%E5%8F%A4%E5%9F%8E%E4%B8%9C%E5%9F%8E%E9%97%A8_-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "shaoshan",

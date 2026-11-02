@@ -16,7 +16,18 @@
         18.3,
         109.45
       ],
-      "images": []
+      "images": [
+        {
+          "file": "73e172e5d74032f7.jpg",
+          "md5": "73e172e5d74032f7906af33de23ef189",
+          "commonsPath": "6/6e/Beach_of_Tianya-Haijiao_near_Tianya_Rock_(20230325134441).jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "N509FZ",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Beach_of_Tianya-Haijiao_near_Tianya_Rock_(20230325134441).jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6e/Beach_of_Tianya-Haijiao_near_Tianya_Rock_%2820230325134441%29.jpg/960px-Beach_of_Tianya-Haijiao_near_Tianya_Rock_%2820230325134441%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6e/Beach_of_Tianya-Haijiao_near_Tianya_Rock_%2820230325134441%29.jpg/330px-Beach_of_Tianya-Haijiao_near_Tianya_Rock_%2820230325134441%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "nanshan-culture",
@@ -33,7 +44,18 @@
         18.3,
         109.25
       ],
-      "images": []
+      "images": [
+        {
+          "file": "",
+          "md5": "5c35a4cdf854275fe91dbd3da3002056",
+          "commonsPath": "c/c1/Guan_Yin_of_the_South_Sea_of_Sanya.JPG",
+          "license": "CC BY-SA 3.0",
+          "author": "Jazon88",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Guan_Yin_of_the_South_Sea_of_Sanya.JPG",
+          "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c1/Guan_Yin_of_the_South_Sea_of_Sanya.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c1/Guan_Yin_of_the_South_Sea_of_Sanya.JPG/330px-Guan_Yin_of_the_South_Sea_of_Sanya.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "yanoda-rainforest",
@@ -67,7 +89,18 @@
         18.31,
         109.77
       ],
-      "images": []
+      "images": [
+        {
+          "file": "dd85732e9b414928.jpg",
+          "md5": "dd85732e9b414928cc78dd6cf2b7e828",
+          "commonsPath": "d/dd/Wuzhizhou-Island.jpg",
+          "license": "CC BY-SA 3.0",
+          "author": "Jarling",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Wuzhizhou-Island.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/Wuzhizhou-Island.jpg/960px-Wuzhizhou-Island.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/Wuzhizhou-Island.jpg/330px-Wuzhizhou-Island.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }

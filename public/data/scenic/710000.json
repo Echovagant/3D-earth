@@ -12,7 +12,10 @@
         "玄光寺在半山腰能俯瞰全湖，吃茶叶蛋是这里的名场面",
         "每年秋天的泳渡日月潭是盛事，人多到要提前订房"
       ],
-      "coords": [23.86, 120.92],
+      "coords": [
+        23.86,
+        120.92
+      ],
       "images": []
     },
     {
@@ -26,7 +29,10 @@
         "神木现在已经不开放走近，但红桧巨木仍让人咋舌",
         "看日出要住山上或凌晨搭祝山线小火车，云海多在清晨和雨后"
       ],
-      "coords": [23.51, 120.80],
+      "coords": [
+        23.51,
+        120.8
+      ],
       "images": []
     },
     {
@@ -40,8 +46,22 @@
         "肉形石看起来像一块红烧肉，其实是玛瑙",
         "展览常年轮换，值得泡一整天，周一闭馆"
       ],
-      "coords": [25.12, 121.55],
-      "images": []
+      "coords": [
+        25.12,
+        121.55
+      ],
+      "images": [
+        {
+          "file": "4589f8c3e27faa6e.jpg",
+          "md5": "4589f8c3e27faa6e691849888e6e79a0",
+          "commonsPath": "b/b4/NationalPalace_MuseumFrontView.jpg",
+          "license": "CC BY 3.0",
+          "author": "Peellden",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:NationalPalace_MuseumFrontView.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b4/NationalPalace_MuseumFrontView.jpg/960px-NationalPalace_MuseumFrontView.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b4/NationalPalace_MuseumFrontView.jpg/330px-NationalPalace_MuseumFrontView.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "tailuge",
@@ -54,8 +74,22 @@
         "从长春祠到燕子口有一段步道贴着崖壁开凿，脚下就是湍急的溪水",
         "夏季注意落石和台风，暴雨后常封闭"
       ],
-      "coords": [24.17, 121.47],
-      "images": []
+      "coords": [
+        24.17,
+        121.47
+      ],
+      "images": [
+        {
+          "file": "",
+          "md5": "bcef39e62b1caab5744ce23afc66b018",
+          "commonsPath": "6/67/Tribe_Batolan_chief-general_Kala_Watan_and_his_fellow.jpg",
+          "license": "Public domain",
+          "author": "Unknown authorUnknown author",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tribe_Batolan_chief-general_Kala_Watan_and_his_fellow.jpg",
+          "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/6/67/Tribe_Batolan_chief-general_Kala_Watan_and_his_fellow.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/67/Tribe_Batolan_chief-general_Kala_Watan_and_his_fellow.jpg/330px-Tribe_Batolan_chief-general_Kala_Watan_and_his_fellow.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }

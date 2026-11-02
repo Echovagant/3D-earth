@@ -12,8 +12,22 @@
         "黑马河是看日出的最佳位置，早上湖面雾气和朝霞混在一起",
         "鸟岛春夏季是候鸟繁殖地，鸟多到遮天蔽日"
       ],
-      "coords": [36.56, 100.17],
-      "images": []
+      "coords": [
+        36.56,
+        100.17
+      ],
+      "images": [
+        {
+          "file": "c40ce4919e6fad84.jpg",
+          "md5": "c40ce4919e6fad84c49f1a6d0d247b89",
+          "commonsPath": "c/c4/青海湖航拍.jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "三猎",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E9%9D%92%E6%B5%B7%E6%B9%96%E8%88%AA%E6%8B%8D.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c4/%E9%9D%92%E6%B5%B7%E6%B9%96%E8%88%AA%E6%8B%8D.jpg/960px-%E9%9D%92%E6%B5%B7%E6%B9%96%E8%88%AA%E6%8B%8D.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c4/%E9%9D%92%E6%B5%B7%E6%B9%96%E8%88%AA%E6%8B%8D.jpg/330px-%E9%9D%92%E6%B5%B7%E6%B9%96%E8%88%AA%E6%8B%8D.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "chaka-salt-lake",
@@ -26,8 +40,22 @@
         "穿红黄等亮色衣服出片，千万别穿蓝色",
         "可以下湖踩水，但要租鞋套，湖底是盐晶，硌脚又容易划伤"
       ],
-      "coords": [36.70, 99.08],
-      "images": []
+      "coords": [
+        36.7,
+        99.08
+      ],
+      "images": [
+        {
+          "file": "1a6de66d311dbf16.jpg",
+          "md5": "1a6de66d311dbf16587b06ea3330a41c",
+          "commonsPath": "1/1a/茶卡盐湖湖面10.jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "西安兵马俑",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E8%8C%B6%E5%8D%A1%E7%9B%90%E6%B9%96%E6%B9%96%E9%9D%A210.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1a/%E8%8C%B6%E5%8D%A1%E7%9B%90%E6%B9%96%E6%B9%96%E9%9D%A210.jpg/960px-%E8%8C%B6%E5%8D%A1%E7%9B%90%E6%B9%96%E6%B9%96%E9%9D%A210.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1a/%E8%8C%B6%E5%8D%A1%E7%9B%90%E6%B9%96%E6%B9%96%E9%9D%A210.jpg/330px-%E8%8C%B6%E5%8D%A1%E7%9B%90%E6%B9%96%E6%B9%96%E9%9D%A210.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "huzhu-beishan",
@@ -40,7 +68,10 @@
         "秋天层林尽染，红桦金桦和常绿针叶叠出七八种颜色",
         "夏天凉爽，是西宁周边避暑胜地"
       ],
-      "coords": [37.33, 102.05],
+      "coords": [
+        37.33,
+        102.05
+      ],
       "images": []
     },
     {
@@ -54,8 +85,22 @@
         "八宝如意塔在寺前一字排开，是标志取景",
         "大殿内不许拍照，辩经院下午有辩经"
       ],
-      "coords": [36.50, 101.57],
-      "images": []
+      "coords": [
+        36.5,
+        101.57
+      ],
+      "images": [
+        {
+          "file": "2984fb9b65909780.jpg",
+          "md5": "2984fb9b65909780c71e8c280d41eb6b",
+          "commonsPath": "2/29/Kumbummonastery.jpg",
+          "license": "CC BY-SA 3.0",
+          "author": "The original uploader was Blofeld of SPECTRE at English Wikipedia.",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Kumbummonastery.jpg",
+          "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/2/29/Kumbummonastery.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/29/Kumbummonastery.jpg/330px-Kumbummonastery.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }

@@ -12,8 +12,22 @@
         "菽庄花园钢琴博物馆",
         "沙茶面海蛎煎巷弄小吃"
       ],
-      "coords": [24.447, 118.0667],
-      "images": []
+      "coords": [
+        24.447,
+        118.0667
+      ],
+      "images": [
+        {
+          "file": "753a4678be183fd3.jpg",
+          "md5": "753a4678be183fd39445f734403ce11f",
+          "commonsPath": "0/0f/鼓浪屿_-_panoramio.jpg",
+          "license": "CC BY 3.0",
+          "author": "gdczjkk",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E9%BC%93%E6%B5%AA%E5%B1%BF_-_panoramio.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0f/%E9%BC%93%E6%B5%AA%E5%B1%BF_-_panoramio.jpg/960px-%E9%BC%93%E6%B5%AA%E5%B1%BF_-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0f/%E9%BC%93%E6%B5%AA%E5%B1%BF_-_panoramio.jpg/330px-%E9%BC%93%E6%B5%AA%E5%B1%BF_-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "fujian-tulou",
@@ -26,8 +40,22 @@
         "厚墙围合聚族而居",
         "木质回廊天井小城格局"
       ],
-      "coords": [24.7263, 117.0844],
-      "images": []
+      "coords": [
+        24.7263,
+        117.0844
+      ],
+      "images": [
+        {
+          "file": "227ac32133394aad.jpg",
+          "md5": "227ac32133394aadf798298e8a26e95f",
+          "commonsPath": "5/5c/Hakka_china.jpg",
+          "license": "CC BY 2.0",
+          "author": "yazi-swallow",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Hakka_china.jpg",
+          "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Hakka_china.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5c/Hakka_china.jpg/330px-Hakka_china.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "wuyishan",
@@ -40,7 +68,10 @@
         "天游峰一览台俯瞰",
         "大红袍肉桂岩茶品鉴"
       ],
-      "coords": [27.6569, 118.0384],
+      "coords": [
+        27.6569,
+        118.0384
+      ],
       "images": []
     }
   ]

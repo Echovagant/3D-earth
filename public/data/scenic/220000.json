@@ -12,8 +12,22 @@
         "地下森林踩火山熔岩",
         "一年仅百天可见"
       ],
-      "coords": [42.01, 128.07],
-      "images": []
+      "coords": [
+        42.01,
+        128.07
+      ],
+      "images": [
+        {
+          "file": "",
+          "md5": "4ca76aaf231904e9fb5ac0b48f0e26b4",
+          "commonsPath": "6/6d/Baitou_Mountain_Tianchi.jpg",
+          "license": "CC BY-SA 3.0",
+          "author": "Bdpmax",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Baitou_Mountain_Tianchi.jpg",
+          "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6d/Baitou_Mountain_Tianchi.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6d/Baitou_Mountain_Tianchi.jpg/330px-Baitou_Mountain_Tianchi.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "weiman-gugong",
@@ -25,8 +39,22 @@
         "中西合璧建筑群",
         "溥仪一生展陈"
       ],
-      "coords": [43.89, 125.36],
-      "images": []
+      "coords": [
+        43.89,
+        125.36
+      ],
+      "images": [
+        {
+          "file": "",
+          "md5": "38d9e4aee50013da2e68a6e3a289d4b6",
+          "commonsPath": "1/16/Imperial_Household_Office_of_Manchukuo.JPG",
+          "license": "Public domain",
+          "author": "Unknown authorUnknown author",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Imperial_Household_Office_of_Manchukuo.JPG",
+          "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/1/16/Imperial_Household_Office_of_Manchukuo.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/Imperial_Household_Office_of_Manchukuo.JPG/330px-Imperial_Household_Office_of_Manchukuo.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "wusong-dao",
@@ -38,7 +66,10 @@
         "丰满水电站独特条件",
         "清晨银柳挂冰晶"
       ],
-      "coords": [43.98, 126.45],
+      "coords": [
+        43.98,
+        126.45
+      ],
       "images": []
     },
     {
@@ -52,8 +83,22 @@
         "五虎岛乘船",
         "松花湖鱼宴"
       ],
-      "coords": [43.8, 126.65],
-      "images": []
+      "coords": [
+        43.8,
+        126.65
+      ],
+      "images": [
+        {
+          "file": "51e186e0bfa85add.jpg",
+          "md5": "51e186e0bfa85addb153a461a2c871ba",
+          "commonsPath": "5/51/SV100353.JPG",
+          "license": "CC BY-SA 3.0",
+          "author": "Shizhao",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:SV100353.JPG",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/51/SV100353.JPG/960px-SV100353.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/51/SV100353.JPG/330px-SV100353.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }

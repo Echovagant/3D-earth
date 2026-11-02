@@ -12,8 +12,22 @@
         "云海日出日落",
         "奇松怪石温泉冬雪五绝"
       ],
-      "coords": [30.1345, 118.1623],
-      "images": []
+      "coords": [
+        30.1345,
+        118.1623
+      ],
+      "images": [
+        {
+          "file": "7b67f499a6737000.jpg",
+          "md5": "7b67f499a6737000fd4a43b86b50e0e7",
+          "commonsPath": "4/44/Huangshan_fengjing.jpg",
+          "license": "Public domain",
+          "author": "",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Huangshan_fengjing.jpg",
+          "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/4/44/Huangshan_fengjing.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/44/Huangshan_fengjing.jpg/330px-Huangshan_fengjing.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "hongcun",
@@ -26,8 +40,22 @@
         "清晨南湖摄影圣地",
         "串联西递卢村古村落"
       ],
-      "coords": [29.9065, 117.9978],
-      "images": []
+      "coords": [
+        29.9065,
+        117.9978
+      ],
+      "images": [
+        {
+          "file": "ac73c26af1c12572.jpg",
+          "md5": "ac73c26af1c12572fc2ac42bb6343df8",
+          "commonsPath": "2/28/South_Lake_of_Hongcun_20141110.JPG",
+          "license": "CC BY-SA 4.0",
+          "author": "颐园新居",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:South_Lake_of_Hongcun_20141110.JPG",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/28/South_Lake_of_Hongcun_20141110.JPG/960px-South_Lake_of_Hongcun_20141110.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/28/South_Lake_of_Hongcun_20141110.JPG/330px-South_Lake_of_Hongcun_20141110.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "jiushan",
@@ -40,8 +68,22 @@
         "天台峰看闵园竹海",
         "云雾缭绕避暑朝圣"
       ],
-      "coords": [30.4886, 117.8088],
-      "images": []
+      "coords": [
+        30.4886,
+        117.8088
+      ],
+      "images": [
+        {
+          "file": "485e7526ec269225.jpg",
+          "md5": "485e7526ec2692256a891a5d78aaab5d",
+          "commonsPath": "c/c0/Jiuhuashan_yunhai.JPG",
+          "license": "Public domain",
+          "author": "",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Jiuhuashan_yunhai.JPG",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c0/Jiuhuashan_yunhai.JPG/960px-Jiuhuashan_yunhai.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c0/Jiuhuashan_yunhai.JPG/330px-Jiuhuashan_yunhai.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }

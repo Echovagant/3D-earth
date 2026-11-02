@@ -12,7 +12,10 @@
         "最佳观赏点是尖沙咀海滨长廊和中环摩天轮附近",
         "每年的国庆烟花和跨年倒数都在这里，人山人海要早占位"
       ],
-      "coords": [22.29, 114.17],
+      "coords": [
+        22.29,
+        114.17
+      ],
       "images": []
     },
     {
@@ -26,7 +29,10 @@
         "卢吉道栈道免费且视野最开阔，能同时看到维港、九龙和南海",
         "傍晚去可以一次性看日景、日落、夜景三段"
       ],
-      "coords": [22.27, 114.15],
+      "coords": [
+        22.27,
+        114.15
+      ],
       "images": []
     },
     {
@@ -40,8 +46,22 @@
         "最好的体验是傍晚从尖沙咀出发去中环，海上看两岸由白昼转灯火",
         "班次密集，刷八达通或现金都能上船"
       ],
-      "coords": [22.31, 114.17],
-      "images": []
+      "coords": [
+        22.31,
+        114.17
+      ],
+      "images": [
+        {
+          "file": "d4c4316141677eb4.jpg",
+          "md5": "d4c4316141677eb4c3003659fc8f8b86",
+          "commonsPath": "5/5b/Solar_Star_20110730.jpg",
+          "license": "CC BY-SA 3.0",
+          "author": "颐园新居",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Solar_Star_20110730.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5b/Solar_Star_20110730.jpg/960px-Solar_Star_20110730.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5b/Solar_Star_20110730.jpg/330px-Solar_Star_20110730.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "tiantan-dafo",
@@ -54,8 +74,22 @@
         "佛座内有功德堂和展览，登顶要爬 260 级台阶",
         "天气好时能远眺南中国海，雨天云雾缭绕时另有一番佛国氛围"
       ],
-      "coords": [22.25, 113.90],
-      "images": []
+      "coords": [
+        22.25,
+        113.9
+      ],
+      "images": [
+        {
+          "file": "13f5812e1e652a87.jpg",
+          "md5": "13f5812e1e652a87a5af61eb2d16cf3b",
+          "commonsPath": "1/13/Tian_Tan_Buddha_by_Beria.jpg",
+          "license": "CC BY-SA 3.0",
+          "author": "Béria Lima de Rodríguez",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tian_Tan_Buddha_by_Beria.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Tian_Tan_Buddha_by_Beria.jpg/960px-Tian_Tan_Buddha_by_Beria.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Tian_Tan_Buddha_by_Beria.jpg/330px-Tian_Tan_Buddha_by_Beria.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }

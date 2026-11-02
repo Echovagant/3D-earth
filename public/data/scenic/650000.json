@@ -12,8 +12,22 @@
         "坐索道到 3000 多米能俯瞰天池全貌，但风大时索道会停",
         "冬天湖面结冰，雪后风景极好，人少"
       ],
-      "coords": [43.89, 88.11],
-      "images": []
+      "coords": [
+        43.89,
+        88.11
+      ],
+      "images": [
+        {
+          "file": "427351e26292da25.jpg",
+          "md5": "427351e26292da250541abf10c4c22f6",
+          "commonsPath": "8/86/Tianchi_Lake.jpg",
+          "license": "CC BY-SA 3.0",
+          "author": "Bernard Gagnon",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tianchi_Lake.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/86/Tianchi_Lake.jpg/960px-Tianchi_Lake.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/86/Tianchi_Lake.jpg/330px-Tianchi_Lake.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "kanas",
@@ -26,8 +40,22 @@
         "秋天是颜值巅峰，金黄的白桦和湖蓝撞在一起",
         "白哈巴村是西北第一村，需办边防证"
       ],
-      "coords": [48.74, 87.02],
-      "images": []
+      "coords": [
+        48.74,
+        87.02
+      ],
+      "images": [
+        {
+          "file": "fb428276319aa77c.jpg",
+          "md5": "fb428276319aa77c71a898c230977ae1",
+          "commonsPath": "f/fb/喀納斯湖11.jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "Newbamboo",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E5%96%80%E7%B4%8D%E6%96%AF%E6%B9%9611.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fb/%E5%96%80%E7%B4%8D%E6%96%AF%E6%B9%9611.jpg/960px-%E5%96%80%E7%B4%8D%E6%96%AF%E6%B9%9611.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fb/%E5%96%80%E7%B4%8D%E6%96%AF%E6%B9%9611.jpg/330px-%E5%96%80%E7%B4%8D%E6%96%AF%E6%B9%9611.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "putaogou",
@@ -40,7 +68,10 @@
         "四面镂空的土房是晾葡萄干的地方，阳光直射风干所以更甜",
         "和交河故城、火焰山、坎儿井可以串成吐鲁番一日游"
       ],
-      "coords": [42.94, 89.19],
+      "coords": [
+        42.94,
+        89.19
+      ],
       "images": []
     },
     {
@@ -54,7 +85,10 @@
         "找一户哈萨克牧民，喝奶茶、吃手抓肉，骑马走一圈",
         "7 月是最美季，8 月底开始转凉"
       ],
-      "coords": [43.18, 83.67],
+      "coords": [
+        43.18,
+        83.67
+      ],
       "images": []
     }
   ]

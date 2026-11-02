@@ -33,7 +33,18 @@
         29.65,
         91.13
       ],
-      "images": []
+      "images": [
+        {
+          "file": "7bf65d83065fcc69.jpg",
+          "md5": "7bf65d83065fcc699ef9ae76d2f971ca",
+          "commonsPath": "a/ab/Jokhang_Temple_in_Tibet.jpg",
+          "license": "CC BY-SA 2.0",
+          "author": "onwardtibet.org",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Jokhang_Temple_in_Tibet.jpg",
+          "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/a/ab/Jokhang_Temple_in_Tibet.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ab/Jokhang_Temple_in_Tibet.jpg/330px-Jokhang_Temple_in_Tibet.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "everest-basecamp",
@@ -50,7 +61,18 @@
         28.1,
         86.92
       ],
-      "images": []
+      "images": [
+        {
+          "file": "4836ce3fcdff9a03.jpg",
+          "md5": "4836ce3fcdff9a03f1ae0b346abd5338",
+          "commonsPath": "d/d1/Mount_Everest_as_seen_from_Drukair2_PLW_edit.jpg",
+          "license": "CC BY-SA 2.0",
+          "author": "Mount_Everest_as_seen_from_Drukair2.jpg: shrimpo1967 derivative work: Papa Lima Whiskey 2 (talk)",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mount_Everest_as_seen_from_Drukair2_PLW_edit.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d1/Mount_Everest_as_seen_from_Drukair2_PLW_edit.jpg/960px-Mount_Everest_as_seen_from_Drukair2_PLW_edit.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d1/Mount_Everest_as_seen_from_Drukair2_PLW_edit.jpg/330px-Mount_Everest_as_seen_from_Drukair2_PLW_edit.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "namtso",
@@ -67,7 +89,18 @@
         30.75,
         90.6
       ],
-      "images": []
+      "images": [
+        {
+          "file": "",
+          "md5": "e4d3a9e3993f3059d2655855e3205d33",
+          "commonsPath": "9/9f/Tashi_Dor.jpg",
+          "license": "CC BY-SA 3.0",
+          "author": "",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tashi_Dor.jpg",
+          "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Tashi_Dor.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9f/Tashi_Dor.jpg/330px-Tashi_Dor.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }

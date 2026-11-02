@@ -12,8 +12,42 @@
         "出土陶俑大多缺头，修复工程至今还在继续",
         "建议赶早去，避开人潮"
       ],
-      "coords": [34.38, 109.27],
-      "images": []
+      "coords": [
+        34.38,
+        109.27
+      ],
+      "images": [
+        {
+          "file": "656bbbfba52b492e.jpg",
+          "md5": "656bbbfba52b492e5aad72f9776f1af4",
+          "commonsPath": "4/49/Terracotta_Army,_View_of_Pit_1.jpg",
+          "license": "CC BY 3.0",
+          "author": "Jmhullot",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Terracotta_Army,_View_of_Pit_1.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/49/Terracotta_Army%2C_View_of_Pit_1.jpg/960px-Terracotta_Army%2C_View_of_Pit_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/49/Terracotta_Army%2C_View_of_Pit_1.jpg/330px-Terracotta_Army%2C_View_of_Pit_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        },
+        {
+          "file": "7701453f2a6ac811.jpg",
+          "md5": "7701453f2a6ac811d5840ca47ae32caf",
+          "commonsPath": "4/43/Qin_Shihuang_Terracotta_Army,_Pit_1.jpg",
+          "license": "CC0",
+          "author": "Gary Todd",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Qin_Shihuang_Terracotta_Army,_Pit_1.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/43/Qin_Shihuang_Terracotta_Army%2C_Pit_1.jpg/960px-Qin_Shihuang_Terracotta_Army%2C_Pit_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/43/Qin_Shihuang_Terracotta_Army%2C_Pit_1.jpg/330px-Qin_Shihuang_Terracotta_Army%2C_Pit_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        },
+        {
+          "file": "888dc28cb5bc6933.jpg",
+          "md5": "888dc28cb5bc69333fb539d3a2d047e4",
+          "commonsPath": "8/88/51714-Terracota-Army.jpg",
+          "license": "CC BY 2.0",
+          "author": "xiquinhosilva",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:51714-Terracota-Army.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/88/51714-Terracota-Army.jpg/960px-51714-Terracota-Army.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/88/51714-Terracota-Army.jpg/330px-51714-Terracota-Army.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "huashan",
@@ -26,7 +60,10 @@
         "长空栈道脚下就是深渊，得解开安全带才能体验",
         "西峰索道十几分钟到顶，山顶住一晚看日出"
       ],
-      "coords": [34.48, 110.09],
+      "coords": [
+        34.48,
+        110.09
+      ],
       "images": []
     },
     {
@@ -40,8 +77,22 @@
         "陕西观景台离瀑布近，山西那边角度略远但视野宽",
         "汛期有交通管制，雨天路滑，相机要防水"
       ],
-      "coords": [36.14, 110.47],
-      "images": []
+      "coords": [
+        36.14,
+        110.47
+      ],
+      "images": [
+        {
+          "file": "72c9e9f9512a3b53.jpg",
+          "md5": "72c9e9f9512a3b5352a3b890466cc6b0",
+          "commonsPath": "e/ea/Hukou_Waterfall.jpg",
+          "license": "CC BY-SA 3.0",
+          "author": "Leruswing",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Hukou_Waterfall.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ea/Hukou_Waterfall.jpg/960px-Hukou_Waterfall.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ea/Hukou_Waterfall.jpg/330px-Hukou_Waterfall.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "dayanta",
@@ -54,8 +105,22 @@
         "大唐不夜城傍晚开始热闹，节假日人非常多",
         "想拍干净的大雁塔合影要清晨去"
       ],
-      "coords": [34.22, 108.96],
-      "images": []
+      "coords": [
+        34.22,
+        108.96
+      ],
+      "images": [
+        {
+          "file": "1fb6516346f236ce.jpg",
+          "md5": "1fb6516346f236ce1abf7c8d569e1cee",
+          "commonsPath": "1/13/Giant_Wild_Goose_Pagoda.jpg",
+          "license": "CC BY-SA 3.0",
+          "author": "Alex Kwok",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Giant_Wild_Goose_Pagoda.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Giant_Wild_Goose_Pagoda.jpg/960px-Giant_Wild_Goose_Pagoda.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Giant_Wild_Goose_Pagoda.jpg/330px-Giant_Wild_Goose_Pagoda.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }

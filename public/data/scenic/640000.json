@@ -12,8 +12,22 @@
         "最出名的是太阳神岩画，一个人头加芒纹，是贺兰山岩画的标志",
         "风大太阳毒，春秋两季最舒服"
       ],
-      "coords": [38.76, 105.99],
-      "images": []
+      "coords": [
+        38.76,
+        105.99
+      ],
+      "images": [
+        {
+          "file": "c0935455d518edcf.jpg",
+          "md5": "c0935455d518edcf5b1bcd5bdcb9013a",
+          "commonsPath": "c/c0/贺兰山岩画太阳神.jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "霧島聖",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E8%B4%BA%E5%85%B0%E5%B1%B1%E5%B2%A9%E7%94%BB%E5%A4%AA%E9%98%B3%E7%A5%9E.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c0/%E8%B4%BA%E5%85%B0%E5%B1%B1%E5%B2%A9%E7%94%BB%E5%A4%AA%E9%98%B3%E7%A5%9E.jpg/960px-%E8%B4%BA%E5%85%B0%E5%B1%B1%E5%B2%A9%E7%94%BB%E5%A4%AA%E9%98%B3%E7%A5%9E.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c0/%E8%B4%BA%E5%85%B0%E5%B1%B1%E5%B2%A9%E7%94%BB%E5%A4%AA%E9%98%B3%E7%A5%9E.jpg/330px-%E8%B4%BA%E5%85%B0%E5%B1%B1%E5%B2%A9%E7%94%BB%E5%A4%AA%E9%98%B3%E7%A5%9E.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "xixia-wangling",
@@ -26,8 +40,22 @@
         "地面上的建筑早已不存，看到的是夯土陵台",
         "在贺兰山背景下的那种苍凉感，是别的帝王陵寝给不了的"
       ],
-      "coords": [38.62, 106.18],
-      "images": []
+      "coords": [
+        38.62,
+        106.18
+      ],
+      "images": [
+        {
+          "file": "d24ceefc15bb9095.jpg",
+          "md5": "d24ceefc15bb909586c9789c5a2990a7",
+          "commonsPath": "f/f4/XiXia_Tomb_3_F.jpg",
+          "license": "CC BY-SA 3.0",
+          "author": "BabelStone",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:XiXia_Tomb_3_F.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f4/XiXia_Tomb_3_F.jpg/960px-XiXia_Tomb_3_F.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f4/XiXia_Tomb_3_F.jpg/330px-XiXia_Tomb_3_F.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "shahu",
@@ -40,7 +68,10 @@
         "夏天芦苇长得比人高，坐船穿行其中像在绿色隧道里",
         "观鸟塔能俯瞰全湖"
       ],
-      "coords": [38.84, 106.30],
+      "coords": [
+        38.84,
+        106.3
+      ],
       "images": []
     },
     {
@@ -54,7 +85,10 @@
         "黄河区可以坐羊皮筏子漂流、滑沙下去，沙坡很陡",
         "沙漠区有骑骆驼、冲浪车和滑翔伞"
       ],
-      "coords": [37.51, 105.16],
+      "coords": [
+        37.51,
+        105.16
+      ],
       "images": []
     }
   ]

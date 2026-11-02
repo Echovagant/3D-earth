@@ -16,7 +16,18 @@
         25.27,
         110.49
       ],
-      "images": []
+      "images": [
+        {
+          "file": "21b33ca5f95ab965.jpg",
+          "md5": "21b33ca5f95ab965d45e5743b18fbe85",
+          "commonsPath": "6/6c/Rzeka_Li.jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "Halaston",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Rzeka_Li.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6c/Rzeka_Li.jpg/960px-Rzeka_Li.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6c/Rzeka_Li.jpg/330px-Rzeka_Li.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "detian-falls",
@@ -50,7 +61,18 @@
         21.04,
         109.12
       ],
-      "images": []
+      "images": [
+        {
+          "file": "dc084f732d0eed3a.jpg",
+          "md5": "dc084f732d0eed3a25934e17bbd72fd5",
+          "commonsPath": "8/86/Church_of_shengtang_village_Weizhou_Island.jpg",
+          "license": "CC BY-SA 3.0",
+          "author": "Icefox06",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Church_of_shengtang_village_Weizhou_Island.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/86/Church_of_shengtang_village_Weizhou_Island.jpg/960px-Church_of_shengtang_village_Weizhou_Island.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/86/Church_of_shengtang_village_Weizhou_Island.jpg/330px-Church_of_shengtang_village_Weizhou_Island.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "qingxiu-mountain",
@@ -67,7 +89,18 @@
         22.83,
         108.39
       ],
-      "images": []
+      "images": [
+        {
+          "file": "34414c95f54d38e4.jpg",
+          "md5": "34414c95f54d38e478acd45d41d364e3",
+          "commonsPath": "3/34/南宁青秀山观音禅寺.jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "EditQ",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E5%8D%97%E5%AE%81%E9%9D%92%E7%A7%80%E5%B1%B1%E8%A7%82%E9%9F%B3%E7%A6%85%E5%AF%BA.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/34/%E5%8D%97%E5%AE%81%E9%9D%92%E7%A7%80%E5%B1%B1%E8%A7%82%E9%9F%B3%E7%A6%85%E5%AF%BA.jpg/960px-%E5%8D%97%E5%AE%81%E9%9D%92%E7%A7%80%E5%B1%B1%E8%A7%82%E9%9F%B3%E7%A6%85%E5%AF%BA.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/34/%E5%8D%97%E5%AE%81%E9%9D%92%E7%A7%80%E5%B1%B1%E8%A7%82%E9%9F%B3%E7%A6%85%E5%AF%BA.jpg/330px-%E5%8D%97%E5%AE%81%E9%9D%92%E7%A7%80%E5%B1%B1%E8%A7%82%E9%9F%B3%E7%A6%85%E5%AF%BA.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }

@@ -12,8 +12,22 @@
         "外八庙布达拉宫微缩版",
         "夏天比北京凉快十度"
       ],
-      "coords": [40.99, 117.95],
-      "images": []
+      "coords": [
+        40.99,
+        117.95
+      ],
+      "images": [
+        {
+          "file": "5eb94e5dc5178fbd.jpg",
+          "md5": "5eb94e5dc5178fbd949154de2de6aa4c",
+          "commonsPath": "f/f2/Chengde_Mountain_Resort_1.jpg",
+          "license": "CC BY-SA 2.0",
+          "author": "takwing.kwong",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Chengde_Mountain_Resort_1.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/Chengde_Mountain_Resort_1.jpg/960px-Chengde_Mountain_Resort_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/Chengde_Mountain_Resort_1.jpg/330px-Chengde_Mountain_Resort_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "shanhaiguan",
@@ -25,8 +39,22 @@
         "老龙头长城扎进渤海",
         "城楼望燕山长城一线"
       ],
-      "coords": [40.01, 119.74],
-      "images": []
+      "coords": [
+        40.01,
+        119.74
+      ],
+      "images": [
+        {
+          "file": "de278eea2ef0176a.jpg",
+          "md5": "de278eea2ef0176ab1625a0ec3399957",
+          "commonsPath": "c/cd/河北省_天下第一关_-_panoramio.jpg",
+          "license": "CC BY-SA 3.0",
+          "author": "Nyx Ning",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E6%B2%B3%E5%8C%97%E7%9C%81_%E5%A4%A9%E4%B8%8B%E7%AC%AC%E4%B8%80%E5%85%B3_-_panoramio.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cd/%E6%B2%B3%E5%8C%97%E7%9C%81_%E5%A4%A9%E4%B8%8B%E7%AC%AC%E4%B8%80%E5%85%B3_-_panoramio.jpg/960px-%E6%B2%B3%E5%8C%97%E7%9C%81_%E5%A4%A9%E4%B8%8B%E7%AC%AC%E4%B8%80%E5%85%B3_-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cd/%E6%B2%B3%E5%8C%97%E7%9C%81_%E5%A4%A9%E4%B8%8B%E7%AC%AC%E4%B8%80%E5%85%B3_-_panoramio.jpg/330px-%E6%B2%B3%E5%8C%97%E7%9C%81_%E5%A4%A9%E4%B8%8B%E7%AC%AC%E4%B8%80%E5%85%B3_-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "beidaihe",
@@ -38,8 +66,22 @@
         "鸽子窝看日出与候鸟",
         "红顶别墅老房子群"
       ],
-      "coords": [39.82, 119.48],
-      "images": []
+      "coords": [
+        39.82,
+        119.48
+      ],
+      "images": [
+        {
+          "file": "025a59671d3e2e02.jpg",
+          "md5": "025a59671d3e2e027a0752f852dcd4c6",
+          "commonsPath": "b/bc/Beidaihe_panorama_from_the_south.jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "Charlie fong",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Beidaihe_panorama_from_the_south.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bc/Beidaihe_panorama_from_the_south.jpg/960px-Beidaihe_panorama_from_the_south.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bc/Beidaihe_panorama_from_the_south.jpg/330px-Beidaihe_panorama_from_the_south.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "baiyangdian",
@@ -52,8 +94,22 @@
         "七月万顷荷花",
         "雁翎队战斗过的水乡"
       ],
-      "coords": [38.88, 116.03],
-      "images": []
+      "coords": [
+        38.88,
+        116.03
+      ],
+      "images": [
+        {
+          "file": "0ebecb9e5eac91ae.jpg",
+          "md5": "0ebecb9e5eac91ae6a76e72323de8e83",
+          "commonsPath": "0/0e/河北白洋淀.jpg",
+          "license": "CC BY 2.0",
+          "author": "kaurjmeb",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E6%B2%B3%E5%8C%97%E7%99%BD%E6%B4%8B%E6%B7%80.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/%E6%B2%B3%E5%8C%97%E7%99%BD%E6%B4%8B%E6%B7%80.jpg/960px-%E6%B2%B3%E5%8C%97%E7%99%BD%E6%B4%8B%E6%B7%80.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/%E6%B2%B3%E5%8C%97%E7%99%BD%E6%B4%8B%E6%B7%80.jpg/330px-%E6%B2%B3%E5%8C%97%E7%99%BD%E6%B4%8B%E6%B7%80.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }

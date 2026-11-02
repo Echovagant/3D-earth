@@ -12,8 +12,22 @@
         "秦代至近代石刻长廊",
         "红门到南天门经典路线"
       ],
-      "coords": [36.2562, 117.1009],
-      "images": []
+      "coords": [
+        36.2562,
+        117.1009
+      ],
+      "images": [
+        {
+          "file": "",
+          "md5": "554d804ba8516a4012c3520ead811ad5",
+          "commonsPath": "7/74/泰山_南天门.jpg",
+          "license": "Public domain",
+          "author": "Charlie fong",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E6%B3%B0%E5%B1%B1_%E5%8D%97%E5%A4%A9%E9%97%A8.jpg",
+          "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/7/74/%E6%B3%B0%E5%B1%B1_%E5%8D%97%E5%A4%A9%E9%97%A8.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/74/%E6%B3%B0%E5%B1%B1_%E5%8D%97%E5%A4%A9%E9%97%A8.jpg/330px-%E6%B3%B0%E5%B1%B1_%E5%8D%97%E5%A4%A9%E9%97%A8.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "qufu-sankong",
@@ -26,7 +40,10 @@
         "孔林十万棵树家族墓地",
         "三孔步行串联"
       ],
-      "coords": [35.6171, 116.9895],
+      "coords": [
+        35.6171,
+        116.9895
+      ],
       "images": []
     },
     {
@@ -40,8 +57,22 @@
         "崂山矿泉水与崂山茶",
         "青山渔村渔家海鲜"
       ],
-      "coords": [36.1618, 120.4747],
-      "images": []
+      "coords": [
+        36.1618,
+        120.4747
+      ],
+      "images": [
+        {
+          "file": "8c05bd0dccd28aa5.jpg",
+          "md5": "8c05bd0dccd28aa5a91364f380723fec",
+          "commonsPath": "8/8b/20240730_Dabiao_Mountain_of_Mount_Lao_01.jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "Windmemories",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:20240730_Dabiao_Mountain_of_Mount_Lao_01.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8b/20240730_Dabiao_Mountain_of_Mount_Lao_01.jpg/960px-20240730_Dabiao_Mountain_of_Mount_Lao_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8b/20240730_Dabiao_Mountain_of_Mount_Lao_01.jpg/330px-20240730_Dabiao_Mountain_of_Mount_Lao_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }
