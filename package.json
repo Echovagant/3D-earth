@@ -15,7 +15,7 @@
     "test:unit:watch": "vitest",
     "lint": "eslint . --fix --cache",
     "lint:check": "eslint .",
-    "check": "npm run lint:check && npm run test:unit && npm run build && npm run knowledge:check && npm run province:check",
+    "check": "npm run lint:check && npm run test:unit && npm run build && npm run knowledge:check && npm run province:check && npm run scenic:check",
     "geo:update": "node scripts/update-geo.mjs",
     "geo:check": "node scripts/update-geo.mjs --check",
     "world:update": "node scripts/update-world.mjs",
