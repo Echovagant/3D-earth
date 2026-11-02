@@ -61,7 +61,18 @@
         45.78,
         126.62
       ],
-      "images": []
+      "images": [
+        {
+          "file": "91a007b065344a1d.jpg",
+          "md5": "91a007b065344a1d46e7a1dae7106e49",
+          "commonsPath": "3/30/Central_Street_at_West_13th_St_(20230721112501).jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "N509FZ",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Central_Street_at_West_13th_St_(20230721112501).jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/Central_Street_at_West_13th_St_%2820230721112501%29.jpg/960px-Central_Street_at_West_13th_St_%2820230721112501%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/Central_Street_at_West_13th_St_%2820230721112501%29.jpg/330px-Central_Street_at_West_13th_St_%2820230721112501%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "taiyang-dao",

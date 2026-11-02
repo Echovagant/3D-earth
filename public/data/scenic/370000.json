@@ -44,7 +44,18 @@
         35.6171,
         116.9895
       ],
-      "images": []
+      "images": [
+        {
+          "file": "f16ca511d4f7612f.jpg",
+          "md5": "f16ca511d4f7612f3eec81e820610726",
+          "commonsPath": "f/f5/20230612_Dacheng_Dian,_Qufu_Kongmiao.jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "Yumeto",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:20230612_Dacheng_Dian,_Qufu_Kongmiao.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f5/20230612_Dacheng_Dian%2C_Qufu_Kongmiao.jpg/960px-20230612_Dacheng_Dian%2C_Qufu_Kongmiao.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f5/20230612_Dacheng_Dian%2C_Qufu_Kongmiao.jpg/330px-20230612_Dacheng_Dian%2C_Qufu_Kongmiao.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "laoshan",

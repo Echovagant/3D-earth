@@ -89,7 +89,18 @@
         23,
         113.34
       ],
-      "images": []
+      "images": [
+        {
+          "file": "fef85b10282e44e8.jpg",
+          "md5": "fef85b10282e44e8f7a6108bade86126",
+          "commonsPath": "c/c9/Chimelong_Safari_Park_(Safari_on_wheels_01).JPG",
+          "license": "CC BY-SA 3.0",
+          "author": "Dltl2010",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Chimelong_Safari_Park_(Safari_on_wheels_01).JPG",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c9/Chimelong_Safari_Park_%28Safari_on_wheels_01%29.JPG/960px-Chimelong_Safari_Park_%28Safari_on_wheels_01%29.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c9/Chimelong_Safari_Park_%28Safari_on_wheels_01%29.JPG/330px-Chimelong_Safari_Park_%28Safari_on_wheels_01%29.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }

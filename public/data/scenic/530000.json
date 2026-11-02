@@ -73,7 +73,28 @@
         25.76,
         100.19
       ],
-      "images": []
+      "images": [
+        {
+          "file": "3265b94f7d193935.jpg",
+          "md5": "3265b94f7d193935e088ee38ad92ea1f",
+          "commonsPath": "1/1b/Erhai_lake,_Yunnan,_China.jpg",
+          "license": "CC BY 2.5",
+          "author": "Ariel Steiner (Asteiner)",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Erhai_lake,_Yunnan,_China.jpg",
+          "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1b/Erhai_lake%2C_Yunnan%2C_China.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1b/Erhai_lake%2C_Yunnan%2C_China.jpg/330px-Erhai_lake%2C_Yunnan%2C_China.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        },
+        {
+          "file": "01bf0880cfc2b690.jpg",
+          "md5": "01bf0880cfc2b690c3dab1f24b6889d9",
+          "commonsPath": "0/09/Satellite_picture_of_Erhai_Lake_-_ISS043-E-162687.jpg",
+          "license": "Public domain",
+          "author": "Earth Science and Remote Sensing Unit, Lyndon B. Johnson Space Center",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Satellite_picture_of_Erhai_Lake_-_ISS043-E-162687.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/09/Satellite_picture_of_Erhai_Lake_-_ISS043-E-162687.jpg/960px-Satellite_picture_of_Erhai_Lake_-_ISS043-E-162687.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/09/Satellite_picture_of_Erhai_Lake_-_ISS043-E-162687.jpg/330px-Satellite_picture_of_Erhai_Lake_-_ISS043-E-162687.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "chongsheng-three-pagodas",

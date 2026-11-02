@@ -71,7 +71,18 @@
         43.77,
         125.44
       ],
-      "images": []
+      "images": [
+        {
+          "file": "e75ec63d13067230.jpg",
+          "md5": "e75ec63d1306723073cf8ba2fdb01a8b",
+          "commonsPath": "f/ff/净月潭_jing_yue_tan_-_panoramio.jpg",
+          "license": "CC BY-SA 3.0",
+          "author": "wanghongliu",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E5%87%80%E6%9C%88%E6%BD%AD_jing_yue_tan_-_panoramio.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/ff/%E5%87%80%E6%9C%88%E6%BD%AD_jing_yue_tan_-_panoramio.jpg/960px-%E5%87%80%E6%9C%88%E6%BD%AD_jing_yue_tan_-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/ff/%E5%87%80%E6%9C%88%E6%BD%AD_jing_yue_tan_-_panoramio.jpg/330px-%E5%87%80%E6%9C%88%E6%BD%AD_jing_yue_tan_-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "songhua-lake",

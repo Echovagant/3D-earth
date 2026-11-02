@@ -73,7 +73,18 @@
         18.28,
         109.65
       ],
-      "images": []
+      "images": [
+        {
+          "file": "f700dcd0e8f63af7.jpg",
+          "md5": "f700dcd0e8f63af77d18ee8f199a61a3",
+          "commonsPath": "4/44/Yalong_Bay_01.jpg",
+          "license": "Public domain",
+          "author": "Anna Frodesiak",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Yalong_Bay_01.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/44/Yalong_Bay_01.jpg/960px-Yalong_Bay_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/44/Yalong_Bay_01.jpg/330px-Yalong_Bay_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "wuzhizhou-island",

@@ -73,7 +73,18 @@
         36.62,
         101.8
       ],
-      "images": []
+      "images": [
+        {
+          "file": "c8fe453b2822698c.jpg",
+          "md5": "c8fe453b2822698c92bfa09aa402b7b1",
+          "commonsPath": "f/f5/Dongguan_Mosque_in_Xining_(2025).jpg",
+          "license": "CC BY 4.0",
+          "author": "Michał Beim",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Dongguan_Mosque_in_Xining_(2025).jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f5/Dongguan_Mosque_in_Xining_%282025%29.jpg/960px-Dongguan_Mosque_in_Xining_%282025%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f5/Dongguan_Mosque_in_Xining_%282025%29.jpg/330px-Dongguan_Mosque_in_Xining_%282025%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "taer-si",

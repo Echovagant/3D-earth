@@ -45,7 +45,18 @@
         29.58,
         106.45
       ],
-      "images": []
+      "images": [
+        {
+          "file": "",
+          "md5": "e3960b4bf0f1c20dad36420e21f208af",
+          "commonsPath": "e/e3/人头攒动的磁器口.jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "W457137120",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E4%BA%BA%E5%A4%B4%E6%94%92%E5%8A%A8%E7%9A%84%E7%A3%81%E5%99%A8%E5%8F%A3.jpg",
+          "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e3/%E4%BA%BA%E5%A4%B4%E6%94%92%E5%8A%A8%E7%9A%84%E7%A3%81%E5%99%A8%E5%8F%A3.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e3/%E4%BA%BA%E5%A4%B4%E6%94%92%E5%8A%A8%E7%9A%84%E7%A3%81%E5%99%A8%E5%8F%A3.jpg/330px-%E4%BA%BA%E5%A4%B4%E6%94%92%E5%8A%A8%E7%9A%84%E7%A3%81%E5%99%A8%E5%8F%A3.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "baidicheng-qutangxia",
@@ -62,7 +73,18 @@
         31.03,
         109.56
       ],
-      "images": []
+      "images": [
+        {
+          "file": "ab546f173c40fdb6.jpg",
+          "md5": "ab546f173c40fdb6760ef2dc6eaa2144",
+          "commonsPath": "7/7a/20250523_Baidi_Miao.jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "Yumeto",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:20250523_Baidi_Miao.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7a/20250523_Baidi_Miao.jpg/960px-20250523_Baidi_Miao.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7a/20250523_Baidi_Miao.jpg/330px-20250523_Baidi_Miao.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "dazu-shike",

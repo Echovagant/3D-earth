@@ -16,7 +16,18 @@
         29.558,
         115.9875
       ],
-      "images": []
+      "images": [
+        {
+          "file": "3c080ad4cb35b93a.jpg",
+          "md5": "3c080ad4cb35b93a73589c7f8d77e651",
+          "commonsPath": "3/3c/庐山日出.JPG",
+          "license": "CC BY-SA 2.5",
+          "author": "No machine-readable author provided. Chenyun~commonswiki assumed (based on copyright claims).",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E5%BA%90%E5%B1%B1%E6%97%A5%E5%87%BA.JPG",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3c/%E5%BA%90%E5%B1%B1%E6%97%A5%E5%87%BA.JPG/960px-%E5%BA%90%E5%B1%B1%E6%97%A5%E5%87%BA.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3c/%E5%BA%90%E5%B1%B1%E6%97%A5%E5%87%BA.JPG/330px-%E5%BA%90%E5%B1%B1%E6%97%A5%E5%87%BA.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "tengwangge",
@@ -33,7 +44,18 @@
         28.68,
         115.88
       ],
-      "images": []
+      "images": [
+        {
+          "file": "f95d1dc5f1d9e0c3.jpg",
+          "md5": "f95d1dc5f1d9e0c30af8e961a50668e5",
+          "commonsPath": "d/dd/Pavilion_of_Prince_Teng_3.jpg",
+          "license": "CC BY-SA 3.0",
+          "author": "No machine-readable author provided. BetacommandBot assumed (based on copyright claims).",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Pavilion_of_Prince_Teng_3.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/Pavilion_of_Prince_Teng_3.jpg/960px-Pavilion_of_Prince_Teng_3.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/Pavilion_of_Prince_Teng_3.jpg/330px-Pavilion_of_Prince_Teng_3.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "jianggangshan",

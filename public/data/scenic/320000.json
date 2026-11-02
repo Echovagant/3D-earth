@@ -72,7 +72,18 @@
         31.5147,
         120.2115
       ],
-      "images": []
+      "images": [
+        {
+          "file": "9c727fb75338c02b.jpg",
+          "md5": "9c727fb75338c02b3bf9a5c32e78572b",
+          "commonsPath": "a/ac/Wuxi_Taihu_lake_Changchun_bridge.jpg",
+          "license": "CC BY-SA 3.0",
+          "author": "2009/Synyan；2014/藍風攝影",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Wuxi_Taihu_lake_Changchun_bridge.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ac/Wuxi_Taihu_lake_Changchun_bridge.jpg/960px-Wuxi_Taihu_lake_Changchun_bridge.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ac/Wuxi_Taihu_lake_Changchun_bridge.jpg/330px-Wuxi_Taihu_lake_Changchun_bridge.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }

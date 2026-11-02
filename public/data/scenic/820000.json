@@ -62,7 +62,18 @@
         22.19,
         113.54
       ],
-      "images": []
+      "images": [
+        {
+          "file": "82bff1a30d9bd742.jpg",
+          "md5": "82bff1a30d9bd742a440ced18cc9f30a",
+          "commonsPath": "f/f7/Centre_of_Makau.jpg",
+          "license": "CC BY 2.5",
+          "author": "Андрей Суриков / Andrey Surikov. Original uploader was Сура at ru.wikipedia",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Centre_of_Makau.jpg",
+          "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f7/Centre_of_Makau.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/Centre_of_Makau.jpg/330px-Centre_of_Makau.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "macau-tower",
@@ -80,7 +91,18 @@
         22.18,
         113.54
       ],
-      "images": []
+      "images": [
+        {
+          "file": "6139c3a16fa51c59.jpg",
+          "md5": "6139c3a16fa51c598e1b785b3a32d0b7",
+          "commonsPath": "0/03/20250816_Torre_de_Macau.jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "Yumeto",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:20250816_Torre_de_Macau.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/03/20250816_Torre_de_Macau.jpg/960px-20250816_Torre_de_Macau.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/03/20250816_Torre_de_Macau.jpg/330px-20250816_Torre_de_Macau.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }

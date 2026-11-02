@@ -101,7 +101,18 @@
         26.76,
         105.93
       ],
-      "images": []
+      "images": [
+        {
+          "file": "c00cc6c5bb40165d.jpg",
+          "md5": "c00cc6c5bb40165d908d4675e1cba21f",
+          "commonsPath": "f/fc/Zhijin_Cave_Entrance_2019_01.jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "Esiymbro",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Zhijin_Cave_Entrance_2019_01.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fc/Zhijin_Cave_Entrance_2019_01.jpg/960px-Zhijin_Cave_Entrance_2019_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fc/Zhijin_Cave_Entrance_2019_01.jpg/330px-Zhijin_Cave_Entrance_2019_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }

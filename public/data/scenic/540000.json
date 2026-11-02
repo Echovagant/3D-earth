@@ -16,7 +16,18 @@
         29.65,
         91.11
       ],
-      "images": []
+      "images": [
+        {
+          "file": "4faae8dd3fd82070.jpg",
+          "md5": "4faae8dd3fd82070b33f3efe7ed1c853",
+          "commonsPath": "4/4f/Potala.jpg",
+          "license": "CC BY 2.5",
+          "author": "Ondřej Žváček",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Potala.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4f/Potala.jpg/960px-Potala.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4f/Potala.jpg/330px-Potala.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "jokhang-temple",
@@ -95,7 +106,7 @@
           "md5": "e4d3a9e3993f3059d2655855e3205d33",
           "commonsPath": "9/9f/Tashi_Dor.jpg",
           "license": "CC BY-SA 3.0",
-          "author": "",
+          "author": "Dbachmann",
           "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tashi_Dor.jpg",
           "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Tashi_Dor.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
           "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9f/Tashi_Dor.jpg/330px-Tashi_Dor.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"

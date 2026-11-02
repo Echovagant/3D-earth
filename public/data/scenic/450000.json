@@ -44,7 +44,18 @@
         22.85,
         106.1
       ],
-      "images": []
+      "images": [
+        {
+          "file": "b058caa666230df4.jpg",
+          "md5": "b058caa666230df4192b69fa0d6b4809",
+          "commonsPath": "6/68/2011_广西_崇左_德天瀑布_-_panoramio_(6).jpg",
+          "license": "CC BY-SA 3.0",
+          "author": "张元柏",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:2011_%E5%B9%BF%E8%A5%BF_%E5%B4%87%E5%B7%A6_%E5%BE%B7%E5%A4%A9%E7%80%91%E5%B8%83_-_panoramio_(6).jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/68/2011_%E5%B9%BF%E8%A5%BF_%E5%B4%87%E5%B7%A6_%E5%BE%B7%E5%A4%A9%E7%80%91%E5%B8%83_-_panoramio_%286%29.jpg/960px-2011_%E5%B9%BF%E8%A5%BF_%E5%B4%87%E5%B7%A6_%E5%BE%B7%E5%A4%A9%E7%80%91%E5%B8%83_-_panoramio_%286%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/68/2011_%E5%B9%BF%E8%A5%BF_%E5%B4%87%E5%B7%A6_%E5%BE%B7%E5%A4%A9%E7%80%91%E5%B8%83_-_panoramio_%286%29.jpg/330px-2011_%E5%B9%BF%E8%A5%BF_%E5%B4%87%E5%B7%A6_%E5%BE%B7%E5%A4%A9%E7%80%91%E5%B8%83_-_panoramio_%286%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "weizhou-island",

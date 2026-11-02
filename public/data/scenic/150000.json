@@ -16,7 +16,18 @@
         48.9,
         117.3
       ],
-      "images": []
+      "images": [
+        {
+          "file": "ad17a4e3544a8c25.jpg",
+          "md5": "ad17a4e3544a8c25ef79fe29f2dbc3ca",
+          "commonsPath": "a/ad/HulunLake2.jpg",
+          "license": "CC BY-SA 3.0",
+          "author": "Fanghong",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:HulunLake2.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ad/HulunLake2.jpg/960px-HulunLake2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ad/HulunLake2.jpg/330px-HulunLake2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "chengjisihan-ling",

@@ -33,7 +33,18 @@
         25.04,
         121.52
       ],
-      "images": []
+      "images": [
+        {
+          "file": "2ceaf10b6aa49055.jpg",
+          "md5": "2ceaf10b6aa4905537b3138e5d378516",
+          "commonsPath": "d/d2/Chiang_Kai-shek_memorial_amk.jpg",
+          "license": "CC BY-SA 3.0",
+          "author": "AngMoKio",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Chiang_Kai-shek_memorial_amk.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d2/Chiang_Kai-shek_memorial_amk.jpg/960px-Chiang_Kai-shek_memorial_amk.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d2/Chiang_Kai-shek_memorial_amk.jpg/330px-Chiang_Kai-shek_memorial_amk.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "taibei-gugong",

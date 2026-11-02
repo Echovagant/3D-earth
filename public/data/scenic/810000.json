@@ -16,7 +16,18 @@
         22.29,
         114.17
       ],
-      "images": []
+      "images": [
+        {
+          "file": "9a52f1ef70fa24f0.jpg",
+          "md5": "9a52f1ef70fa24f0163adfc48f3371af",
+          "commonsPath": "8/84/HK_YTM_西九龍文化區_West_Kowloon_Cultural_District_M+_Plus_Museum_天台花園_roof_garden_view_Victoria_Harbour_July_2022_Px3_13.jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "Bkemaoe HOMA",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:HK_YTM_%E8%A5%BF%E4%B9%9D%E9%BE%8D%E6%96%87%E5%8C%96%E5%8D%80_West_Kowloon_Cultural_District_M%2B_Plus_Museum_%E5%A4%A9%E5%8F%B0%E8%8A%B1%E5%9C%92_roof_garden_view_Victoria_Harbour_July_2022_Px3_13.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/84/HK_YTM_%E8%A5%BF%E4%B9%9D%E9%BE%8D%E6%96%87%E5%8C%96%E5%8D%80_West_Kowloon_Cultural_District_M%2B_Plus_Museum_%E5%A4%A9%E5%8F%B0%E8%8A%B1%E5%9C%92_roof_garden_view_Victoria_Harbour_July_2022_Px3_13.jpg/960px-HK_YTM_%E8%A5%BF%E4%B9%9D%E9%BE%8D%E6%96%87%E5%8C%96%E5%8D%80_West_Kowloon_Cultural_District_M%2B_Plus_Museum_%E5%A4%A9%E5%8F%B0%E8%8A%B1%E5%9C%92_roof_garden_view_Victoria_Harbour_July_2022_Px3_13.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/84/HK_YTM_%E8%A5%BF%E4%B9%9D%E9%BE%8D%E6%96%87%E5%8C%96%E5%8D%80_West_Kowloon_Cultural_District_M%2B_Plus_Museum_%E5%A4%A9%E5%8F%B0%E8%8A%B1%E5%9C%92_roof_garden_view_Victoria_Harbour_July_2022_Px3_13.jpg/330px-HK_YTM_%E8%A5%BF%E4%B9%9D%E9%BE%8D%E6%96%87%E5%8C%96%E5%8D%80_West_Kowloon_Cultural_District_M%2B_Plus_Museum_%E5%A4%A9%E5%8F%B0%E8%8A%B1%E5%9C%92_roof_garden_view_Victoria_Harbour_July_2022_Px3_13.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "wong-tai-sin-temple",
@@ -34,7 +45,18 @@
         22.34,
         114.19
       ],
-      "images": []
+      "images": [
+        {
+          "file": "6284e01915fb4e8e.jpg",
+          "md5": "6284e01915fb4e8e6a3072035b1652eb",
+          "commonsPath": "2/2e/HK_WongTaiSinTemple.JPG",
+          "license": "Public domain",
+          "author": "Chong Fat",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:HK_WongTaiSinTemple.JPG",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2e/HK_WongTaiSinTemple.JPG/960px-HK_WongTaiSinTemple.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2e/HK_WongTaiSinTemple.JPG/330px-HK_WongTaiSinTemple.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "star-ferry",

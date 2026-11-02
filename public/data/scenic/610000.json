@@ -64,7 +64,18 @@
         34.48,
         110.09
       ],
-      "images": []
+      "images": [
+        {
+          "file": "7347b1c67bfdcb9a.jpg",
+          "md5": "7347b1c67bfdcb9aa6bdc321f8c825c9",
+          "commonsPath": "1/18/Hua_Shan.jpg",
+          "license": "CC BY 2.5",
+          "author": "Ondřej Žváček",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Hua_Shan.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/18/Hua_Shan.jpg/960px-Hua_Shan.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/18/Hua_Shan.jpg/330px-Hua_Shan.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "hukou-falls",

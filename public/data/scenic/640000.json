@@ -73,7 +73,18 @@
         38.57,
         106.05
       ],
-      "images": []
+      "images": [
+        {
+          "file": "ba71a937c9ee7b39.jpg",
+          "md5": "ba71a937c9ee7b39bb3d83c5009906f1",
+          "commonsPath": "b/ba/镇北堡西部影城.jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "Yanxutong1215",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E9%95%87%E5%8C%97%E5%A0%A1%E8%A5%BF%E9%83%A8%E5%BD%B1%E5%9F%8E.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/%E9%95%87%E5%8C%97%E5%A0%A1%E8%A5%BF%E9%83%A8%E5%BD%B1%E5%9F%8E.jpg/960px-%E9%95%87%E5%8C%97%E5%A0%A1%E8%A5%BF%E9%83%A8%E5%BD%B1%E5%9F%8E.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/%E9%95%87%E5%8C%97%E5%A0%A1%E8%A5%BF%E9%83%A8%E5%BD%B1%E5%9F%8E.jpg/330px-%E9%95%87%E5%8C%97%E5%A0%A1%E8%A5%BF%E9%83%A8%E5%BD%B1%E5%9F%8E.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "xumishan-shiku",
@@ -91,7 +102,18 @@
         36.27,
         105.98
       ],
-      "images": []
+      "images": [
+        {
+          "file": "e2f524557d26933e.jpg",
+          "md5": "e2f524557d26933e747e71de1f5686b4",
+          "commonsPath": "e/e2/固原须弥山石窟第5窟大佛楼.JPG",
+          "license": "Public domain",
+          "author": "Caaat",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E5%9B%BA%E5%8E%9F%E9%A1%BB%E5%BC%A5%E5%B1%B1%E7%9F%B3%E7%AA%9F%E7%AC%AC5%E7%AA%9F%E5%A4%A7%E4%BD%9B%E6%A5%BC.JPG",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e2/%E5%9B%BA%E5%8E%9F%E9%A1%BB%E5%BC%A5%E5%B1%B1%E7%9F%B3%E7%AA%9F%E7%AC%AC5%E7%AA%9F%E5%A4%A7%E4%BD%9B%E6%A5%BC.JPG/960px-%E5%9B%BA%E5%8E%9F%E9%A1%BB%E5%BC%A5%E5%B1%B1%E7%9F%B3%E7%AA%9F%E7%AC%AC5%E7%AA%9F%E5%A4%A7%E4%BD%9B%E6%A5%BC.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e2/%E5%9B%BA%E5%8E%9F%E9%A1%BB%E5%BC%A5%E5%B1%B1%E7%9F%B3%E7%AA%9F%E7%AC%AC5%E7%AA%9F%E5%A4%A7%E4%BD%9B%E6%A5%BC.JPG/330px-%E5%9B%BA%E5%8E%9F%E9%A1%BB%E5%BC%A5%E5%B1%B1%E7%9F%B3%E7%AA%9F%E7%AC%AC5%E7%AA%9F%E5%A4%A7%E4%BD%9B%E6%A5%BC.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }
