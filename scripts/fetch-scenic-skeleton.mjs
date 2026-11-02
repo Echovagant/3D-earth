@@ -254,13 +254,20 @@ export function parseImageInfo(json, file) {
     meta.UsageTerms?.value,
     meta.License?.value,
   )
+  // 作者优先取 Artist/Credit 元数据；都没有时用 Commons 上传者用户名——
+  // CC BY / BY-SA 的署名义务要求作者字段非空，空着会导致整张图被校验器拦下
+  const author = firstText(
+    stripHtml(meta.Artist?.value ?? ''),
+    stripHtml(meta.Credit?.value ?? ''),
+    String(info.user ?? ''),
+  )
   return {
     file,
     commonsPath: commonsPathOf(info.url),
     md5: md5Of(file),
     sha1: String(info.sha1 ?? ''),
     license,
-    author: stripHtml(meta.Artist?.value ?? meta.Credit?.value ?? ''),
+    author,
     sourceUrl: String(info.descriptionurl ?? ''),
     thumbUrl: String(info.thumburl ?? ''),
     // 小尺寸的地址由接口另给一次（iiurlwidth=320）：

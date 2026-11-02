@@ -75,13 +75,13 @@ function main() {
       const allowed = usable.slice(0, 5)
 
       // 清单里已经有落盘好的图片：人工核过，许可与 file 不动，
-      // 但缺的地址字段要补上（骨架新增了字段时旧条目不会自动有）
+      // 但缺的地址与署名字段要补上（骨架新增了字段或作者兜底后，旧条目不会自动有）
       const landed = (scenic.images ?? []).filter((img) => img.file)
       if (landed.length) {
         for (const img of landed) {
           const source = allowed.find((candidate) => candidate.md5 === img.md5)
           if (!source) continue
-          for (const key of ['thumbUrl', 'thumbUrlSmall', 'commonsPath']) {
+          for (const key of ['thumbUrl', 'thumbUrlSmall', 'commonsPath', 'author', 'license']) {
             if (!img[key] && source[key]) {
               img[key] = source[key]
               changed = true
