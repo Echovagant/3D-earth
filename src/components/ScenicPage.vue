@@ -50,7 +50,9 @@
       <section class="detail-page__intro">
         <span class="detail-page__intro-label">位置 / LOCATION</span>
         <p>
-          <span class="mono">{{ scenic.coords[0].toFixed(4) }}°N, {{ scenic.coords[1].toFixed(4) }}°E</span>
+          <span class="mono"
+            >{{ scenic.coords[0].toFixed(4) }}°N, {{ scenic.coords[1].toFixed(4) }}°E</span
+          >
           <router-link class="scenic-page__earth-link" :to="earthLink">在地球上看看 →</router-link>
         </p>
       </section>
@@ -60,7 +62,9 @@
         <span class="detail-page__intro-label">图片来源与许可 / CREDITS</span>
         <ul v-if="scenic.images.length" class="scenic-page__credits">
           <li v-for="image in scenic.images" :key="image.file" class="scenic-page__credit">
-            <a :href="image.sourceUrl" target="_blank" rel="noreferrer noopener">{{ image.sourceUrl }}</a>
+            <a :href="image.sourceUrl" target="_blank" rel="noreferrer noopener">{{
+              image.sourceUrl
+            }}</a>
             <span class="scenic-page__credit-meta">
               作者：{{ image.author || '未署名' }} · 许可：{{ image.license || '未知' }}
             </span>
@@ -225,23 +229,6 @@ watch(
 </script>
 
 <style scoped>
-/*
- * 景区卡片与图廊用的是 --learn-* 色板（教学层的亮底取值）。
- * 这一页是深底空间层，把这几个变量换成本层的深色取值，
- * 组件本身不写死色值，两种底色下都能看清。
- */
-.scenic-page {
-  --learn-panel: var(--bg-panel);
-  --learn-ink: var(--text-hi);
-  --learn-ink-soft: var(--text-mid);
-  --learn-ink-faint: var(--text-lo);
-  --learn-line: var(--line);
-  --learn-accent: var(--accent);
-  --learn-accent-soft: var(--accent-dim);
-  --learn-warn: var(--accent-warm);
-  --learn-on-tint: #ffffff;
-}
-
 .scenic-page__section {
   margin-bottom: var(--sp-5);
 }

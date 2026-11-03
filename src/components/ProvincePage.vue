@@ -8,12 +8,7 @@
       </button>
       <span class="detail-page__brand">3D-EARTH <i>/</i> PROVINCE</span>
       <router-link class="detail-page__licenses" to="/licenses">许可</router-link>
-      <button
-        type="button"
-        class="detail-page__back"
-        :disabled="randomPending"
-        @click="pickRandom"
-      >
+      <button type="button" class="detail-page__back" :disabled="randomPending" @click="pickRandom">
         <span>随便看看</span>
       </button>
       <span class="detail-page__code mono">{{ route.params.adcode || '——' }}</span>
@@ -40,7 +35,8 @@
       </section>
 
       <!-- 数据面板 -->
-      <HudPanel class="detail-page__facts" title="基础数据" meta="FACTS">
+      <section class="detail-page__facts">
+        <h2 class="detail-page__section-title">基础数据</h2>
         <dl class="facts">
           <div class="facts__cell">
             <dt>行政中心</dt>
@@ -63,7 +59,7 @@
             <dd class="mono">{{ data.center[0].toFixed(3) }}, {{ data.center[1].toFixed(3) }}</dd>
           </div>
         </dl>
-      </HudPanel>
+      </section>
 
       <!-- 简介 -->
       <section class="detail-page__intro">
@@ -75,10 +71,11 @@
       <section class="detail-page__intro">
         <span class="detail-page__intro-label">数据口径 / NOTES</span>
         <p>
-          <b>边界围合面积</b>由本省的行政区划边界在球面上直接计算得到（球面鞋带公式，
-          地球平均半径 6371.0088 km）；它随边界数据自动更新。<b>公布面积</b>是统计口径的公开数值，
-          沿海省份的行政边界包含管辖海域，前者因此会略大于后者。人口取自{{ data.populationSource }}口径的公开统计值，
-          各省统计年份不完全一致，34 个省级行政区合计与全国人口相差约 2%。
+          <b>边界围合面积</b>由本省的行政区划边界在球面上直接计算得到（球面鞋带公式， 地球平均半径
+          6371.0088 km）；它随边界数据自动更新。<b>公布面积</b>是统计口径的公开数值，
+          沿海省份的行政边界包含管辖海域，前者因此会略大于后者。人口取自{{
+            data.populationSource
+          }}口径的公开统计值， 各省统计年份不完全一致，34 个省级行政区合计与全国人口相差约 2%。
         </p>
       </section>
 
@@ -86,7 +83,12 @@
       <section id="scenic" class="detail-page__intro">
         <span class="detail-page__intro-label">景区 / SCENIC</span>
         <div v-if="scenics.length" class="province-scenic-grid">
-          <ScenicCard v-for="scenic in scenics" :key="scenic.id" :scenic="scenic" :adcode="adcode" />
+          <ScenicCard
+            v-for="scenic in scenics"
+            :key="scenic.id"
+            :scenic="scenic"
+            :adcode="adcode"
+          />
         </div>
         <p v-else class="detail-page__state">本省景区的图文内容还在整理中。</p>
       </section>
@@ -105,13 +107,16 @@
 
       <div class="detail-page__actions">
         <button type="button" class="detail-page__cta" @click="goBack">返回地球</button>
-      </div>    </main>
+      </div>
+    </main>
 
     <!-- 底部数据说明栏 -->
     <footer class="detail-page__foot">
       <span class="mono">坐标系 WGS-84</span>
       <span class="mono">数据来源 public/data/provinces/{{ route.params.adcode }}.json</span>
-      <span class="mono detail-page__foot-warn">边界围合面积由行政区划边界在球面上直接计算得到</span>
+      <span class="mono detail-page__foot-warn"
+        >边界围合面积由行政区划边界在球面上直接计算得到</span
+      >
     </footer>
   </div>
 </template>
@@ -119,7 +124,6 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import HudPanel from './HudPanel.vue'
 import ScenicCard from './ScenicCard.vue'
 import { formatArea } from '../utils/areaData'
 import { loadAllLessons, lessonsByProvince } from '../utils/knowledge'
@@ -246,25 +250,7 @@ watch(
 )
 </script>
 
-
 <style scoped>
-/*
- * 景区卡片用的是 --learn-* 色板（教学层的亮底取值）。
- * 这一页是深底空间层，换成本层的深色取值，卡片在深底上也清晰，
- * 组件本身不写死色值。
- */
-.detail-page {
-  --learn-panel: var(--bg-panel);
-  --learn-ink: var(--text-hi);
-  --learn-ink-soft: var(--text-mid);
-  --learn-ink-faint: var(--text-lo);
-  --learn-line: var(--line);
-  --learn-accent: var(--accent);
-  --learn-accent-soft: var(--accent-dim);
-  --learn-warn: var(--accent-warm);
-  --learn-on-tint: #ffffff;
-}
-
 .province-scenic-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));

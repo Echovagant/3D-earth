@@ -313,33 +313,33 @@ const goBack = () => {
 
 .licenses__block h2 {
   margin: 0 0 var(--sp-3);
-  font-size: var(--fs-value);
-  color: var(--text-hi);
+  font-size: var(--learn-fs-value);
+  color: var(--learn-ink);
 }
 
 .licenses__list {
   margin: 0;
   padding-left: 1.2em;
-  color: var(--text-mid);
-  font-size: var(--fs-body);
+  color: var(--learn-ink-soft);
+  font-size: var(--learn-fs-body);
   line-height: 1.9;
 }
 
 .licenses__list strong {
-  color: var(--text-hi);
+  color: var(--learn-ink);
 }
 
 .licenses__table-wrap {
   overflow-x: auto;
-  border: 1px solid var(--line-faint);
+  border: 1px solid var(--learn-line);
   border-radius: var(--radius-sm);
 }
 
 .licenses__table {
   width: 100%;
   border-collapse: collapse;
-  font-size: var(--fs-label);
-  color: var(--text-mid);
+  font-size: var(--learn-fs-label);
+  color: var(--learn-ink-soft);
 }
 
 .licenses__table th,
@@ -347,11 +347,11 @@ const goBack = () => {
   padding: var(--sp-2) var(--sp-3);
   text-align: left;
   vertical-align: top;
-  border-bottom: 1px solid var(--line-faint);
+  border-bottom: 1px solid var(--learn-line);
 }
 
 .licenses__table th {
-  color: var(--text-lo);
+  color: var(--learn-ink-faint);
   font-family: var(--font-mono);
   letter-spacing: 0.12em;
   white-space: nowrap;
@@ -362,18 +362,18 @@ const goBack = () => {
 }
 
 .licenses__table a {
-  color: var(--accent);
+  color: var(--learn-accent);
 }
 
 .licenses__note {
   margin: var(--sp-3) 0 0;
-  font-size: var(--fs-label);
+  font-size: var(--learn-fs-label);
   line-height: 1.9;
-  color: var(--text-lo);
+  color: var(--learn-ink-faint);
 }
 
 code {
   font-family: var(--font-mono);
-  color: var(--text-mid);
+  color: var(--learn-ink-soft);
 }
 </style>

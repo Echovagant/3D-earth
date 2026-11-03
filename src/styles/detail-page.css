@@ -1,46 +1,20 @@
 /*
- * 详情页共享样式：省份 / 地级市 / 国家三个页面共用一套骨架与视觉。
+ * 详情页共享样式（亮色学习体系）：省份 / 国家 / 景区 / 许可 / 标准地图共用。
  *
- * 这份文件从三个页面各自的 scoped 样式合并而来——原先三处各抄一份，
- * 归一化后有 127 行完全相同，且已经开始漂移（某个页面多一行 font-style，
- * 另一个页面多一个 .facts__year）。现在是唯一一份。
- * .facts__year 原本用来标注人口统计年份，世界数据不再带人口，已随之移除。
+ * 曾经是深空 HUD 风格；产品定位收敛后（星空只属于地球与世界两个球面页），
+ * 整体迁入 --learn-* 学习体系：浅底、单强调色，层级靠字重与颜色而不是
+ * 发光与描边。类名与模板结构保持不变，页面测试与肌肉记忆都不破。
  *
- * 非 scoped：三个页面的根元素都是 .detail-page，类名前缀足够独特，不会误伤。
+ * 章节标签（「简介 / BRIEF」这类双语小标）是全站的既有标注约定，
+ * 统一样式为安静的小标题，不再用字距与强调色做 eyebrow。
  */
 
 .detail-page {
   position: relative;
-  min-height: 100%;
+  min-height: 100dvh;
   overflow-y: auto;
-  color: var(--text-hi);
-  background:
-  radial-gradient(circle at 22% 12%, rgba(91, 140, 255, 0.16) 0%, transparent 46%),
-  radial-gradient(circle at 80% 80%, rgba(79, 216, 255, 0.1) 0%, transparent 52%),
-  var(--bg-void);
-}
-
-.detail-page::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background-image:
-  linear-gradient(rgba(120, 190, 255, 0.05) 1px, transparent 1px),
-  linear-gradient(90deg, rgba(120, 190, 255, 0.05) 1px, transparent 1px);
-  background-size: 44px 44px;
-  mask-image: radial-gradient(circle at 50% 40%, #000 0%, transparent 78%);
-}
-
-.detail-page::after {
-  content: '';
-  position: fixed;
-  left: 0;
-  right: 0;
-  height: 140px;
-  pointer-events: none;
-  background: linear-gradient(180deg, transparent, rgba(79, 216, 255, 0.05), transparent);
-  animation: scan 7s linear infinite;
+  color: var(--learn-ink);
+  background: var(--learn-bg);
 }
 
 .detail-page__bar {
@@ -51,45 +25,41 @@
   align-items: center;
   gap: var(--sp-4);
   padding: var(--sp-3) var(--sp-5);
-  background: rgba(4, 7, 15, 0.78);
-  border-bottom: 1px solid var(--line-faint);
+  background: var(--learn-panel);
+  border-bottom: 1px solid var(--learn-line);
   backdrop-filter: blur(10px);
 }
 
 /* 顶栏里的「许可」链接：数据来源与许可页的入口 */
 .detail-page__licenses {
   margin-left: auto;
-  font-family: var(--font-mono);
-  font-size: var(--fs-label);
-  letter-spacing: 0.14em;
-  color: var(--text-lo);
+  font-size: var(--learn-fs-label);
+  color: var(--learn-ink-faint);
   text-decoration: none;
   transition: color var(--dur-fast) var(--ease);
 }
 
 .detail-page__licenses:hover {
-  color: var(--accent);
+  color: var(--learn-accent);
 }
 
 .detail-page__back {
   display: inline-flex;
   align-items: center;
   gap: var(--sp-1);
-  padding: 4px 12px 4px 8px;
-  border: 1px solid var(--line);
+  padding: 6px 12px 6px 8px;
+  border: 1px solid var(--learn-line);
   border-radius: var(--radius-sm);
   background: transparent;
-  color: var(--text-mid);
-  font-family: var(--font-mono);
-  font-size: var(--fs-label);
-  letter-spacing: 0.12em;
+  color: var(--learn-ink-soft);
+  font-size: var(--learn-fs-label);
   cursor: pointer;
   transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
 }
 
 .detail-page__back:hover {
-  color: var(--accent);
-  border-color: var(--line-strong);
+  color: var(--learn-accent);
+  border-color: var(--learn-accent);
 }
 
 .detail-page__back-arrow {
@@ -101,60 +71,55 @@
   flex: 1;
   text-align: center;
   font-family: var(--font-mono);
-  font-size: var(--fs-label);
-  letter-spacing: 0.24em;
-  color: var(--text-lo);
+  font-size: var(--learn-fs-label);
+  letter-spacing: 0.08em;
+  color: var(--learn-ink-faint);
 }
 
 .detail-page__brand i {
-  color: var(--accent);
+  color: var(--learn-accent);
   font-style: normal;
   opacity: 0.7;
 }
 
 .detail-page__code {
-  font-size: var(--fs-label);
-  letter-spacing: 0.14em;
-  color: var(--accent);
-  opacity: 0.85;
+  font-family: var(--font-mono);
+  font-size: var(--learn-fs-label);
+  color: var(--learn-accent);
 }
 
 .detail-page__state {
   padding: 80px var(--sp-5);
   text-align: center;
-  font-family: var(--font-mono);
-  font-size: var(--fs-label);
-  letter-spacing: 0.16em;
-  color: var(--text-lo);
+  font-size: var(--learn-fs-body);
+  color: var(--learn-ink-faint);
 }
 
 .detail-page__state--error {
-  color: #ff8f8f;
+  color: var(--learn-warn);
 }
 
 .detail-page__retry {
   margin-top: var(--sp-3);
-  padding: 6px 18px;
-  border: 1px solid var(--line);
+  padding: 8px 18px;
+  border: 1px solid var(--learn-line);
   border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--text-mid);
-  font-family: var(--font-mono);
-  font-size: var(--fs-label);
-  letter-spacing: 0.12em;
+  background: var(--learn-panel);
+  color: var(--learn-ink-soft);
+  font-size: var(--learn-fs-label);
   cursor: pointer;
 }
 
 .detail-page__retry:hover {
-  color: var(--accent);
+  color: var(--learn-accent);
+  border-color: var(--learn-accent);
 }
 
 .detail-page__main {
   position: relative;
-  z-index: 1;
   max-width: 860px;
   margin: 0 auto;
-  padding: var(--sp-6) var(--sp-5) var(--sp-6);
+  padding: var(--sp-6) var(--sp-5) calc(var(--sp-6) + var(--sp-2));
   animation: rise var(--dur-slow) var(--ease) both;
 }
 
@@ -172,30 +137,36 @@
   width: 60px;
   height: 60px;
   flex: none;
-  border: 1px solid var(--line-strong);
   border-radius: var(--radius);
-  background: var(--accent-dim);
-  color: var(--accent);
+  background: var(--learn-accent-soft);
+  color: var(--learn-accent);
   font-size: 28px;
   font-weight: 600;
-  box-shadow: var(--glow-soft);
 }
 
 .detail-page__heading h1 {
   margin: 0 0 2px;
-  font-size: var(--fs-title);
+  font-size: var(--learn-fs-title);
   font-weight: 600;
-  letter-spacing: 0.04em;
+  color: var(--learn-ink);
 }
 
 .detail-page__sub {
-  font-size: var(--fs-label);
-  letter-spacing: 0.1em;
-  color: var(--text-lo);
+  font-size: var(--learn-fs-label);
+  color: var(--learn-ink-faint);
 }
 
+/* 基础数据：不再用 HUD 立体框，一张安静的卡片读起来更像「表格」而不是「仪表」 */
 .detail-page__facts {
   margin-bottom: var(--sp-5);
+}
+
+.detail-page__section-title {
+  display: block;
+  margin-bottom: var(--sp-2);
+  font-size: var(--learn-fs-body);
+  font-weight: 600;
+  color: var(--learn-ink);
 }
 
 .facts {
@@ -207,44 +178,44 @@
 
 .facts__cell {
   padding: var(--sp-3);
-  border: 1px solid var(--line-faint);
+  border: 1px solid var(--learn-line);
   border-radius: var(--radius-sm);
-  background: rgba(0, 0, 0, 0.22);
+  background: var(--learn-panel);
 }
 
 .facts__cell dt {
-  font-size: var(--fs-label);
-  letter-spacing: 0.14em;
-  color: var(--text-lo);
+  font-size: var(--learn-fs-label);
+  color: var(--learn-ink-faint);
 }
 
 .facts__cell dd {
   margin: var(--sp-1) 0 0;
-  font-size: var(--fs-value);
-  color: var(--text-hi);
+  font-size: var(--learn-fs-value);
+  font-variant-numeric: tabular-nums;
+  color: var(--learn-ink);
 }
 
 .detail-page__intro {
   position: relative;
   margin-bottom: var(--sp-5);
   padding-left: var(--sp-4);
-  border-left: 2px solid var(--accent-soft);
+  border-left: 2px solid var(--learn-line);
 }
 
 .detail-page__intro-label {
   display: block;
   margin-bottom: var(--sp-2);
-  font-family: var(--font-mono);
-  font-size: var(--fs-label);
-  letter-spacing: 0.2em;
-  color: var(--accent);
-  opacity: 0.8;
+  font-size: var(--learn-fs-body);
+  font-weight: 600;
+  color: var(--learn-ink);
 }
 
 .detail-page__intro p {
   margin: 0;
+  max-width: 65ch;
+  font-size: var(--learn-fs-body);
   line-height: 1.95;
-  color: var(--text-mid);
+  color: var(--learn-ink-soft);
 }
 
 .detail-page__tags {
@@ -261,19 +232,10 @@
   align-items: center;
   gap: var(--sp-2);
   padding: 4px 12px;
-  border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  background: rgba(79, 216, 255, 0.06);
-  font-size: var(--fs-body);
-  color: var(--text-mid);
-}
-
-.detail-page__tag-dot {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: var(--glow);
+  background: var(--learn-accent-soft);
+  font-size: var(--learn-fs-body);
+  color: var(--learn-ink-soft);
 }
 
 /* 关联知识点里的条目是链接：去掉 <a> 的默认下划线，颜色继承标签本身的 */
@@ -283,7 +245,7 @@
 }
 
 .detail-page__tag-link:hover {
-  color: var(--accent);
+  color: var(--learn-accent);
 }
 
 .detail-page__actions {
@@ -293,33 +255,31 @@
 }
 
 .detail-page__cta {
-  padding: 9px 28px;
-  border: 1px solid var(--line-strong);
+  padding: 10px 28px;
+  border: 1px solid var(--learn-accent);
   border-radius: var(--radius-sm);
-  background: var(--accent-dim);
-  color: var(--text-hi);
-  font-family: var(--font-mono);
-  font-size: var(--fs-body);
-  letter-spacing: 0.14em;
+  background: var(--learn-accent-soft);
+  color: var(--learn-accent);
+  font-size: var(--learn-fs-body);
   cursor: pointer;
-  transition: background var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
 }
 
 .detail-page__cta:hover {
-  background: rgba(79, 216, 255, 0.18);
-  box-shadow: var(--glow-soft);
+  background: var(--learn-accent);
+  color: #ffffff;
 }
 
 .detail-page__cta--ghost {
   background: transparent;
-  color: var(--text-mid);
-  border-color: var(--line);
+  color: var(--learn-ink-soft);
+  border-color: var(--learn-line);
 }
 
 .detail-page__cta--ghost:hover {
-  color: var(--accent);
-  border-color: var(--line-strong);
-  background: var(--accent-dim);
+  color: var(--learn-accent);
+  border-color: var(--learn-accent);
+  background: var(--learn-accent-soft);
 }
 
 .detail-page__foot {
@@ -330,36 +290,44 @@
   flex-wrap: wrap;
   gap: var(--sp-4);
   padding: var(--sp-2) var(--sp-5);
-  background: rgba(4, 7, 15, 0.7);
-  border-top: 1px solid var(--line-faint);
-  backdrop-filter: blur(8px);
-  font-size: var(--fs-label);
-  letter-spacing: 0.08em;
-  color: var(--text-lo);
+  background: var(--learn-panel);
+  border-top: 1px solid var(--learn-line);
+  font-size: var(--learn-fs-label);
+  color: var(--learn-ink-faint);
 }
 
 .detail-page__foot-warn {
   margin-left: auto;
-  color: var(--accent-warm);
-  opacity: 0.7;
+  color: var(--learn-warn);
+  opacity: 0.85;
 }
 
 @keyframes rise {
   from {
-  opacity: 0;
-  transform: translateY(10px);
+    opacity: 0;
+    transform: translateY(10px);
   }
   to {
-  opacity: 1;
-  transform: none;
+    opacity: 1;
+    transform: none;
   }
 }
 
-@keyframes scan {
-  0% {
-  transform: translateY(-140px);
+/* 手机与窄屏：顶栏允许换行，主内容左右收窄 */
+@media (max-width: 640px) {
+  .detail-page__bar {
+    flex-wrap: wrap;
+    gap: var(--sp-2) var(--sp-3);
+    padding: var(--sp-2) var(--sp-3);
   }
-  100% {
-  transform: translateY(100vh);
+
+  .detail-page__brand {
+    order: 10;
+    flex-basis: 100%;
+    text-align: left;
+  }
+
+  .detail-page__main {
+    padding: var(--sp-5) var(--sp-4) var(--sp-6);
   }
 }

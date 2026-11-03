@@ -29,7 +29,8 @@
         </div>
       </section>
 
-      <HudPanel class="detail-page__facts" title="基础数据" meta="FACTS">
+      <section class="detail-page__facts">
+        <h2 class="detail-page__section-title">基础数据</h2>
         <dl class="facts">
           <div v-if="country.fullName !== country.name" class="facts__cell">
             <dt>官方名称</dt>
@@ -55,14 +56,14 @@
             </dd>
           </div>
         </dl>
-      </HudPanel>
+      </section>
 
       <section class="detail-page__intro">
         <span class="detail-page__intro-label">数据说明 / NOTES</span>
         <p>
-          边界围合面积由该国的行政区划边界在球面上直接计算得到（球面鞋带公式，地球平均半径
-          6371.0088 km），与省级详情页用的是同一个公式。国名与 ISO 代码取自
-          ISO 3166-1 地区划分；这套数据不含人口统计。
+          边界围合面积由该国的行政区划边界在球面上直接计算得到（球面鞋带公式，地球平均半径 6371.0088
+          km），与省级详情页用的是同一个公式。国名与 ISO 代码取自 ISO 3166-1
+          地区划分；这套数据不含人口统计。
         </p>
       </section>
 
@@ -76,7 +77,6 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import HudPanel from './HudPanel.vue'
 import { featureAreaKm2, formatArea } from '../utils/areaData'
 import { createRequestGuard } from '../utils/latestRequest'
 import {
@@ -149,4 +149,3 @@ onBeforeUnmount(() => {
 // 不盯着 iso3 的话，URL 已经变成另一个国家，页面还停在上一个国家的数据
 watch(iso3, load)
 </script>
-

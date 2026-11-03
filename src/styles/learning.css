@@ -5,8 +5,9 @@
  * 颜色一律走这里定义的变量，组件里不写死具体色值。
  */
 
-.learn-page,
-.site-foot {
+/* 产品 token 挂在 :root：学习体系是全站默认皮肤，
+   星空只保留在地球与世界两个球面页（它们不引用 --learn-*） */
+:root {
   --learn-bg: #f4f7fb;
   --learn-panel: #ffffff;
   --learn-ink: #16202e;
@@ -18,6 +19,11 @@
   --learn-warn: #b4530a;
   /* 压在省色渐变上的文字色：省色是中亮度，浅字才看得清 */
   --learn-on-tint: #ffffff;
+  /* 产品字号档：阅读界面的字级与 HUD 的 --fs-*（10px 系）分开 */
+  --learn-fs-label: 12px;
+  --learn-fs-body: 15px;
+  --learn-fs-value: 16px;
+  --learn-fs-title: 22px;
 }
 
 .learn-page {
@@ -723,4 +729,81 @@ a.learn-tag:hover {
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: var(--sp-3);
   width: 100%;
+}
+
+/* 课程地图的学习路径：竖向序列，一章一步 */
+.course-path {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.course-path__step + .course-path__step {
+  border-top: 1px solid var(--learn-line);
+}
+
+.course-path__link {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-1);
+  text-decoration: none;
+  color: inherit;
+}
+
+.course-path__link:hover .course-path__name {
+  color: var(--learn-accent);
+}
+
+.course-path__name {
+  font-size: var(--learn-fs-body);
+  font-weight: 600;
+  color: var(--learn-ink);
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.course-path__meta {
+  margin: 0;
+  padding: 0 var(--sp-1) var(--sp-3);
+  font-size: var(--learn-fs-label);
+  color: var(--learn-ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 接着学：当前最该点的那一条，整条卡可点 */
+.course-next {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--learn-accent);
+  border-radius: var(--radius);
+  background: var(--learn-accent-soft);
+  text-decoration: none;
+  transition:
+    transform var(--dur-fast) var(--ease),
+    background var(--dur-fast) var(--ease);
+}
+
+.course-next:hover {
+  background: color-mix(in srgb, var(--learn-accent-soft) 60%, var(--learn-panel));
+  transform: translateY(-1px);
+}
+
+.course-next__ref {
+  flex: none;
+  font-size: var(--learn-fs-label);
+  color: var(--learn-accent);
+}
+
+.course-next__title {
+  flex: 1;
+  font-size: var(--learn-fs-body);
+  font-weight: 600;
+  color: var(--learn-ink);
+}
+
+.course-next__arrow {
+  flex: none;
+  color: var(--learn-accent);
 }

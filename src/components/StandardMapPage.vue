@@ -36,16 +36,16 @@
         </p>
         <p class="standard__lead">
           下表按审核年份从新到旧排列，最新一批是
-          <strong class="standard__latest">{{ latestYear }} 年</strong
-          >审核的；共 {{ maps.length }} 张，其中 {{ olderYearCount }} 张是 {{ oldestYear }}–{{
-            latestYear - 1
-          }}
+          <strong class="standard__latest">{{ latestYear }} 年</strong>审核的；共
+          {{ maps.length }} 张，其中 {{ olderYearCount }} 张是 {{ oldestYear }}–{{ latestYear - 1 }}
           年审核的。
         </p>
         <p class="standard__lead">
-          <strong>「审图号有效期两年」说的是互联网地图服务审图号</strong>——《地图审核管理规定》第二十八条
+          <strong>「审图号有效期两年」说的是互联网地图服务审图号</strong
+          >——《地图审核管理规定》第二十八条
           的原文是「互联网地图服务审图号有效期为两年。审图号到期，应当重新送审」，第三十二条的罚则同样只针对这一类，
-          <strong>不适用于标准地图产品</strong>。标准地图是自然资源部提供的公益性地图：该规定第六条第一项明确
+          <strong>不适用于标准地图产品</strong
+          >。标准地图是自然资源部提供的公益性地图：该规定第六条第一项明确
           「直接使用自然资源主管部门提供的具有审图号的公益性地图」不需要再送审；官方系统的口径是
           「社会公众可以免费浏览、下载标准地图，直接使用标准地图时需要标注审图号」，
           并至今仍在目录里提供 2016 年以来审核的地图与其审图号。
@@ -56,7 +56,8 @@
         </p>
       </section>
 
-      <HudPanel class="standard__panel" title="标准地图清单" meta="STANDARD MAPS">
+      <section class="standard__panel">
+        <h2 class="detail-page__section-title">标准地图清单</h2>
         <div v-if="loading" class="standard__state">读取清单…</div>
         <div v-else-if="error" class="standard__state standard__state--error">
           <p>{{ error }}</p>
@@ -122,7 +123,8 @@
             <template v-if="withoutNumberCount > 0">
               其中 {{ withoutNumberCount }} 张官方未公布审图号。
             </template>
-            完整清单与审图号见仓库里的 <code>public/data/standard-maps.json</code>；下载与使用请到官方服务系统。
+            完整清单与审图号见仓库里的
+            <code>public/data/standard-maps.json</code>；下载与使用请到官方服务系统。
           </p>
 
           <button
@@ -134,7 +136,7 @@
             显示更多（还有 {{ filteredMaps.length - shownMaps.length }} 张）
           </button>
         </template>
-      </HudPanel>
+      </section>
 
       <section class="standard__block">
         <h2 class="standard__h2">关于本站的 3D 地球</h2>
@@ -169,7 +171,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import HudPanel from './HudPanel.vue'
 import { assetUrl } from '../utils/base'
 
 const router = useRouter()
@@ -264,38 +265,38 @@ onMounted(load)
 
 .standard__h2 {
   margin: 0 0 var(--sp-3);
-  font-size: var(--fs-value);
-  color: var(--text-hi);
+  font-size: var(--learn-fs-value);
+  color: var(--learn-ink);
 }
 
 .standard__lead {
   margin: 0 0 var(--sp-3);
-  font-size: var(--fs-body);
+  font-size: var(--learn-fs-body);
   line-height: 1.9;
-  color: var(--text-mid);
+  color: var(--learn-ink-soft);
 }
 
 .standard__lead strong {
-  color: var(--text-hi);
+  color: var(--learn-ink);
 }
 
 .standard__lead a {
-  color: var(--accent);
+  color: var(--learn-accent);
 }
 
 .standard__latest {
-  color: var(--accent);
+  color: var(--learn-accent);
 }
 
 .standard__state {
   padding: var(--sp-4);
-  font-size: var(--fs-label);
-  color: var(--text-lo);
+  font-size: var(--learn-fs-label);
+  color: var(--learn-ink-faint);
   text-align: center;
 }
 
 .standard__state--error {
-  color: var(--accent-warm);
+  color: var(--learn-warn);
 }
 
 .standard__retry {
@@ -304,9 +305,9 @@ onMounted(load)
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   background: transparent;
-  color: var(--text-hi);
+  color: var(--learn-ink);
   font-family: var(--font-mono);
-  font-size: var(--fs-label);
+  font-size: var(--learn-fs-label);
   cursor: pointer;
 }
 
@@ -322,8 +323,8 @@ onMounted(load)
   align-items: center;
   gap: var(--sp-2);
   font-family: var(--font-mono);
-  font-size: var(--fs-label);
-  color: var(--text-lo);
+  font-size: var(--learn-fs-label);
+  color: var(--learn-ink-faint);
 }
 
 .standard__field--grow {
@@ -337,29 +338,29 @@ onMounted(load)
   padding: 5px 8px;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  background: var(--accent-dim);
-  color: var(--text-hi);
+  background: var(--learn-accent-soft);
+  color: var(--learn-ink);
   font-family: var(--font-mono);
-  font-size: var(--fs-label);
+  font-size: var(--learn-fs-label);
 }
 
 .standard__field select:focus,
 .standard__field input:focus {
-  border-color: var(--line-strong);
+  border-color: var(--learn-accent);
   outline: none;
 }
 
 .standard__table-wrap {
   overflow-x: auto;
-  border: 1px solid var(--line-faint);
+  border: 1px solid var(--learn-line);
   border-radius: var(--radius-sm);
 }
 
 .standard__table {
   width: 100%;
   border-collapse: collapse;
-  font-size: var(--fs-label);
-  color: var(--text-mid);
+  font-size: var(--learn-fs-label);
+  color: var(--learn-ink-soft);
 }
 
 .standard__table th,
@@ -367,12 +368,12 @@ onMounted(load)
   padding: var(--sp-2) var(--sp-3);
   text-align: left;
   vertical-align: top;
-  border-bottom: 1px solid var(--line-faint);
+  border-bottom: 1px solid var(--learn-line);
   white-space: nowrap;
 }
 
 .standard__table th {
-  color: var(--text-lo);
+  color: var(--learn-ink-faint);
   font-family: var(--font-mono);
   letter-spacing: 0.12em;
 }
@@ -382,28 +383,28 @@ onMounted(load)
 }
 
 .standard__cat {
-  color: var(--text-lo);
+  color: var(--learn-ink-faint);
 }
 
 .standard__number {
-  color: var(--accent);
+  color: var(--learn-accent);
 }
 
 .standard__year {
-  color: var(--text-hi);
+  color: var(--learn-ink);
 }
 
 .standard__empty {
   padding: var(--sp-4);
-  color: var(--text-lo);
+  color: var(--learn-ink-faint);
   text-align: center;
 }
 
 .standard__note {
   margin: var(--sp-3) 0 0;
-  font-size: var(--fs-label);
+  font-size: var(--learn-fs-label);
   line-height: 1.8;
-  color: var(--text-lo);
+  color: var(--learn-ink-faint);
 }
 
 .standard__more {
@@ -413,20 +414,22 @@ onMounted(load)
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   background: transparent;
-  color: var(--accent);
+  color: var(--learn-accent);
   font-family: var(--font-mono);
-  font-size: var(--fs-label);
+  font-size: var(--learn-fs-label);
   cursor: pointer;
-  transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+  transition:
+    border-color var(--dur-fast) var(--ease),
+    background var(--dur-fast) var(--ease);
 }
 
 .standard__more:hover {
-  border-color: var(--line-strong);
-  background: var(--accent-dim);
+  border-color: var(--learn-accent);
+  background: var(--learn-accent-soft);
 }
 
 code {
   font-family: var(--font-mono);
-  color: var(--text-mid);
+  color: var(--learn-ink-soft);
 }
 </style>
