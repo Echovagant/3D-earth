@@ -191,6 +191,29 @@ describe('景区图廊', () => {
     expect(w.findAll('.scenic-gallery__thumbs button')).toHaveLength(2)
   })
 
+  it('没落盘的候选（file 为空）不渲染缩略图，计数也不算它', async () => {
+    // 清单里允许「已落盘 + 未落盘候选」共存：缩略图条如果遍历原始 prop，
+    // 会渲染出空 src 的破图（150000 成吉思汗陵实测踩过）
+    const w = mountGallery([
+      galleryImages[0],
+      {
+        file: '',
+        sourceUrl: 'https://commons.wikimedia.org/wiki/File:B.jpg',
+        license: 'CC0-1.0',
+        author: 'Y',
+      },
+    ])
+    expect(w.findAll('.scenic-gallery__thumbs button')).toHaveLength(1)
+    expect(w.find('.scenic-gallery__main img').attributes('src')).toContain('a.jpg')
+    // 灯箱里的计数只数可显示的
+    await w.find('.scenic-gallery__main').trigger('click')
+    expect(w.find('.scenic-lightbox__counter').text()).toContain('1 / 1')
+    // 没有任何空 src 的 img
+    for (const img of w.findAll('img')) {
+      expect(img.attributes('src')).not.toBe('/data/scenic/images/')
+    }
+  })
+
   it('点缩略图切到那张', async () => {
     const w = mountGallery()
     await w.findAll('.scenic-gallery__thumbs button')[1].trigger('click')

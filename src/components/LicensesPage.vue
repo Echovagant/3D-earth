@@ -22,12 +22,18 @@
       <section class="licenses__block">
         <h2>本项目</h2>
         <ul class="licenses__list">
-          <li>代码与文档以 <strong>Apache License 2.0</strong> 发布（见仓库根目录 <code>LICENSE</code>）。</li>
+          <li>
+            代码与文档以 <strong>Apache License 2.0</strong> 发布（见仓库根目录
+            <code>LICENSE</code>）。
+          </li>
           <li>
             纯静态前端：没有后端、没有统计脚本、没有 Cookie、不收集也不上传任何个人信息。
             页面上的每一次交互都只发生在浏览器本地。
           </li>
-          <li>第三方依赖的许可：Vue / Vue Router / Three.js 为 MIT，earcut 为 ISC，清单见 <code>package.json</code>。</li>
+          <li>
+            第三方依赖的许可：Vue / Vue Router / Three.js 为 MIT，earcut 为 ISC，清单见
+            <code>package.json</code>。
+          </li>
         </ul>
       </section>
 
@@ -65,10 +71,17 @@
             </thead>
             <tbody>
               <tr>
-                <td><code>public/geojson/china-provinces.json</code><br /><code>public/geojson/china.json</code></td>
+                <td>
+                  <code>public/geojson/china-provinces.json</code><br /><code
+                    >public/geojson/china.json</code
+                  >
+                </td>
                 <td>34 个省级行政区 + 南海断续线要素</td>
                 <td>
-                  <a href="https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json" target="_blank" rel="noreferrer noopener"
+                  <a
+                    href="https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json"
+                    target="_blank"
+                    rel="noreferrer noopener"
                     >DataV.GeoAtlas 行政区划边界</a
                   >
                   （阿里云）
@@ -79,8 +92,8 @@
                 <td><code>public/geojson/world-countries.json</code></td>
                 <td>239 个国家/地区边界，含中文名、ISO 3166-1 代码与地区划分</td>
                 <td>
-                  几何与中文名：<code>@surbowl/world-geo-json-zh</code>；大洲与次区域：联合国 M49 地区划分
-                  （<code>un-m49</code>）
+                  几何与中文名：<code>@surbowl/world-geo-json-zh</code>；大洲与次区域：联合国 M49
+                  地区划分 （<code>un-m49</code>）
                 </td>
                 <td>Unlicense（公有领域）+ MIT</td>
               </tr>
@@ -88,7 +101,8 @@
           </table>
         </div>
         <p class="licenses__note">
-          上述文件由 <code>scripts/</code> 下的同步脚本从上游取回后随仓库分发，运行时不再请求任何第三方接口。
+          上述文件由
+          <code>scripts/</code> 下的同步脚本从上游取回后随仓库分发，运行时不再请求任何第三方接口。
           <code>public/geojson/</code> 是只读数据源，不要手工修改。
         </p>
       </section>
@@ -120,6 +134,39 @@
       </section>
 
       <section class="licenses__block">
+        <h2>景区图片来源</h2>
+        <ul class="licenses__list">
+          <li>
+            省详情页与景区详情页展示的景区照片全部来自
+            <a href="https://commons.wikimedia.org/" target="_blank" rel="noreferrer noopener"
+              >Wikimedia Commons</a
+            >， <strong>只收自由许可</strong>：CC0 / 公有领域 / CC BY / CC BY-SA（全部版本）。
+            许可白名单写死在 <code>src/data/scenicRules.js</code>——不在白名单的图没有下载动作。
+          </li>
+          <li>
+            当前入库 110 张：CC BY-SA 4.0 ×37、CC BY-SA 3.0 ×33、公有领域 ×11、CC BY 2.0 ×7、 CC
+            BY-SA 2.0 ×5、CC0 ×4、CC BY 3.0 ×4、CC BY 2.5 ×4、CC BY 4.0 ×3、CC BY-SA 2.5 ×2。 NC /
+            ND / Fair use 一律不收。
+          </li>
+          <li>
+            <strong>署名在这里履行</strong>：逐张署名写在各省清单
+            <code>public/data/scenic/&lt;adcode&gt;.json</code> 的
+            <code>images[].author / license / sourceUrl</code> 字段；
+            每个景区详情页底部的「图片来源与许可」区块逐张列出作者、许可与原始页面链接。
+          </li>
+          <li>
+            规模：34 个省级行政区各 3–4 个景区，共 125 个，其中 114 个有图（91.2%）。 大图
+            960px、缩略图 320px，取 Commons 预生成缩放版本再用 ImageMagick 压缩； 同一张 Commons
+            文件按文件名 md5 只落盘一份。
+          </li>
+        </ul>
+        <p class="licenses__note">
+          抓取由 <code>scripts/fetch-scenic-images.mjs</code> 批量完成（跑在 GitHub Actions 上），
+          每一步都先过许可白名单再下载。
+        </p>
+      </section>
+
+      <section class="licenses__block">
         <h2>统计数字</h2>
         <ul class="licenses__list">
           <li>
@@ -137,8 +184,14 @@
       <section class="licenses__block">
         <h2>数据完整性</h2>
         <ul class="licenses__list">
-          <li>中国部分：34 个省级行政区 + 南海断续线要素；下一级共 497 个边界要素（直辖市这一级为市辖区）。</li>
-          <li>世界部分：239 个国家/地区。台湾省在中国地图里作为中国的一个省级行政区呈现；科索沃在两个上游数据里都没有单列条目，那块地并入塞尔维亚的轮廓。</li>
+          <li>
+            中国部分：34 个省级行政区 + 南海断续线要素；下一级共 497
+            个边界要素（直辖市这一级为市辖区）。
+          </li>
+          <li>
+            世界部分：239
+            个国家/地区。台湾省在中国地图里作为中国的一个省级行政区呈现；科索沃在两个上游数据里都没有单列条目，那块地并入塞尔维亚的轮廓。
+          </li>
           <li>人口为 2023 年末公开统计口径；全球视角不含人口统计。</li>
           <li>完整的收录口径与权威对照链接见 README 的「数据完整性与收录口径」一节。</li>
         </ul>
@@ -152,20 +205,36 @@
             也不提供审图号。行政区划以官方发布为准。
           </li>
           <li>
-            依据<a href="https://www.gov.cn/zhengce/zhengceku/2015-12/14/content_10403.htm" target="_blank" rel="noreferrer noopener">《地图管理条例》</a>第二条、第十五条，
-            向社会公开的地图应当报送审核；依据<a href="http://www.gov.cn/gongbao/content/2018/content_5271747.htm" target="_blank" rel="noreferrer noopener">《地图审核管理规定》</a>第六条，
-            直接使用测绘地理信息主管部门提供的具有审图号的公益性地图不需要审核。
+            依据<a
+              href="https://www.gov.cn/zhengce/zhengceku/2015-12/14/content_10403.htm"
+              target="_blank"
+              rel="noreferrer noopener"
+              >《地图管理条例》</a
+            >第二条、第十五条， 向社会公开的地图应当报送审核；依据<a
+              href="http://www.gov.cn/gongbao/content/2018/content_5271747.htm"
+              target="_blank"
+              rel="noreferrer noopener"
+              >《地图审核管理规定》</a
+            >第六条， 直接使用测绘地理信息主管部门提供的具有审图号的公益性地图不需要审核。
           </li>
           <li>
             审图号由审核机关核发，不能随开源协议转让。用于课件、出版物或对外产品时，请自行使用
-            <a href="https://www.zrzyst.cn/" target="_blank" rel="noreferrer noopener">自然资源部审图中心的标准地图</a>并标注审图号。
+            <a href="https://www.zrzyst.cn/" target="_blank" rel="noreferrer noopener"
+              >自然资源部审图中心的标准地图</a
+            >并标注审图号。
           </li>
           <li>
-            《地图审核管理规定》第二十八条的「审图号有效期两年」<strong>指的是互联网地图服务审图号</strong>
+            《地图审核管理规定》第二十八条的「审图号有效期两年」<strong
+              >指的是互联网地图服务审图号</strong
+            >
             （原文：「互联网地图服务审图号有效期为两年。审图号到期，应当重新送审」），
             第三十二条的罚则同样只针对这一类，不适用于标准地图产品。标准地图是自然资源部提供的公益性地图，
-            该规定第六条第一项明确直接使用它不需要再送审。要自己下载使用某张标准地图，
-            请以<a href="http://bzdt.ch.mnr.gov.cn/" target="_blank" rel="noreferrer noopener">官方服务系统</a>当时给出的信息为准。
+            该规定第六条第一项明确直接使用它不需要再送审。要自己下载使用某张标准地图， 请以<a
+              href="http://bzdt.ch.mnr.gov.cn/"
+              target="_blank"
+              rel="noreferrer noopener"
+              >官方服务系统</a
+            >当时给出的信息为准。
           </li>
         </ul>
       </section>
@@ -182,11 +251,12 @@
             <code>scripts/update-standard-maps.mjs</code> 同步。
           </li>
           <li>
-            <strong>只收录元数据，不下载也不分发地图图片</strong>：标准地图可免费下载使用，但要求不改内容、标注审图号；
-            把图片打包进本仓库属于再分发。
+            <strong>只收录元数据，不下载也不分发地图图片</strong
+            >：标准地图可免费下载使用，但要求不改内容、标注审图号； 把图片打包进本仓库属于再分发。
           </li>
           <li>
-            <strong>审图号不适用于本项目的 3D 地球</strong>：审图号绑定的是特定平面地图产品的内容与表现形式，
+            <strong>审图号不适用于本项目的 3D 地球</strong
+            >：审图号绑定的是特定平面地图产品的内容与表现形式，
             本站把行政区划投到球面、重新配色并加了交互，属于另一种表现形式。需要审图号齐全的地图，
             请到官方服务系统下载。
           </li>
@@ -201,7 +271,10 @@
         <ul class="licenses__list">
           <li><code>scripts/update-geo.mjs</code> —— 中国省界与各省面积（DataV）。</li>
           <li><code>scripts/update-world.mjs</code> —— 世界国界（npm 官方源）。</li>
-          <li><code>scripts/update-standard-maps.mjs</code> —— 标准地图与审图号清单（标准地图服务系统）。</li>
+          <li>
+            <code>scripts/update-standard-maps.mjs</code> ——
+            标准地图与审图号清单（标准地图服务系统）。
+          </li>
           <li><code>scripts/check-licenses.mjs</code> —— 逐个体检上游可达性与许可字段。</li>
         </ul>
         <p class="licenses__note">

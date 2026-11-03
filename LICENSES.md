@@ -62,7 +62,36 @@
 
 ---
 
-## 五、统计数字（`public/data/provinces/`）
+## 五、景区图片来源（`public/data/scenic/`）
+
+省详情页与景区详情页展示的景区照片（`public/data/scenic/images/`）全部来自
+[Wikimedia Commons](https://commons.wikimedia.org/)，由 `scripts/fetch-scenic-images.mjs`
+批量抓取（抓取跑在 GitHub Actions 上），**只收自由许可**：
+
+| 许可家族 | 本仓库收录情况 | 义务 |
+|---|---|---|
+| CC0 / 公有领域（Public domain） | ✅ 收录 | 无 |
+| CC BY（1.0 / 2.0 / 2.5 / 3.0 / 4.0） | ✅ 收录 | 署名 |
+| CC BY-SA（1.0 / 2.0 / 2.5 / 3.0 / 4.0） | ✅ 收录 | 署名 + 相同方式共享（原样再分发允许） |
+| NC / ND / Fair use / All rights reserved / 来源不明 | ❌ 不收录 | 白名单写死在 `src/data/scenicRules.js`，不在白名单的图**没有下载动作** |
+
+当前入库的 110 张图按许可分布：CC BY-SA 4.0 ×37、CC BY-SA 3.0 ×33、公有领域 ×11、
+CC BY 2.0 ×7、CC BY-SA 2.0 ×5、CC0 ×4、CC BY 3.0 ×4、CC BY 2.5 ×4、CC BY 4.0 ×3、CC BY-SA 2.5 ×2。
+
+**署名的履行位置**：
+
+1. 逐张署名写在各省清单 `public/data/scenic/<adcode>.json` 的 `images[].author` /
+   `images[].license` / `images[].sourceUrl` 字段（`sourceUrl` 指向 Commons 的文件页）；
+2. 站内每个景区详情页（`/scenic/:adcode/:id`）底部的「图片来源与许可」区块逐张列出
+   作者、许可与原始页面链接——这是 CC BY / BY-SA 署名义务的履行处。
+
+规模与覆盖：34 个省级行政区各 3–4 个景区，共 125 个，其中 114 个有图（91.2%）。
+图廊每景区最多 5 张；大图 960px、缩略图 320px，取 Commons 预生成的缩放版本，
+再用 ImageMagick 压一遍（大图 q68、缩略图 q70）。同一张 Commons 文件按文件名 md5 只落盘一份。
+
+---
+
+## 六、统计数字（`public/data/provinces/`）
 
 | 字段 | 来源 | 说明 |
 |---|---|---|
@@ -73,7 +102,7 @@
 
 ---
 
-## 六、标准地图与审图号（`public/data/standard-maps.json`）
+## 七、标准地图与审图号（`public/data/standard-maps.json`）
 
 | 内容 | 来源 | 说明 |
 |---|---|---|

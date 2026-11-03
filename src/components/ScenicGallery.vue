@@ -32,8 +32,10 @@
     </button>
 
     <div class="scenic-gallery__thumbs" role="group" aria-label="图片列表">
+      <!-- 只遍历过滤后的列表：清单里可能有还没落盘的候选（file 为空），
+           遍历原始 prop 会渲染出空 src 的破图 -->
       <button
-        v-for="(image, i) in images"
+        v-for="(image, i) in visibleImages"
         :key="image.file"
         type="button"
         class="scenic-gallery__thumb"
@@ -75,7 +77,7 @@
         </Transition>
 
         <button
-          v-if="images.length > 1"
+          v-if="visibleImages.length > 1"
           type="button"
           class="scenic-lightbox__nav scenic-lightbox__nav--prev"
           aria-label="上一张"
@@ -93,7 +95,7 @@
           </svg>
         </button>
         <button
-          v-if="images.length > 1"
+          v-if="visibleImages.length > 1"
           type="button"
           class="scenic-lightbox__nav scenic-lightbox__nav--next"
           aria-label="下一张"
@@ -131,7 +133,7 @@
 
         <div class="scenic-lightbox__bar">
           <span class="scenic-lightbox__title">{{ name }}</span>
-          <span class="scenic-lightbox__counter">{{ index + 1 }} / {{ images.length }}</span>
+          <span class="scenic-lightbox__counter">{{ index + 1 }} / {{ visibleImages.length }}</span>
         </div>
       </div>
     </Teleport>
