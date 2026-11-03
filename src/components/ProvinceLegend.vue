@@ -56,15 +56,18 @@ const props = defineProps({
 
 defineEmits(['hover'])
 
-const collapsed = ref(false)
+// 手机与窄屏上默认收起：390px 宽的屏幕里图例展开会盖住左上遥测面板与球体，
+// 收起态只剩一条「图例 + 计数 + 展开」，想看再展开（展开时是全宽底部抽屉）
+const collapsed = ref(
+  typeof window !== 'undefined' && window.matchMedia('(max-width: 640px)').matches,
+)
 const keyword = ref('')
 
 const groupedItems = computed(() => {
   const kw = keyword.value.trim().toLowerCase()
   const list = kw
     ? props.items.filter(
-        (item) =>
-          item.name.toLowerCase().includes(kw) || String(item.adcode).includes(kw),
+        (item) => item.name.toLowerCase().includes(kw) || String(item.adcode).includes(kw),
       )
     : props.items
   return props.grouped ? groupByRegion(list) : list
@@ -243,5 +246,14 @@ const visibleCount = computed(() =>
 
 .legend__toggle:hover {
   color: var(--accent);
+}
+/* 手机与窄屏：图例占满可用宽度，列表高度收窄成抽屉 */
+@media (max-width: 640px) {
+  .legend {
+    width: auto;
+  }
+  .legend__body {
+    max-height: 38vh;
+  }
 }
 </style>

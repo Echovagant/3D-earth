@@ -8,8 +8,12 @@
         <span class="hud__dot"></span><span>遥测</span><span class="hud__mono">TELEMETRY</span>
       </div>
       <div class="hud__row"><span>中心</span><b class="hud__mono" ref="telemetryCenter">—</b></div>
-      <div class="hud__row"><span>视距</span><b class="hud__mono" ref="telemetryDistance">—</b></div>
-      <div class="hud__row"><span>自转</span><b class="hud__mono" ref="telemetryRotation">—</b></div>
+      <div class="hud__row">
+        <span>视距</span><b class="hud__mono" ref="telemetryDistance">—</b>
+      </div>
+      <div class="hud__row">
+        <span>自转</span><b class="hud__mono" ref="telemetryRotation">—</b>
+      </div>
     </div>
 
     <!-- 顶部面包屑 -->
@@ -839,6 +843,19 @@ onUnmounted(() => {
   to {
     opacity: 1;
     transform: none;
+  }
+}
+/* 手机与窄屏：国家列表改成底部抽屉，与左上遥测面板上下分区；
+底部提示行（含许可链接）留在原位，抽屉从它上方展开 */
+@media (max-width: 640px) {
+  .hud--countries {
+    top: auto;
+    bottom: 92px;
+    left: var(--sp-4);
+    right: var(--sp-4);
+    width: auto;
+    max-height: 48vh;
+    overflow-y: auto;
   }
 }
 </style>

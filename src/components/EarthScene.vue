@@ -29,15 +29,11 @@
       />
 
       <p class="hud__hint">
-        <span>拖拽</span> 旋转
-        <span>滚轮</span> 缩放
-        <span>点击</span> 进入省份
+        <span>拖拽</span> 旋转 <span>滚轮</span> 缩放 <span>点击</span> 进入省份
       </p>
 
       <div class="hud__corner">
-        <button type="button" class="hud__world-link" @click="goWorld">
-          全球视角
-        </button>
+        <button type="button" class="hud__world-link" @click="goWorld">全球视角</button>
 
         <button class="hud__labels-toggle" type="button" @click="labelsVisible = !labelsVisible">
           省名标注<span class="mono">{{ labelsVisible ? 'ON' : 'OFF' }}</span>
@@ -822,7 +818,10 @@ const initRaycaster = () => {
 
     for (const intersect of intersects) {
       if (intersect.object.userData.isProvince) {
-        handleProvinceClick(intersect.object.userData.provinceName, intersect.object.userData.adcode)
+        handleProvinceClick(
+          intersect.object.userData.provinceName,
+          intersect.object.userData.adcode,
+        )
         break
       }
     }
@@ -1110,7 +1109,9 @@ const animate = () => {
   font-size: var(--fs-label);
   letter-spacing: 0.16em;
   cursor: pointer;
-  transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease),
+  transition:
+    color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
     background var(--dur-fast) var(--ease);
 }
 
@@ -1132,7 +1133,9 @@ const animate = () => {
   letter-spacing: 0.12em;
   cursor: pointer;
   backdrop-filter: blur(8px);
-  transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+  transition:
+    color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease);
 }
 
 .hud__labels-toggle:hover {
@@ -1337,6 +1340,36 @@ const animate = () => {
   50% {
     transform: scale(1.14);
     opacity: 0.55;
+  }
+}
+/* 手机与窄屏：悬浮面板改上下分区，不再互相叠压 */
+@media (max-width: 640px) {
+  /*
+触屏没有滚轮与悬停，这行鼠标提示让位给底部控件 */
+  .hud__hint {
+    display: none;
+  } /*
+图例移到底部：与左上遥测面板上下分区，展开时像一张抽屉 */
+  .hud__legend {
+    top: auto;
+    bottom: 96px;
+    left: var(--sp-4);
+    right: var(--sp-4);
+  } /* 底部控件组：允许换行，触控目标加高 */
+  .hud__corner {
+    left: var(--sp-4);
+    right: var(--sp-4);
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    row-gap: var(--sp-2);
+  }
+  .hud__corner-link {
+    padding: 8px 6px;
+  }
+  .hud__world-link,
+  .hud__labels-toggle {
+    padding-top: 8px;
+    padding-bottom: 8px;
   }
 }
 </style>
