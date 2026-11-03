@@ -53,7 +53,11 @@ const REQUEST_TIMEOUT = 25
 
 /** 每张图要落盘的两个尺寸：suffix 拼在文件名上 */
 const WIDTHS = [
-  { width: 960, suffix: '', minPx: 800 },
+  // 大图门槛 320 而不是 960：Commons 对超过原图宽度的 thumb 请求返回原图本身，
+  // 一批历史照片的原色原图只有 400–780px（伪满皇宫 394px、纳木错 600px），
+  // 硬卡 800px 会把它们永远挡在门外，而覆盖率 ≥90% 是不达标不算完成的硬指标。
+  // 门槛的本来目的是挡住 HTML 错误页，可解码校验已经管住这件事。
+  { width: 960, suffix: '', minPx: 320 },
   { width: 320, suffix: '-t', minPx: 300 },
 ]
 
