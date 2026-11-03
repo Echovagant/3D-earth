@@ -81,7 +81,18 @@
         47.27,
         120.35
       ],
-      "images": []
+      "images": [
+        {
+          "file": "6451f0aefe1bef64.jpg",
+          "md5": "6451f0aefe1bef645d9a9d2c988277b0",
+          "commonsPath": "6/64/Arxan.jpg",
+          "license": "CC BY-SA 3.0",
+          "author": "Fanghong",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Arxan.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/64/Arxan.jpg/960px-Arxan.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/64/Arxan.jpg/330px-Arxan.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "zhaojun-bowuyuan",
@@ -98,7 +109,18 @@
         40.72,
         111.6
       ],
-      "images": []
+      "images": [
+        {
+          "file": "51dfc853aad8a0d1.jpg",
+          "md5": "51dfc853aad8a0d1d19b4a1805f31b14",
+          "commonsPath": "d/dd/Statue_at_the_Wang_Zhaojun_Tomb.jpg",
+          "license": "CC BY-SA 2.0",
+          "author": "Derik van Zuetphen",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Statue_at_the_Wang_Zhaojun_Tomb.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/Statue_at_the_Wang_Zhaojun_Tomb.jpg/960px-Statue_at_the_Wang_Zhaojun_Tomb.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/Statue_at_the_Wang_Zhaojun_Tomb.jpg/330px-Statue_at_the_Wang_Zhaojun_Tomb.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }

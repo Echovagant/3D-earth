@@ -73,7 +73,18 @@
         40.1,
         94.68
       ],
-      "images": []
+      "images": [
+        {
+          "file": "8196ea774bf2f139.jpg",
+          "md5": "8196ea774bf2f139b3a95918b134bd56",
+          "commonsPath": "d/d9/Crescent_Lake_from_the_Singing_Sand_Dunes_(20230918101214).jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "N509FZ",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Crescent_Lake_from_the_Singing_Sand_Dunes_(20230918101214).jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/Crescent_Lake_from_the_Singing_Sand_Dunes_%2820230918101214%29.jpg/960px-Crescent_Lake_from_the_Singing_Sand_Dunes_%2820230918101214%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/Crescent_Lake_from_the_Singing_Sand_Dunes_%2820230918101214%29.jpg/330px-Crescent_Lake_from_the_Singing_Sand_Dunes_%2820230918101214%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     },
     {
       "id": "maijishan-shiku",
@@ -89,7 +100,18 @@
         34.35,
         106
       ],
-      "images": []
+      "images": [
+        {
+          "file": "f590c347b28d16e0.jpg",
+          "md5": "f590c347b28d16e0d7c9ba4e32fc3ad2",
+          "commonsPath": "7/7d/Maijishan_Grottoes,_Tianshui_20260929.jpg",
+          "license": "CC BY-SA 4.0",
+          "author": "颐园居",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Maijishan_Grottoes,_Tianshui_20260929.jpg",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/Maijishan_Grottoes%2C_Tianshui_20260929.jpg/960px-Maijishan_Grottoes%2C_Tianshui_20260929.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/Maijishan_Grottoes%2C_Tianshui_20260929.jpg/330px-Maijishan_Grottoes%2C_Tianshui_20260929.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }

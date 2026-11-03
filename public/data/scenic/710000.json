@@ -89,7 +89,18 @@
         24.17,
         121.47
       ],
-      "images": []
+      "images": [
+        {
+          "file": "2b413194c51cf45c.jpg",
+          "md5": "2b413194c51cf45cc812a89f8f647310",
+          "commonsPath": "b/b9/Eternal_Spring_Shrine_in_Taroko.JPG",
+          "license": "CC BY-SA 3.0",
+          "author": "Tommy.In",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Eternal_Spring_Shrine_in_Taroko.JPG",
+          "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/Eternal_Spring_Shrine_in_Taroko.JPG/960px-Eternal_Spring_Shrine_in_Taroko.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/Eternal_Spring_Shrine_in_Taroko.JPG/330px-Eternal_Spring_Shrine_in_Taroko.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        }
+      ]
     }
   ]
 }
