@@ -76,7 +76,7 @@
     },
     {
       "id": "tailuge",
-      "name": "太鲁阁",
+      "name": "太鲁阁国家公园",
       "level": "",
       "summary": "太鲁阁是花莲和台中之间的一条峡谷，立雾溪切穿中央山脉，形成了崖壁垂直、溪水轰鸣的大峡谷，是台湾最壮观的地形，峡谷落差极大，崖壁上能看到清晰的岩层纹理。峡谷公路（中横公路）穿过崖壁，沿途有几十处隧道和观景台，长春祠、燕子口、九曲洞、天祥是主要节点。徒步是精髓：从长春祠到燕子口有一段步道贴着崖壁开凿，脚下就是湍急的溪水，水流声在谷底回荡，抬头只能看见一线天。太鲁阁国家公园游客中心在花莲方向，提供地图和解说，进去前可以先看展览了解地质背景。夏季注意落石和台风，暴雨后常封闭，出发前查路况。适合自驾或包车，公共交通较少。",
       "highlights": [
@@ -89,18 +89,7 @@
         24.17,
         121.47
       ],
-      "images": [
-        {
-          "file": "bcef39e62b1caab5.jpg",
-          "md5": "bcef39e62b1caab5744ce23afc66b018",
-          "commonsPath": "6/67/Tribe_Batolan_chief-general_Kala_Watan_and_his_fellow.jpg",
-          "license": "Public domain",
-          "author": "Unknown authorUnknown author",
-          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tribe_Batolan_chief-general_Kala_Watan_and_his_fellow.jpg",
-          "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/6/67/Tribe_Batolan_chief-general_Kala_Watan_and_his_fellow.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-          "thumbUrlSmall": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/67/Tribe_Batolan_chief-general_Kala_Watan_and_his_fellow.jpg/330px-Tribe_Batolan_chief-general_Kala_Watan_and_his_fellow.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-        }
-      ]
+      "images": []
     }
   ]
 }
